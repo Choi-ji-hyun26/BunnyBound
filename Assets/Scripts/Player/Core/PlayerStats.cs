@@ -13,8 +13,9 @@ public class PlayerStats : MonoBehaviour
     public int health = 3; // public : GameManager.cs (토끼 HP 칸 수)
 
     // 검사 HP (0~100%)
-    [HideInInspector] public float swordsmanHP = 100f;
-    [SerializeField] private UnityEngine.UI.Slider swordsmanHPSlider; // 검사 HP UI (슬라이더)
+    [HideInInspector] public float knightHP = 100f;
+    [HideInInspector] public float savedKnightHP = 100f; // 토끼 상태일 때 검사 HP 기억
+    [SerializeField] private UnityEngine.UI.Slider knightHPSlider; // 검사 HP UI (슬라이더)
 
     [SerializeField] private UnityEngine.UI.Image UIHealth;
     [SerializeField] private Sprite hpSprite3;
@@ -76,7 +77,13 @@ public class PlayerStats : MonoBehaviour
         health = 3;
         stagePoint = 0;
         UIHealth.sprite = hpSprite3;
-        SetSwordsmanHP(100f);
+        SetKnightHP(100f);
+        savedKnightHP = 100f;
+
+        // 변신 상태도 토끼로 리셋
+        PlayerTransformHandler transformHandler = FindObjectOfType<PlayerTransformHandler>();
+        if (transformHandler != null)
+            transformHandler.ResetToRabbit();
     }
 
     // ───────────────────────────────────────────
@@ -86,12 +93,12 @@ public class PlayerStats : MonoBehaviour
     /// <summary>
     /// 검사 HP 설정 및 UI 갱신
     /// </summary>
-    public void SetSwordsmanHP(float value)
+    public void SetKnightHP(float value)
     {
-        swordsmanHP = Mathf.Clamp(value, 0f, 100f);
-        RefreshSwordsmanHPUI();
+        knightHP = Mathf.Clamp(value, 0f, 100f);
+        RefreshKnightHPUI();
 
-        if (swordsmanHP <= 0f)
+        if (knightHP <= 0f)
         {
             gameObject.GetComponentInParent<PlayerDeathHandler>().OnDie();
             GameManager.Instance.ViewBtn();
@@ -100,19 +107,21 @@ public class PlayerStats : MonoBehaviour
 
     /// <summary>
     /// 검사 피격 시 HP 감소 (PlayerDamageHandler에서 호출)
+    /// 11% 감소: 토끼(33.3%) 대비 약 3배 더 버팀
+    /// 100% 기준 약 9번 피격 후 사망 (토끼는 3번)
     /// </summary>
-    public void SwordsmanHealthDown(float amount = 18f)
+    public void KnightHealthDown(float amount = 11f)
     {
-        SetSwordsmanHP(swordsmanHP - amount);
+        SetKnightHP(knightHP - amount);
     }
 
     /// <summary>
     /// 검사 HP UI 갱신
     /// </summary>
-    public void RefreshSwordsmanHPUI()
+    public void RefreshKnightHPUI()
     {
-        if (swordsmanHPSlider != null)
-            swordsmanHPSlider.value = swordsmanHP / 100f;
+        if (knightHPSlider != null)
+            knightHPSlider.value = knightHP / 100f;
     }
 
     /// <summary>

@@ -138104,7 +138104,7 @@ GameObject:
   - component: {fileID: 78986007}
   - component: {fileID: 78986008}
   m_Layer: 5
-  m_Name: SwordsmanHP
+  m_Name: KnightHP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -138126,11 +138126,11 @@ RectTransform:
   - {fileID: 1188943405}
   - {fileID: 22586747}
   m_Father: {fileID: 975104247}
-  m_RootOrder: 11
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 160, y: -200}
+  m_AnchoredPosition: {x: 173, y: -73}
   m_SizeDelta: {x: 240, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &78986008
@@ -227941,7 +227941,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 975104247}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -259249,7 +259249,7 @@ RectTransform:
   m_Children:
   - {fileID: 1221863681}
   m_Father: {fileID: 975104247}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -307663,7 +307663,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 975104247}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -341136,6 +341136,7 @@ RectTransform:
   m_Children:
   - {fileID: 302273774}
   - {fileID: 981976726}
+  - {fileID: 78986007}
   - {fileID: 1494189434}
   - {fileID: 237668717}
   - {fileID: 1869158487}
@@ -341145,7 +341146,6 @@ RectTransform:
   - {fileID: 1712332515}
   - {fileID: 604137597}
   - {fileID: 1462194180}
-  - {fileID: 78986007}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -341230,7 +341230,7 @@ GameObject:
   - component: {fileID: 981976728}
   - component: {fileID: 981976727}
   m_Layer: 5
-  m_Name: HP
+  m_Name: RabbitHP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -407094,6 +407094,7 @@ MonoBehaviour:
   stagePoint: 0
   health: 3
   swordsmanHP: 100
+  savedSwordsmanHP: 100
   swordsmanHPSlider: {fileID: 78986008}
   UIHealth: {fileID: 981976727}
   hpSprite3: {fileID: 21300000, guid: d43faa95ae8bf43a6acb96b79294243c, type: 3}
@@ -407345,15 +407346,18 @@ MonoBehaviour:
   rabbitMoveSpeed: 6
   rabbitFirstJumpForce: 20
   rabbitDoubleJumpForce: 16
-  rabbitColliderSize: {x: 0.8, y: 1}
+  rabbitColliderSize: {x: 0.9, y: 1.8}
   rabbitColliderOffset: {x: 0, y: 0}
   swordsmanMoveSpeed: 3.5
   swordsmanFirstJumpForce: 14
   swordsmanDoubleJumpForce: 11
-  swordsmanColliderSize: {x: 0.9, y: 1.4}
-  swordsmanColliderOffset: {x: 0, y: 0.2}
+  swordsmanColliderSize: {x: 0.9, y: 1.9}
+  swordsmanColliderOffset: {x: 0, y: 0}
   rabbitAnimator: {fileID: 9100000, guid: adf6d899a5b7a4bcab60c7bfc71b75bd, type: 2}
   swordsmanAnimator: {fileID: 9100000, guid: c1c3f4fa269264f5b8a3b28fd9083940, type: 2}
+  rabbitHPUI: {fileID: 981976725}
+  swordsmanHPUI: {fileID: 78986006}
+  CanTransform: 1
 --- !u!1001 &1398169420
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -473485,7 +473489,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 975104247}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -502438,7 +502442,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 975104247}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
@@ -552251,7 +552255,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 975104247}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -558316,7 +558320,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 975104247}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -601281,7 +601285,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 975104247}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -606126,7 +606130,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 263391951904347416, guid: ff52dffcb5a804ae0873f27a1d9e34f1, type: 3}
       propertyPath: m_RootOrder
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 263391951904347416, guid: ff52dffcb5a804ae0873f27a1d9e34f1, type: 3}
       propertyPath: m_AnchorMax.x
