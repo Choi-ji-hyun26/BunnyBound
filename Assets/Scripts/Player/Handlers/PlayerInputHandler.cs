@@ -11,7 +11,8 @@ public class PlayerInputHandler : MonoBehaviour
 
     public bool JumpPressed { get; private set; }
     public bool JumpHeld { get; private set; }
-    public bool InteractPressed { get; private set; } 
+    public bool InteractPressed { get; private set; }
+    public bool TransformPressed { get; private set; } // 변신 키 입력
 
     private PlayerInputActions inputActions;
 
@@ -42,6 +43,7 @@ public class PlayerInputHandler : MonoBehaviour
         inputActions.Player.Jump.canceled += _ => JumpHeld = false;
 
         inputActions.Player.Interact.started += _ => InteractPressed = true;
+        inputActions.Player.Transform.started += _ => TransformPressed = true;
 
     }
 
@@ -53,5 +55,6 @@ public class PlayerInputHandler : MonoBehaviour
         // 단발 입력 리셋
         JumpPressed = false;
         InteractPressed = false;
+        TransformPressed = false;
     }
 }

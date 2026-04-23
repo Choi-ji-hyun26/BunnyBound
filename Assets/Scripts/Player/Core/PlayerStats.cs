@@ -10,7 +10,11 @@ public class PlayerStats : MonoBehaviour
 
     public int stagePoint; // public : StarItem.cs, EndingController.cs, GameManager.cs
 
-    public int health = 3; // public : GameManager.cs
+    public int health = 3; // public : GameManager.cs (토끼 HP 칸 수)
+
+    // 검사 HP (0~100%)
+    [HideInInspector] public float swordsmanHP = 100f;
+    [SerializeField] private UnityEngine.UI.Slider swordsmanHPSlider; // 검사 HP UI (슬라이더)
 
     [SerializeField] private UnityEngine.UI.Image UIHealth;
     [SerializeField] private Sprite hpSprite3;
@@ -72,5 +76,54 @@ public class PlayerStats : MonoBehaviour
         health = 3;
         stagePoint = 0;
         UIHealth.sprite = hpSprite3;
+        SetSwordsmanHP(100f);
+    }
+
+    // ───────────────────────────────────────────
+    // 검사 HP 관련
+    // ───────────────────────────────────────────
+
+    /// <summary>
+    /// 검사 HP 설정 및 UI 갱신
+    /// </summary>
+    public void SetSwordsmanHP(float value)
+    {
+        swordsmanHP = Mathf.Clamp(value, 0f, 100f);
+        RefreshSwordsmanHPUI();
+
+        if (swordsmanHP <= 0f)
+        {
+            gameObject.GetComponentInParent<PlayerDeathHandler>().OnDie();
+            GameManager.Instance.ViewBtn();
+        }
+    }
+
+    /// <summary>
+    /// 검사 피격 시 HP 감소 (PlayerDamageHandler에서 호출)
+    /// </summary>
+    public void SwordsmanHealthDown(float amount = 18f)
+    {
+        SetSwordsmanHP(swordsmanHP - amount);
+    }
+
+    /// <summary>
+    /// 검사 HP UI 갱신
+    /// </summary>
+    public void RefreshSwordsmanHPUI()
+    {
+        if (swordsmanHPSlider != null)
+            swordsmanHPSlider.value = swordsmanHP / 100f;
+    }
+
+    /// <summary>
+    /// 토끼 HP UI 갱신 (변신 복귀 시 호출)
+    /// </summary>
+    public void RefreshRabbitHPUI()
+    {
+        if (UIHealth == null) return;
+        if (health >= 3)      UIHealth.sprite = hpSprite3;
+        else if (health == 2) UIHealth.sprite = hpSprite2;
+        else if (health == 1) UIHealth.sprite = hpSprite1;
+        else                  UIHealth.sprite = hpSprite0;
     }
 }

@@ -45,6 +45,8 @@ public class PlayerStateMachine : MonoBehaviour
     private PlayerInputHandler input;
     public PlayerInputHandler Input => input;
 
+    private PlayerTransformHandler transformHandler;
+
     private void Awake()
     {
         coordinator = GetComponent<PlayerCoordinator>();
@@ -60,6 +62,10 @@ public class PlayerStateMachine : MonoBehaviour
             Debug.LogError("PlayerInputHandler required!");
         }
 
+        transformHandler = GetComponent<PlayerTransformHandler>();
+        if (transformHandler == null)
+            Debug.LogError("PlayerTransformHandler required!");
+
         // 모든 상태 인스턴스 초기화 (자신(stateMachine)을 인자로 넘김)
         IdleState = new IdleState(this);
         WalkState = new WalkState(this);
@@ -74,6 +80,10 @@ public class PlayerStateMachine : MonoBehaviour
     }
     private void Update()
     {
+        // 변신 입력 처리
+        if (input.TransformPressed && CanMove)
+            transformHandler.TransformCharacter();
+
         CurrentState?.UpdateState();
     }
     private void FixedUpdate()
