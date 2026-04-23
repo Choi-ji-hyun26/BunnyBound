@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Platform
+  - Enemy
+  - Item
+  - Ladders
+  - EnemyAtk
+  - inLadder
+  - LadderTop
+  - Chest
+  - ChestItem
+  - OneWayPlatform
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - Ladders
+  - Finsith
+  - Platform
+  - Enemy
+  - Player
+  - PlayerDamaged
+  - InvinciblePlayer
+  - Chest
+  - Spikes
+  - OneWayPlatform
+  - ChestItem
+  - TempIgnoreItem
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Ladder
+    uniqueID: 3764063731
+    locked: 0
