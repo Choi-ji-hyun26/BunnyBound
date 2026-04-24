@@ -6,9 +6,13 @@ public class EnemyBase : MonoBehaviour
 {
     protected EnemyStateMachine stateMachine;
 
-    // 체력 
+    // 체력
     [SerializeField] protected int maxHp = 1;
     protected int currentHp;
+
+    // 디버그 UI용 프로퍼티
+    public int CurrentHp => currentHp;
+    public int MaxHp => maxHp;
 
     [SerializeField] private bool defaultFacingLeft = true;
 

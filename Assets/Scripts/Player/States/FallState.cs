@@ -9,6 +9,7 @@ public class FallState : PlayerState
     public override void EnterState()
     {
         stateMachine.Coordinator.Animator.SetBool("isJumping", true);
+        stateMachine.Coordinator.Animator.SetBool("isGrounded", false);
     }
 
     public override void UpdateState()
@@ -35,6 +36,7 @@ public class FallState : PlayerState
         if (stateMachine.IsGroundedCached)
         {
             stateMachine.currentJumpCount = 0;
+            stateMachine.Coordinator.Animator.SetBool("isGrounded", true);
 
             if (Mathf.Abs(h) > 0.1f)
                 stateMachine.ChangeState(stateMachine.WalkState);
@@ -67,5 +69,6 @@ public class FallState : PlayerState
     public override void ExitState()
     {
         stateMachine.Coordinator.Animator.SetBool("isJumping", false);
+        stateMachine.Coordinator.Animator.SetBool("isGrounded", true);
     }
 }
