@@ -71,6 +71,7 @@ public class PlayerTransformHandler : MonoBehaviour
         ApplyAnimator(CharacterType.Rabbit);
         ApplyCollider(CharacterType.Rabbit);
         ApplyHPUI(CharacterType.Rabbit);
+        ApplyPhysicsLayer(CharacterType.Rabbit);
     }
 
     /// PlayerInputHandler에서 호출, 현재 타입의 반대로 변신
@@ -109,7 +110,12 @@ public class PlayerTransformHandler : MonoBehaviour
         // 6. HP UI 전환
         ApplyHPUI(next);
 
-        // 7. 변신 후 Idle로 리셋 (애니메이션 꼬임 방지)
+        // 7. 레이어 충돌 설정
+        // 검사: Player ↔ Enemy 물리 충돌 OFF (HitBox Trigger로만 처리)
+        // 토끼: Player ↔ Enemy 물리 충돌 ON  (점프 공격 OnCollisionEnter2D 사용)
+        ApplyPhysicsLayer(next);
+
+        // 8. 변신 후 Idle로 리셋 (애니메이션 꼬임 방지)
         stateMachine.ChangeState(stateMachine.IdleState);
 
         Debug.Log($"[Transform] {next}로 변신 완료");
@@ -202,10 +208,28 @@ public class PlayerTransformHandler : MonoBehaviour
     }
 
     // ───────────────────────────────────────────
-    // HP UI 전환
-    // 토끼: 칸 이미지 ON / 슬라이더 OFF
-    // 검사: 칸 이미지 OFF / 슬라이더 ON
+    // 레이어 충돌 설정
+    // 검사: Player ↔ Enemy 물리 충돌 OFF
+    // 토끼: Player ↔ Enemy 물리 충돌 ON
     // ───────────────────────────────────────────
+    private void ApplyPhysicsLayer(CharacterType type)
+    {
+        int playerLayer = LayerMask.NameToLayer("Player");
+        int enemyLayer  = LayerMask.NameToLayer("Enemy");
+
+        if (playerLayer < 0 || enemyLayer < 0)
+        {
+            Debug.LogWarning("[Transform] Player 또는 Enemy 레이어가 존재하지 않습니다. 레이어 이름을 확인해주세요.");
+            return;
+        }
+
+        bool ignore = (type == CharacterType.Knight);
+        Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, ignore);
+
+        Debug.Log($"[Transform] Player \u2194 Enemy \ucda9\ub3cc {(ignore ? "OFF" : "ON")}");
+    }
+
+    // HP UI 
     private void ApplyHPUI(CharacterType type)
     {
         bool isRabbit = (type == CharacterType.Rabbit);

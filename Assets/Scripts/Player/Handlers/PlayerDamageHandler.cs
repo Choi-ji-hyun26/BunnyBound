@@ -23,8 +23,8 @@ public class PlayerDamageHandler : MonoBehaviour
     public void OnDamaged(Vector2 targetPos)
     {
         // 현재 캐릭터 타입에 따라 HP 감소
-        if (transformHandler.currentType == CharacterType.Swordsman)
-            PlayerStats.instance.SwordsmanHealthDown();
+        if (transformHandler.currentType == CharacterType.Knight)
+            PlayerStats.instance.KnightHealthDown();
         else
             PlayerStats.instance.HealthDown();
 
