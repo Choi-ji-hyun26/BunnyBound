@@ -107,3 +107,16 @@ InitTestScene*.unity*
 .fseventsd
 ehthumbs.db
 Thumbs.db
+
+# VSCode
+.vscode/
+
+# Rider
+.idea/
+
+# Unity auto-generated solution files (이미 gitignore에 있으나 명시적으로 추가)
+*.sln
+*.slnx
+
+# Crash reports
+mono_crash.*
