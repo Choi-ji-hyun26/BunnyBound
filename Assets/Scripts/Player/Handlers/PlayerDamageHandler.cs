@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerDamageHandler : MonoBehaviour
 {
     private PlayerCoordinator coordinator;
+    private PlayerTransformHandler transformHandler;
 
     private void Awake()
     {
@@ -13,11 +14,19 @@ public class PlayerDamageHandler : MonoBehaviour
         {
             Debug.LogError("PlayerDamageHandler requires PlayerCoordinator component");
         }
+        transformHandler = GetComponent<PlayerTransformHandler>();
+        if(transformHandler == null)
+        {
+            Debug.LogError("PlayerDamageHandler requires PlayerTransformHandler component");
+        }
     }
-    public void OnDamaged(Vector2 targetPos) // public : PlayerAttackHandler 호출
+    public void OnDamaged(Vector2 targetPos)
     {
-        // Health Down
-        PlayerStats.instance.HealthDown();
+        // 현재 캐릭터 타입에 따라 HP 감소
+        if (transformHandler.currentType == CharacterType.Knight)
+            PlayerStats.instance.KnightHealthDown();
+        else
+            PlayerStats.instance.HealthDown();
 
         //Change Layer (Immortal Active)
         gameObject.layer = LayerMask.NameToLayer("PlayerDamaged"); 
