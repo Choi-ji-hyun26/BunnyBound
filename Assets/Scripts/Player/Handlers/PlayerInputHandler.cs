@@ -14,6 +14,12 @@ public class PlayerInputHandler : MonoBehaviour
     public bool InteractPressed { get; private set; }
     public bool TransformPressed { get; private set; } // 변신 키 입력
 
+    // 검사 공격 입력
+    public bool Attack1Pressed { get; private set; } // Q
+    public bool Attack2Pressed { get; private set; } // W
+    public bool Attack3Pressed { get; private set; } // E
+    public bool Attack4Pressed { get; private set; } // R
+
     private PlayerInputActions inputActions;
 
     private void Awake()
@@ -45,6 +51,11 @@ public class PlayerInputHandler : MonoBehaviour
         inputActions.Player.Interact.started += _ => InteractPressed = true;
         inputActions.Player.Transform.started += _ => TransformPressed = true;
 
+        inputActions.Player.Attack1.started += _ => Attack1Pressed = true;
+        inputActions.Player.Attack2.started += _ => Attack2Pressed = true;
+        inputActions.Player.Attack3.started += _ => Attack3Pressed = true;
+        inputActions.Player.Attack4.started += _ => Attack4Pressed = true;
+
     }
 
     private void OnEnable() => inputActions.Enable();
@@ -56,5 +67,9 @@ public class PlayerInputHandler : MonoBehaviour
         JumpPressed = false;
         InteractPressed = false;
         TransformPressed = false;
+        Attack1Pressed = false;
+        Attack2Pressed = false;
+        Attack3Pressed = false;
+        Attack4Pressed = false;
     }
 }

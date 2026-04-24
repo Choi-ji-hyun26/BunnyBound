@@ -5,16 +5,24 @@ using UnityEngine;
 public class PlayerAttackHandler : MonoBehaviour
 {
     private PlayerCoordinator coordinator;
+    private PlayerTransformHandler transformHandler;
+
     private void Awake()
     {
         coordinator = GetComponent<PlayerCoordinator>();
         if(coordinator == null)
-        {
             Debug.LogError("PlayerAttackHandler requires PlayerCoordinator component");
-        }
+
+        transformHandler = GetComponent<PlayerTransformHandler>();
     }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        // 검사 상태에서는 토끼 점프 공격 비활성화
+        // 검사는 SwordHitBox에서 데미지 처리
+        if (transformHandler != null && transformHandler.currentType == CharacterType.Knight)
+            return;
+
         if (collision.gameObject.tag == "Enemy")
         {
             if (coordinator.FeverHandler.isUnBeatTime)
@@ -22,7 +30,7 @@ public class PlayerAttackHandler : MonoBehaviour
                 OnAttack(collision.transform);
             }
             else if (coordinator.Rigid.velocity.y < -0.01f && transform.position.y > collision.transform.position.y)
-            { // 점프 공격 또는 무적상태일때
+            {
                 OnAttack(collision.transform);
             }
             else
@@ -46,7 +54,7 @@ public class PlayerAttackHandler : MonoBehaviour
         if (enemyBase == null)
             return;
         //enemyBase.OnDamaged();
-        enemyBase.TakeDamage(1);
+        enemyBase.TakeDamage(5); // 토끼 점프 공격 데미지 (검사 Q:10 대비 절반)
 
         //Sound
         SoundManager.Instance.PlaySound("ATTACK");
