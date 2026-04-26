@@ -35,9 +35,9 @@ TagManager:
   - ChestItem
   - TempIgnoreItem
   - PlayerHitBox
-  - 
-  - 
-  - 
+  - PlayerHurtBox
+  - EnemyHitBox
+  - EnemyHurtBox
   - 
   - 
   - 

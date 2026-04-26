@@ -16,10 +16,8 @@ public class PlayerFeverHandler : MonoBehaviour
         }
     }
 
-    public void HandleChest() // public : ChestItems 호출
+    public void HandleChest()
     {
-        gameObject.layer = LayerMask.NameToLayer("InvinciblePlayer");
-
         isUnBeatTime = true;
         StartCoroutine(UnBeatTime());
         GetComponent<FeverUIController>()?.ActivateFeverMode();
@@ -42,7 +40,7 @@ public class PlayerFeverHandler : MonoBehaviour
             countTime++;
         }
 
-        gameObject.layer = LayerMask.NameToLayer("Player");
+        gameObject.layer = LayerMask.NameToLayer("Player"); // 레이어는 Player로 고정
         coordinator.SpriteRenderer.color = new Color32(255, 255, 255, 255);
         isUnBeatTime = false;
 
