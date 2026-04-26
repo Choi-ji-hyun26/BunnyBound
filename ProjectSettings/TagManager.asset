@@ -30,7 +30,7 @@ TagManager:
   - PlayerDamaged
   - InvinciblePlayer
   - Chest
-  - Spikes
+  - Spike
   - OneWayPlatform
   - ChestItem
   - TempIgnoreItem

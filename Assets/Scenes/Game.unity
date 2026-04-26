@@ -138180,7 +138180,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -138769,7 +138769,7 @@ GameObject:
   m_Component:
   - component: {fileID: 96701795}
   m_Layer: 0
-  m_Name: HitBox
+  m_Name: SwordHitBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -229090,9 +229090,9 @@ GameObject:
   - component: {fileID: 269829972}
   - component: {fileID: 269829971}
   - component: {fileID: 269829970}
-  m_Layer: 9
+  m_Layer: 14
   m_Name: Spikes
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -267752,9 +267752,9 @@ GameObject:
   - component: {fileID: 321693849}
   - component: {fileID: 321693848}
   - component: {fileID: 321693847}
-  m_Layer: 9
+  m_Layer: 14
   m_Name: Spikes
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -268797,7 +268797,7 @@ GameObject:
   - component: {fileID: 371793241}
   m_Layer: 14
   m_Name: Spikes
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -270270,9 +270270,9 @@ GameObject:
   - component: {fileID: 395654821}
   - component: {fileID: 395654820}
   - component: {fileID: 395654819}
-  m_Layer: 9
+  m_Layer: 14
   m_Name: Spikes
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -282522,9 +282522,9 @@ GameObject:
   - component: {fileID: 461644256}
   - component: {fileID: 461644255}
   - component: {fileID: 461644254}
-  m_Layer: 9
+  m_Layer: 14
   m_Name: Spikes
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -313804,6 +313804,78 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1 &711838981
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 711838982}
+  - component: {fileID: 711838983}
+  - component: {fileID: 711838984}
+  m_Layer: 18
+  m_Name: FeverHitBox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &711838982
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 711838981}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1396984541}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &711838983
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 711838981}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: -0.15}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.9, y: 1.7}
+  m_EdgeRadius: 0
+--- !u!114 &711838984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 711838981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa90b15c842414638a127d023baee08b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 100
 --- !u!1 &715428999
 GameObject:
   m_ObjectHideFlags: 0
@@ -314354,9 +314426,9 @@ GameObject:
   - component: {fileID: 726646738}
   - component: {fileID: 726646737}
   - component: {fileID: 726646736}
-  m_Layer: 9
+  m_Layer: 14
   m_Name: Spikes
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -317108,9 +317180,9 @@ GameObject:
   - component: {fileID: 783490070}
   - component: {fileID: 783490069}
   - component: {fileID: 783490068}
-  m_Layer: 9
+  m_Layer: 14
   m_Name: Spikes
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -408076,6 +408148,7 @@ Transform:
   - {fileID: 1169064689}
   - {fileID: 96701795}
   - {fileID: 1963942458}
+  - {fileID: 711838982}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -408283,6 +408356,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isUnBeatTime: 0
+  feverHitBox: {fileID: 711838984}
 --- !u!114 &1396984553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -408307,6 +408381,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c718342f0e97449c6a73729db7b19d62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDamageInvincible: 0
 --- !u!114 &1396984555
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -553862,9 +553937,9 @@ GameObject:
   - component: {fileID: 1719647875}
   - component: {fileID: 1719647874}
   - component: {fileID: 1719647873}
-  m_Layer: 9
+  m_Layer: 14
   m_Name: Spikes
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -560277,9 +560352,9 @@ GameObject:
   - component: {fileID: 1891135793}
   - component: {fileID: 1891135792}
   - component: {fileID: 1891135791}
-  m_Layer: 9
+  m_Layer: 14
   m_Name: Spikes
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -569203,9 +569278,9 @@ GameObject:
   - component: {fileID: 1941155529}
   - component: {fileID: 1941155528}
   - component: {fileID: 1941155527}
-  m_Layer: 9
+  m_Layer: 20
   m_Name: Spikes
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
