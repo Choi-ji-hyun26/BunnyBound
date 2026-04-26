@@ -13,6 +13,10 @@ public class PlayerDamageHandler : MonoBehaviour
     private PlayerTransformHandler transformHandler;
     private PlayerFeverHandler feverHandler;
 
+    // Spike 레이어 충돌 토글용
+    private int playerLayer;
+    private int spikeLayer;
+
     private void Awake()
     {
         coordinator = GetComponent<PlayerCoordinator>();
@@ -26,6 +30,9 @@ public class PlayerDamageHandler : MonoBehaviour
         feverHandler = GetComponent<PlayerFeverHandler>();
         if (feverHandler == null)
             Debug.LogError("PlayerDamageHandler requires PlayerFeverHandler component");
+
+        playerLayer = LayerMask.NameToLayer("Player");
+        spikeLayer = LayerMask.NameToLayer("Spike");
     }
 
     public void OnDamaged(Vector2 targetPos)
@@ -43,6 +50,9 @@ public class PlayerDamageHandler : MonoBehaviour
         isDamageInvincible = true;
         coordinator.SpriteRenderer.color = new Color(1, 1, 1, 0.4f);
 
+        // 스파이크 물리 충돌 OFF → 피격 후 통과 가능
+        Physics2D.IgnoreLayerCollision(playerLayer, spikeLayer, true);
+
         // 넉백
         int dirc = transform.position.x - targetPos.x > 0 ? 1 : -1;
         coordinator.Rigid.AddForce(new Vector2(dirc, 1) * 10, ForceMode2D.Impulse);
@@ -58,8 +68,12 @@ public class PlayerDamageHandler : MonoBehaviour
 
     private void OffDamaged()
     {
-        // 피버 무적 중이면 피격 무적만 해제 (스프라이트는 피버가 관리)
+        // 피격 무적 해제
         isDamageInvincible = false;
+
+        // 스파이크 물리 충돌 복원
+        if (!feverHandler.isUnBeatTime)
+            Physics2D.IgnoreLayerCollision(playerLayer, spikeLayer, false);
 
         if (!feverHandler.isUnBeatTime)
             coordinator.SpriteRenderer.color = new Color(1, 1, 1, 1);

@@ -7,10 +7,10 @@ using UnityEngine;
 /// - 파괴 가능 오브젝트(Breakable) 감지 시 OnBreak() 호출
 /// - Layer: PlayerHitBox / IsTrigger: ON
 /// </summary>
-public class SwordHitBox : MonoBehaviour
+public class SwordHitBox : MonoBehaviour, IAttackHitBox
 {
     private int damage = 10;
-    public int Damage => damage; // EnemyHurtBox에서 참조
+    public int Damage => damage; // IAttackHitBox 구현
 
     public void SetDamage(int amount)
     {

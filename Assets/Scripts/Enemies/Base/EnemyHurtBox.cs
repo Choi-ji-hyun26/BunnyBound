@@ -21,8 +21,9 @@ public class EnemyHurtBox : MonoBehaviour
     {
         if (other.gameObject.layer != LayerMask.NameToLayer("PlayerHitBox")) return;
 
-        SwordHitBox swordHitBox = other.GetComponent<SwordHitBox>();
-        if (swordHitBox != null && enemy != null)
-            enemy.TakeDamage(swordHitBox.Damage);
+        // IAttackHitBox 인터페이스로 SwordHitBox, FeverHitBox 통일 처리
+        IAttackHitBox attackHitBox = other.GetComponent<IAttackHitBox>();
+        if (attackHitBox != null && enemy != null)
+            enemy.TakeDamage(attackHitBox.Damage);
     }
 }
