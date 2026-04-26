@@ -27,8 +27,8 @@ TagManager:
   - Platform
   - Enemy
   - Player
-  - PlayerDamaged
-  - InvinciblePlayer
+  - 
+  - 
   - Chest
   - Spike
   - OneWayPlatform

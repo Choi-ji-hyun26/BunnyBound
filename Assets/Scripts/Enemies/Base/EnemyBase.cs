@@ -37,6 +37,7 @@ public class EnemyBase : MonoBehaviour
         boxCollider = GetComponent<BoxCollider2D>();
     }
 
+    protected virtual void Start() { }
     protected virtual void Update()
     {
         stateMachine.Update();
