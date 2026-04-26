@@ -150,6 +150,36 @@ public class PlayerSwordAttackHandler : MonoBehaviour
         SwordHitBox swordHitBox = hitBox.GetComponent<SwordHitBox>();
         if (swordHitBox != null)
             swordHitBox.SetDamage(GetDamage(attackIndex));
+
+        // OverlapBox로 Breakable 오브젝트 직접 탐색 및 파괴
+        // Trigger 방식의 Enter/Stay 문제를 우회
+        CheckBreakables(hitBox);
+    }
+
+    // ───────────────────────────────────────────
+    // Breakable 오브젝트 탐색 및 파괴
+    // Physics2D.OverlapBoxAll로 HitBox 범위 내 탐색
+    // ───────────────────────────────────────────
+    private void CheckBreakables(Collider2D hitBox)
+    {
+        // HitBox의 실제 월드 크기와 위치로 OverlapBox 탐색
+        BoxCollider2D box = hitBox as BoxCollider2D;
+        if (box == null) return;
+
+        Vector2 center = (Vector2)hitBox.transform.position + box.offset;
+        Vector2 size = box.size;
+        float angle = hitBox.transform.eulerAngles.z;
+
+        // Breakable 레이어 마스크 없이 태그로 필터링
+        Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, angle);
+
+        foreach (Collider2D hit in hits)
+        {
+            if (!hit.CompareTag("Breakable")) continue;
+
+            IBreakable breakable = hit.GetComponent<IBreakable>();
+            breakable?.OnBreak();
+        }
     }
 
     private void DeactivateHitBox(Collider2D hitBox)
