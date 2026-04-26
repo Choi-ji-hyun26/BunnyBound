@@ -3,6 +3,7 @@ using TMPro;
 
 /// <summary>
 /// 적 HP 디버그용 UI
+/// - TextMeshPro 3D 방식 (World Space)
 /// - 적 머리 위에 현재 HP / 최대 HP 표시
 /// - 테스트 용도, 추후 실제 HP바로 교체 예정
 /// </summary>
@@ -13,7 +14,7 @@ public class EnemyHPDebugUI : MonoBehaviour
 
     private EnemyBase enemy;
 
-    private void Awake()
+    private void Start()
     {
         enemy = GetComponentInParent<EnemyBase>();
 
@@ -23,10 +24,9 @@ public class EnemyHPDebugUI : MonoBehaviour
         if (enemy == null)
             Debug.LogWarning("[EnemyHPDebugUI] EnemyBase를 찾을 수 없습니다.");
 
-        // 로컬 포지션 고정 (자식 오브젝트라 부모 기준 offset)
+        // Start()에서 로컬 포지션 고정
+        // Awake()에서 설정하면 부모 Transform 초기화 전에 실행되어 위치가 틀어질 수 있음
         transform.localPosition = localOffset;
-        // 로컬 스케일 정상화
-        transform.localScale = Vector3.one;
     }
 
     private void LateUpdate()

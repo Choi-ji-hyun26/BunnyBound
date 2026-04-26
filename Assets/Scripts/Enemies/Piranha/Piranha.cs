@@ -12,7 +12,8 @@ public class Piranha : EnemyBase
     [Header("Timing")]
     public float cooldownTime = 1.0f;
 
-    protected CircleCollider2D attackCollider;
+    [Header("Attack Collider")]
+    [SerializeField] protected CircleCollider2D attackCollider;
     protected float defaultColliderX;
 
     private Transform player;
@@ -22,9 +23,13 @@ public class Piranha : EnemyBase
     protected override void Awake() {
         base.Awake();
 
-        attackCollider = GetComponent<CircleCollider2D>();
-        defaultColliderX = Mathf.Abs(attackCollider.offset.x);
-        attackCollider.enabled = false;
+        if (attackCollider == null)
+            Debug.LogError("[Piranha] attackCollider가 Inspector에 연결되지 않았습니다!");
+        else
+        {
+            defaultColliderX = Mathf.Abs(attackCollider.offset.x);
+            attackCollider.enabled = false;
+        }
 
         IdleState = new PiranhaIdleState(this, stateMachine);
         AttackState = new PiranhaAttackState(this, stateMachine);

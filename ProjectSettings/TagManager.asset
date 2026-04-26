@@ -27,17 +27,17 @@ TagManager:
   - Platform
   - Enemy
   - Player
-  - PlayerDamaged
-  - InvinciblePlayer
+  - 
+  - 
   - Chest
-  - Spikes
+  - Spike
   - OneWayPlatform
   - ChestItem
   - TempIgnoreItem
   - PlayerHitBox
-  - 
-  - 
-  - 
+  - PlayerHurtBox
+  - EnemyHitBox
+  - EnemyHurtBox
   - 
   - 
   - 

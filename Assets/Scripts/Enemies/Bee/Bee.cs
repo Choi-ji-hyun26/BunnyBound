@@ -30,13 +30,21 @@ public class Bee : EnemyBase
     protected override void Awake()
     {
         base.Awake();
-        spawnPosition = transform.position;
+        // spawnPosition은 Start()로 이동
+        // Awake()에서 저장하면 자식 오브젝트 초기화 타이밍과 충돌 가능
 
         PatrolState = new BeePatrolState(this, stateMachine);
         DashState = new BeeDashState(this, stateMachine);
         ReturnState = new BeeReturnState(this, stateMachine);
 
         stateMachine.Initialize(new BeePatrolState(this, stateMachine));
+    }
+
+    protected override void Start()
+    {
+        base.Start();
+        // 모든 자식 오브젝트 초기화 완료 후 위치 저장
+        spawnPosition = transform.position;
     }
 
     protected override void Update()
