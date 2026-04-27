@@ -4,7 +4,7 @@ using UnityEngine;
 /// 검사 공격 HitBox
 /// - PlayerSwordAttackHandler가 활성화/비활성화 제어
 /// - EnemyHurtBox 레이어 감지 시 데미지 전달
-/// - 파괴 가능 오브젝트(Breakable) 감지 시 OnBreak() 호출
+/// - Breakable 처리는 PlayerSwordAttackHandler에서 OverlapBox로 직접 처리
 /// - Layer: PlayerHitBox / IsTrigger: ON
 /// </summary>
 public class SwordHitBox : MonoBehaviour, IAttackHitBox
@@ -17,15 +17,6 @@ public class SwordHitBox : MonoBehaviour, IAttackHitBox
         damage = amount;
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        // 적 HurtBox 감지 → EnemyHurtBox에서 TakeDamage 처리
-
-        // 파괴 가능 오브젝트 처리 (퍼즐용)
-        if (other.CompareTag("Breakable"))
-        {
-            IBreakable breakable = other.GetComponent<IBreakable>();
-            breakable?.OnBreak();
-        }
-    }
+    // 적 피격은 EnemyHurtBox.OnTriggerEnter2D에서 처리
+    // Breakable은 PlayerSwordAttackHandler.ExecuteAttack()에서 OverlapBox로 처리
 }
