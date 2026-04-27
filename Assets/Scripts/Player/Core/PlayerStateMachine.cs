@@ -26,12 +26,10 @@ public class PlayerStateMachine : MonoBehaviour
     [Header("Ladder")]
     [SerializeField] private float climbSpeed = 4f;
 
-    private Ladder currentLadder;
-    private Collider2D ignoredTopPlatform;
-
-    public Ladder CurrentLadder => currentLadder;
-    public bool HasLadder() => currentLadder != null;
+    // 사다리 상태 (LadderZone에서 제어)
+    public bool IsOnLadder { get; private set; } = false;
     public float ClimbSpeed => climbSpeed;
+    public bool HasLadder() => IsOnLadder;
     
     // State
     public PlayerState CurrentState { get; private set; }
@@ -124,62 +122,20 @@ public class PlayerStateMachine : MonoBehaviour
         return false;
     }
 
-    public void SetCurrentLadder(Ladder ladder)
+    /// <summary>
+    /// LadderZone에서 호출 — 사다리 진입/퇈장 시
+    /// </summary>
+    public void SetOnLadder(bool value)
     {
-        currentLadder = ladder;
-    }
+        IsOnLadder = value;
 
-    public void ClearCurrentLadder(Ladder ladder)
-    {
-        if (currentLadder == ladder)
-            currentLadder = null;
-    }
-
-    public void SnapToLadderCenter()
-    {
-        if (currentLadder == null)
-            return;
-
-        Vector2 pos = coordinator.Rigid.position;
-        pos.x = currentLadder.CenterX;
-        coordinator.Rigid.position = pos;
-    }
-
-    public void IgnoreLadderTopPlatform()
-    {
-        if (currentLadder == null || currentLadder.TopExitPlatform == null)
-            return;
-
-        if (ignoredTopPlatform != null)
-            return;
-
-        ignoredTopPlatform = currentLadder.TopExitPlatform;
-        Physics2D.IgnoreCollision(coordinator.BoxCollider, ignoredTopPlatform, true);
-    }
-
-    public void RestoreLadderTopPlatform()
-    {
-        if (ignoredTopPlatform == null)
-            return;
-
-        Physics2D.IgnoreCollision(coordinator.BoxCollider, ignoredTopPlatform, false);
-        ignoredTopPlatform = null;
-    }
-
-    public void MoveToLadderTopMount()
-    {
-        if (currentLadder == null || currentLadder.TopMountPoint == null)
-            return;
-
-        coordinator.Rigid.position = currentLadder.TopMountPoint.position;
-    }
-
-    public void MoveToLadderBottomMount()
-    {
-        if (currentLadder == null || currentLadder.BottomMountPoint == null)
-            return;
-
-        coordinator.Rigid.position = currentLadder.BottomMountPoint.position;
+        if (!value && CurrentState is ClimbState)
+        {
+            if (IsGroundedCached)
+                ChangeState(IdleState);
+            else
+                ChangeState(FallState);
+        }
     }
     
     public void VelocityZero()
@@ -188,5 +144,30 @@ public class PlayerStateMachine : MonoBehaviour
         {
             coordinator.Rigid.velocity = Vector2.zero;
         }
+    }
+
+    /// <summary>
+    /// 사다리 진입 시 OneWayPlatform을 잠시 통과 허용
+    /// PlatformEffector2D.colliderMask에서 Player 레이어를 잠시 제거
+    /// </summary>
+    public void StartLadderDrop()
+    {
+        StartCoroutine(LadderDropRoutine());
+    }
+
+    private System.Collections.IEnumerator LadderDropRoutine()
+    {
+        int playerLayerBit = 1 << LayerMask.NameToLayer("Player");
+        PlatformEffector2D[] effectors = FindObjectsOfType<PlatformEffector2D>();
+
+        // OneWayPlatform 통과 허용
+        foreach (var effector in effectors)
+            effector.colliderMask &= ~playerLayerBit;
+
+        yield return new WaitForSeconds(0.4f);
+
+        // 복원
+        foreach (var effector in effectors)
+            effector.colliderMask |= playerLayerBit;
     }
 }

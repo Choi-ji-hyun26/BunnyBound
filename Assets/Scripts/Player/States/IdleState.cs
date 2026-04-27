@@ -34,9 +34,11 @@ public class IdleState : PlayerState
             return;
         }
 
+        // 바닥에서 아래 입력 시 사다리 진입
         if (stateMachine.HasLadder() && climbY < -0.1f && stateMachine.IsGroundedCached)
         {
-            stateMachine.IgnoreLadderTopPlatform();
+            // OneWayPlatform을 잠시 통과 허용
+            stateMachine.StartLadderDrop();
             stateMachine.ChangeState(stateMachine.ClimbState);
             return;
         }
