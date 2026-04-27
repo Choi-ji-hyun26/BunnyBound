@@ -33,6 +33,13 @@ public class FallState : PlayerState
             return;
         }
 
+        // 낙하 중 아래 방향키 → 사다리 진입
+        if (stateMachine.HasLadder() && climbY < -0.1f)
+        {
+            stateMachine.ChangeState(stateMachine.ClimbState);
+            return;
+        }
+
         if (stateMachine.IsGroundedCached)
         {
             stateMachine.currentJumpCount = 0;
@@ -45,9 +52,6 @@ public class FallState : PlayerState
 
             return;
         }
-
-        if (Mathf.Abs(h) > 0.1f)
-            stateMachine.Coordinator.SpriteRenderer.flipX = h < 0;
     }
 
     public override void FixedUpdateState()

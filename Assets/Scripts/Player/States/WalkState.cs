@@ -33,7 +33,6 @@ public class WalkState : PlayerState
 
         if (stateMachine.HasLadder() && climbY < -0.1f && stateMachine.IsGroundedCached)
         {
-            stateMachine.IgnoreLadderTopPlatform();
             stateMachine.ChangeState(stateMachine.ClimbState);
             return;
         }
