@@ -1,38 +1,65 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// 떨어지는 발판
 /// - 플레이어가 위에서 밟으면 fallDelay 후 낙하
 /// - respawnDelay 후 원래 위치로 복귀
-/// 
-/// [Prefab 구성]
-/// FallingPlatform (Rigidbody2D Static, BoxCollider2D)
-/// ├── SpriteRenderer
-/// └── FallingPlatform.cs
-/// 
-/// [씬 배치]
-/// FallingPlatforms (빈 부모 오브젝트)
-/// ├── FallingPlatform (Prefab 인스턴스)
-/// ├── FallingPlatform (Prefab 인스턴스)
-/// └── ...
+/// - SpriteRenderer Draw Mode: Tiled 사용 시 Width에 맞게 콜라이더 자동 조정
 /// </summary>
 public class FallingPlatform : MonoBehaviour
 {
-    [SerializeField] private float fallDelay = 0.5f;   // 밟고 나서 떨어지는 시간
-    [SerializeField] private float respawnDelay = 3f;  // 다시 생성되는 시간
+    [Header("Settings")]
+    [SerializeField] private float fallDelay = 0.2f;      // 밟고 나서 떨어지는 시간
+    [SerializeField] private float respawnDelay = 3f;     // 복귀 시간
+    [SerializeField] private float colliderHeight = 0.4f; // Wood: 0.4 / Stone: 1.0
 
     private Rigidbody2D rigid;
+    private BoxCollider2D boxCollider;
+    private SpriteRenderer spriteRenderer;
+
     private Vector3 originalPosition;
     private Quaternion originalRotation;
     private bool isFalling = false;
 
-    private void Start()
+    private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
+        boxCollider = GetComponent<BoxCollider2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    private void OnEnable()
+    {
+        // 스테이지 전환 시 오브젝트가 다시 활성화될 때 완전히 리셋
+        // Invoke가 대기 중이었다면 취소
+        CancelInvoke();
+
+        if (rigid != null)
+        {
+            rigid.bodyType = RigidbodyType2D.Static;
+            rigid.velocity = Vector2.zero;
+            rigid.angularVelocity = 0f;
+        }
+
+        if (originalPosition != Vector3.zero)
+            transform.position = originalPosition;
+
+        transform.rotation = originalRotation;
+        isFalling = false;
+    }
+
+    private void Start()
+    {
         originalPosition = transform.position;
         originalRotation = transform.rotation;
+
+        // SpriteRenderer Width에 맞게 콜라이더 크기 자동 조정
+        // Draw Mode: Tiled 사용 시 spriteRenderer.size.x가 실제 너비
+        if (boxCollider != null && spriteRenderer != null)
+        {
+            float width = spriteRenderer.size.x;
+            boxCollider.size = new Vector2(width, colliderHeight);
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
