@@ -28,6 +28,11 @@ public class PlayerTransformHandler : MonoBehaviour
     [SerializeField] private Vector2 knightColliderSize = new Vector2(0.9f, 1.4f);
     [SerializeField] private Vector2 knightColliderOffset = new Vector2(0f, 0.2f);
 
+    [Header("Sprite Scale")]
+    [SerializeField] private Transform spriteObject; // SpriteObject 자식 오브젝트
+    [SerializeField] private Vector3 rabbitSpriteScale = new Vector3(0.7f, 0.7f, 1f);
+    [SerializeField] private Vector3 knightSpriteScale = new Vector3(1f, 1f, 1f);
+
     [Header("Animators")]
     [SerializeField] private RuntimeAnimatorController rabbitAnimator;
     [SerializeField] private RuntimeAnimatorController knightAnimator;
@@ -58,6 +63,7 @@ public class PlayerTransformHandler : MonoBehaviour
         // 시작 시 토끼 스탯 + UI 초기화
         ApplyStats(CharacterType.Rabbit);
         ApplyHPUI(CharacterType.Rabbit);
+        ApplySpriteScale(CharacterType.Rabbit);
     }
 
     /// <summary>
@@ -70,6 +76,7 @@ public class PlayerTransformHandler : MonoBehaviour
         ApplyAnimator(CharacterType.Rabbit);
         ApplyCollider(CharacterType.Rabbit);
         ApplyHPUI(CharacterType.Rabbit);
+        ApplySpriteScale(CharacterType.Rabbit);
     }
 
     /// PlayerInputHandler에서 호출, 현재 타입의 반대로 변신
@@ -108,7 +115,10 @@ public class PlayerTransformHandler : MonoBehaviour
         // 6. HP UI 전환
         ApplyHPUI(next);
 
-        // 7. 변신 후 Idle로 리셋 (애니메이션 꼬임 방지)
+        // 7. 스프라이트 스케일 교체
+        ApplySpriteScale(next);
+
+        // 8. 변신 후 Idle로 리셋 (애니메이션 꼬임 방지)
         stateMachine.ChangeState(stateMachine.IdleState);
 
         Debug.Log($"[Transform] {next}로 변신 완료");
@@ -207,5 +217,23 @@ public class PlayerTransformHandler : MonoBehaviour
 
         if (rabbitHPUI != null)   rabbitHPUI.SetActive(isRabbit);
         if (knightHPUI != null) knightHPUI.SetActive(!isRabbit);
+    }
+
+    // ───────────────────────────────────────────
+    // 스프라이트 스케일 교체
+    // SpriteObject 자식 오브젝트의 Scale을 변경
+    // 루트 오브젝트 Scale은 그대로 유지
+    // ───────────────────────────────────────────
+    private void ApplySpriteScale(CharacterType type)
+    {
+        if (spriteObject == null)
+        {
+            Debug.LogWarning("[Transform] spriteObject가 Inspector에 연결되지 않았습니다.");
+            return;
+        }
+
+        spriteObject.localScale = (type == CharacterType.Rabbit)
+            ? rabbitSpriteScale
+            : knightSpriteScale;
     }
 }
