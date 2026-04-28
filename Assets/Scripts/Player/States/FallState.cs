@@ -39,19 +39,6 @@ public class FallState : PlayerState
             stateMachine.ChangeState(stateMachine.ClimbState);
             return;
         }
-
-        if (stateMachine.IsGroundedCached)
-        {
-            stateMachine.currentJumpCount = 0;
-            stateMachine.Coordinator.Animator.SetBool("isGrounded", true);
-
-            if (Mathf.Abs(h) > 0.1f)
-                stateMachine.ChangeState(stateMachine.WalkState);
-            else
-                stateMachine.ChangeState(stateMachine.IdleState);
-
-            return;
-        }
     }
 
     public override void FixedUpdateState()
@@ -68,6 +55,20 @@ public class FallState : PlayerState
         );
 
         rigid.velocity = new Vector2(newXVelocity, rigid.velocity.y);
+
+        // 착지 체크를 FixedUpdate로 이동
+        // Update와 FixedUpdate 타이밍 차이로 인한 JumpState 애니메이션 유지 방지
+        if (stateMachine.IsGroundedCached)
+        {
+            stateMachine.currentJumpCount = 0;
+            stateMachine.Coordinator.Animator.SetBool("isGrounded", true);
+
+            float hInput = stateMachine.Input.MoveInput.x;
+            if (Mathf.Abs(hInput) > 0.1f)
+                stateMachine.ChangeState(stateMachine.WalkState);
+            else
+                stateMachine.ChangeState(stateMachine.IdleState);
+        }
     }
 
     public override void ExitState()
