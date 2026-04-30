@@ -12,13 +12,19 @@ public class PlayerInputHandler : MonoBehaviour
     public bool JumpPressed { get; private set; }
     public bool JumpHeld { get; private set; }
     public bool InteractPressed { get; private set; }
-    public bool TransformPressed { get; private set; } // 변신 키 입력
+    public bool TransformPressed { get; private set; }
 
     // 검사 공격 입력
     public bool Attack1Pressed { get; private set; } // Q
     public bool Attack2Pressed { get; private set; } // W
     public bool Attack3Pressed { get; private set; } // E
     public bool Attack4Pressed { get; private set; } // R
+
+    // 쉴드 입력
+    // ShieldPressed : 단발 입력 (페링 방식 — LateUpdate에서 리셋)
+    // ShieldHeld    : 홀드 입력 (다른 곳에서 참조 시 사용)
+    public bool ShieldPressed { get; private set; }
+    public bool ShieldHeld { get; private set; }
 
     private PlayerInputActions inputActions;
 
@@ -29,7 +35,7 @@ public class PlayerInputHandler : MonoBehaviour
         inputActions.Player.Move.performed += ctx =>
         {
             MoveInput = ctx.ReadValue<Vector2>();
-            ClimbInput = MoveInput; // 모바일 스틱 공유
+            ClimbInput = MoveInput;
         };
 
         inputActions.Player.Move.canceled += _ =>
@@ -56,6 +62,11 @@ public class PlayerInputHandler : MonoBehaviour
         inputActions.Player.Attack3.started += _ => Attack3Pressed = true;
         inputActions.Player.Attack4.started += _ => Attack4Pressed = true;
 
+        // ShieldPressed: started(키 누른 순간 1회) — 페링 단발 입력용
+        // ShieldHeld: performed/canceled — 홀드 상태 유지용
+        inputActions.Player.Shield.started += _ => ShieldPressed = true;
+        inputActions.Player.Shield.performed += _ => ShieldHeld = true;
+        inputActions.Player.Shield.canceled += _ => ShieldHeld = false;
     }
 
     private void OnEnable() => inputActions.Enable();
@@ -71,5 +82,7 @@ public class PlayerInputHandler : MonoBehaviour
         Attack2Pressed = false;
         Attack3Pressed = false;
         Attack4Pressed = false;
+        ShieldPressed = false; // 단발 — 매 프레임 리셋
+        // ShieldHeld는 홀드 방식이라 리셋하지 않음
     }
 }
