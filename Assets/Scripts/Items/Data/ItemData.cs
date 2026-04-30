@@ -13,14 +13,14 @@ public class ItemData : ScriptableObject
     private string itemEffectClassName;
 
     // 저장된 문자열 이름을 바탕으로 실제 효과 인스턴스를 생성
-    public IItemEffect GetEffectInstance()
+    // virtual — SkillBookItemData에서 override해서 attackIndex 주입
+    public virtual IItemEffect GetEffectInstance()
     {
-        // Reflection을 사용해 문자열 이름으로 클래스 인스턴스 생성
         System.Type effectType = System.Type.GetType(itemEffectClassName);
         if (effectType != null && typeof(IItemEffect).IsAssignableFrom(effectType))
         {
             return (IItemEffect)System.Activator.CreateInstance(effectType);
         }
-        return null; // 효과 클래스를 찾지 못함
+        return null;
     }
 }
