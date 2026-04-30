@@ -2,9 +2,9 @@ using UnityEngine;
 
 public enum CharacterType { Rabbit, Knight }
 
-/// </summary>
+/// <summary>
 /// 토끼 ↔ 검사 변신 시스템
-/// - 스탯 교체 (이동속도, 점프력, HP)
+/// - 스탯 교체 (이동속도, 점프력)
 /// - 애니메이터 교체
 /// - 콜라이더 크기 교체
 /// 추후 쿨타임 추가 시 TransformCharacter() 앞에 조건만 추가하면 됨
@@ -29,7 +29,7 @@ public class PlayerTransformHandler : MonoBehaviour
     [SerializeField] private Vector2 knightColliderOffset = new Vector2(0f, 0.2f);
 
     [Header("Sprite Scale")]
-    [SerializeField] private Transform spriteObject; // SpriteObject 자식 오브젝트
+    [SerializeField] private Transform spriteObject;
     [SerializeField] private Vector3 rabbitSpriteScale = new Vector3(0.7f, 0.7f, 1f);
     [SerializeField] private Vector3 knightSpriteScale = new Vector3(1f, 1f, 1f);
 
@@ -37,32 +37,24 @@ public class PlayerTransformHandler : MonoBehaviour
     [SerializeField] private RuntimeAnimatorController rabbitAnimator;
     [SerializeField] private RuntimeAnimatorController knightAnimator;
 
-    [Header("HP UI")]
-    [SerializeField] private GameObject rabbitHPUI;      // 토끼 HP 칸 이미지 루트
-    [SerializeField] private GameObject knightHPUI;  // 검사 HP 슬라이더 루트
-
     [Header("Transform Control")]
-    public bool CanTransform = true; // false 시 변신 불가 (변신 불가 구간에서 외부 제어)
+    public bool CanTransform = true;
 
     private PlayerCoordinator coordinator;
     private PlayerStateMachine stateMachine;
-    private PlayerStats stats;
 
     private void Awake()
     {
         coordinator = GetComponent<PlayerCoordinator>();
         stateMachine = GetComponent<PlayerStateMachine>();
-        stats = GetComponent<PlayerStats>();
 
-        if (coordinator == null || stateMachine == null || stats == null)
+        if (coordinator == null || stateMachine == null)
             Debug.LogError("PlayerTransformHandler: 필수 컴포넌트가 없습니다!");
     }
 
     private void Start()
     {
-        // 시작 시 토끼 스탯 + UI 초기화
         ApplyStats(CharacterType.Rabbit);
-        ApplyHPUI(CharacterType.Rabbit);
         ApplySpriteScale(CharacterType.Rabbit);
     }
 
@@ -75,11 +67,12 @@ public class PlayerTransformHandler : MonoBehaviour
         ApplyStats(CharacterType.Rabbit);
         ApplyAnimator(CharacterType.Rabbit);
         ApplyCollider(CharacterType.Rabbit);
-        ApplyHPUI(CharacterType.Rabbit);
         ApplySpriteScale(CharacterType.Rabbit);
     }
 
+    /// <summary>
     /// PlayerInputHandler에서 호출, 현재 타입의 반대로 변신
+    /// </summary>
     public void TransformCharacter()
     {
         if (!CanTransform)
@@ -97,60 +90,20 @@ public class PlayerTransformHandler : MonoBehaviour
 
     private void SwitchTo(CharacterType next)
     {
-        // 1. HP 환산
-        ConvertHP(currentType, next);
+        // HP 단일화로 HP 환산 불필요
 
-        // 2. 스탯 교체
         ApplyStats(next);
-
-        // 3. 애니메이터 교체
         ApplyAnimator(next);
-
-        // 4. 콜라이더 크기 교체
         ApplyCollider(next);
 
-        // 5. 현재 상태 업데이트
         currentType = next;
 
-        // 6. HP UI 전환
-        ApplyHPUI(next);
-
-        // 7. 스프라이트 스케일 교체
         ApplySpriteScale(next);
 
-        // 8. 변신 후 Idle로 리셋 (애니메이션 꼬임 방지)
+        // 변신 후 Idle로 리셋 (애니메이션 꼬임 방지)
         stateMachine.ChangeState(stateMachine.IdleState);
 
         Debug.Log($"[Transform] {next}로 변신 완료");
-    }
-
-    // ───────────────────────────────────────────
-    // HP 환산
-    // 검사 HP를 savedKnightHP에 저장해두고
-    // 검사로 복귀 시 저장값 기준으로 토끼 피격 반영
-    // ───────────────────────────────────────────
-    private void ConvertHP(CharacterType from, CharacterType to)
-    {
-        if (from == CharacterType.Rabbit && to == CharacterType.Knight)
-        {
-            // 토끼 → 검사
-            // savedKnightHP 저장 시점의 토끼 칸수를 Clamp(1~3)으로 구하고
-            // 현재 토끼 칸수와 비교해 잃은 만큼 검사 HP 차감
-            // CeilToInt(100/33.3) = 4 버그 방지를 위해 Clamp(1,3) 처리
-            int rabbitHPAtSave = Mathf.Clamp(Mathf.CeilToInt(stats.savedKnightHP / 33.3f), 1, 3);
-            int rabbitHPLost = rabbitHPAtSave - stats.health;
-            float restoredHP = stats.savedKnightHP - (rabbitHPLost * 33.3f);
-            stats.SetKnightHP(Mathf.Max(restoredHP, 1f));
-        }
-        else if (from == CharacterType.Knight && to == CharacterType.Rabbit)
-        {
-            // 검사 → 토끼: 현재 검사 HP 저장 후 칸 수로 환산
-            stats.savedKnightHP = stats.knightHP;
-
-            int converted = Mathf.CeilToInt(stats.knightHP / 33.3f);
-            stats.health = Mathf.Clamp(converted, 1, 3);
-            stats.RefreshRabbitHPUI();
-        }
     }
 
     // ───────────────────────────────────────────
@@ -175,7 +128,7 @@ public class PlayerTransformHandler : MonoBehaviour
     // ───────────────────────────────────────────
     // 애니메이터 교체
     // ───────────────────────────────────────────
-    private void ApplyAnimator(CharacterType type)
+    public void ApplyAnimator(CharacterType type)
     {
         var anim = coordinator.Animator;
         if (anim == null) return;
@@ -210,19 +163,8 @@ public class PlayerTransformHandler : MonoBehaviour
         }
     }
 
-    // HP UI 
-    private void ApplyHPUI(CharacterType type)
-    {
-        bool isRabbit = (type == CharacterType.Rabbit);
-
-        if (rabbitHPUI != null)   rabbitHPUI.SetActive(isRabbit);
-        if (knightHPUI != null) knightHPUI.SetActive(!isRabbit);
-    }
-
     // ───────────────────────────────────────────
     // 스프라이트 스케일 교체
-    // SpriteObject 자식 오브젝트의 Scale을 변경
-    // 루트 오브젝트 Scale은 그대로 유지
     // ───────────────────────────────────────────
     private void ApplySpriteScale(CharacterType type)
     {

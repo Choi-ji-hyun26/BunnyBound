@@ -175,12 +175,12 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDrag: 2
+  m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 4
   m_Material: {fileID: 0}
   m_Interpolate: 0
-  m_SleepingMode: 1
+  m_SleepingMode: 0
   m_CollisionDetection: 0
   m_Constraints: 5
 --- !u!95 &5765649824509512699
@@ -244,6 +244,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHp: 40
   defaultFacingLeft: 1
+  isMovingEnemy: 0
+  knockbackSpeed: 8
+  knockbackDuration: 0.3
   detectionRadius: 5
   playerLayer:
     serializedVersion: 2

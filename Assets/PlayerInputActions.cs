@@ -107,6 +107,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Shield"",
+                    ""type"": ""Button"",
+                    ""id"": ""d820b8e1-3c42-4f1a-9d3e-7a1b2c3d4e5f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -340,6 +349,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Attack4"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f920c8e1-4d53-4a2b-8e4f-9b2c3d4e5f6a"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Shield"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -357,6 +377,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_Attack2 = m_Player.FindAction("Attack2", throwIfNotFound: true);
         m_Player_Attack3 = m_Player.FindAction("Attack3", throwIfNotFound: true);
         m_Player_Attack4 = m_Player.FindAction("Attack4", throwIfNotFound: true);
+        m_Player_Shield = m_Player.FindAction("Shield", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -427,6 +448,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Attack2;
     private readonly InputAction m_Player_Attack3;
     private readonly InputAction m_Player_Attack4;
+    private readonly InputAction m_Player_Shield;
     public struct PlayerActions
     {
         private @PlayerInputActions m_Wrapper;
@@ -440,6 +462,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         public InputAction @Attack2 => m_Wrapper.m_Player_Attack2;
         public InputAction @Attack3 => m_Wrapper.m_Player_Attack3;
         public InputAction @Attack4 => m_Wrapper.m_Player_Attack4;
+        public InputAction @Shield => m_Wrapper.m_Player_Shield;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -476,6 +499,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Attack4.started += instance.OnAttack4;
             @Attack4.performed += instance.OnAttack4;
             @Attack4.canceled += instance.OnAttack4;
+            @Shield.started += instance.OnShield;
+            @Shield.performed += instance.OnShield;
+            @Shield.canceled += instance.OnShield;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -507,6 +533,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Attack4.started -= instance.OnAttack4;
             @Attack4.performed -= instance.OnAttack4;
             @Attack4.canceled -= instance.OnAttack4;
+            @Shield.started -= instance.OnShield;
+            @Shield.performed -= instance.OnShield;
+            @Shield.canceled -= instance.OnShield;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -535,5 +564,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         void OnAttack2(InputAction.CallbackContext context);
         void OnAttack3(InputAction.CallbackContext context);
         void OnAttack4(InputAction.CallbackContext context);
+        void OnShield(InputAction.CallbackContext context);
     }
 }

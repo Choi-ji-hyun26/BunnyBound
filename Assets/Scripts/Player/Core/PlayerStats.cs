@@ -1,138 +1,160 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-//using UnityEngine.UI;
+using UnityEngine.UI;
 using TMPro;
+
+/// <summary>
+/// 플레이어 HP 및 점수 관리
+///
+/// [HP 설계 — 젤다 방식]
+/// - 토끼/검사 HP 통합: 캐릭터 타입 무관하게 하트 1개 감소
+/// - 시작 하트: 3개 / 최대 하트: 6개
+/// - 피격 시 오른쪽 하트부터 빈 하트로 교체
+/// - HP Up 아이템: 최대 하트 +1 + 전체 회복
+///
+/// [UI 구조]
+/// Canvas → HPContainer (HorizontalLayoutGroup)
+///   → HeartSlot_0 ~ HeartSlot_5 (Image 컴포넌트)
+/// heartSlots 배열에 순서대로 연결
+/// fullHeartSprite  = Tilesheet_0 (꽉 찬 하트)
+/// emptyHeartSprite = Tilesheet_1 (빈 하트)
+/// </summary>
 public class PlayerStats : MonoBehaviour
 {
     public static PlayerStats instance;
 
-    public int stagePoint; // public : StarItem.cs, EndingController.cs, GameManager.cs
+    // ───────────────────────────────────────────
+    // HP
+    // ───────────────────────────────────────────
+    [Header("HP Settings")]
+    [SerializeField] private int startHearts = 3;
+    [SerializeField] private int maxHearts = 6;
 
-    public int health = 3; // public : GameManager.cs (토끼 HP 칸 수)
+    public int CurrentHearts { get; private set; }
+    public int MaxActiveHearts { get; private set; }
 
-    // 검사 HP (0~100%)
-    [HideInInspector] public float knightHP = 100f;
-    [HideInInspector] public float savedKnightHP = 100f; // 토끼 상태일 때 검사 HP 기억
-    [SerializeField] private UnityEngine.UI.Slider knightHPSlider; // 검사 HP UI (슬라이더)
+    [Header("HP UI")]
+    [SerializeField] private Image[] heartSlots;
+    [SerializeField] private Sprite fullHeartSprite;    // Tilesheet_0
+    [SerializeField] private Sprite emptyHeartSprite;   // Tilesheet_1
 
-    [SerializeField] private UnityEngine.UI.Image UIHealth;
-    [SerializeField] private Sprite hpSprite3;
-    [SerializeField] private Sprite hpSprite2;
-    [SerializeField] private Sprite hpSprite1;
-    [SerializeField] private Sprite hpSprite0;
-
+    // ───────────────────────────────────────────
+    // 점수
+    // ───────────────────────────────────────────
+    public int stagePoint;
     [SerializeField] private TextMeshProUGUI UIPoint;
+
     private void Awake()
     {
-        //싱글톤 초기화
         if (instance == null)
-        {
             instance = this;
-            //DontDestroyOnLoad(gameObject); // 씬 전환 시에도 유지
-        }
         else
         {
             Debug.LogWarning("씬에 두개 이상의 스탯 매니저가 존재합니다!");
-            Destroy(gameObject); // 이미 존재하면 중복 방지
+            Destroy(gameObject);
+            return;
         }
+
+        MaxActiveHearts = startHearts;
+        CurrentHearts = startHearts;
+        RefreshHPUI();
     }
 
     private void Update()
     {
-        if (UIPoint != null) //UI Point가 사용되는 씬에서만 실행되도록
+        if (UIPoint != null)
             UIPoint.text = stagePoint.ToString();
     }
 
-    public void HealthUp() // public : CarrotItem.cs
+    // ───────────────────────────────────────────
+    // HP 감소 — 캐릭터 타입 무관 (토끼/검사 통합)
+    // ───────────────────────────────────────────
+    public void HealthDown()
     {
-        if (health < 3)
-            health++;
-        if (health == 2)
-            UIHealth.sprite = hpSprite2;
-        else
-            UIHealth.sprite = hpSprite3;
-    }
-    public void HealthDown() // public : PlayerDeathHandler.cs, GameManager.cs
-    {
-        health--;
-        if (health == 2)
+        CurrentHearts--;
+        CurrentHearts = Mathf.Max(0, CurrentHearts);
+        RefreshHPUI();
+
+        if (CurrentHearts <= 0)
         {
-            UIHealth.sprite = hpSprite2;
-        }
-        else if (health == 1)
-        {
-            UIHealth.sprite = hpSprite1;
-        }
-        else if (health == 0)
-        {
-            UIHealth.sprite = hpSprite0;
-            gameObject.GetComponentInParent<PlayerDeathHandler>().OnDie();
+            GetComponentInParent<PlayerDeathHandler>()?.OnDie();
             GameManager.Instance.ViewBtn();
         }
     }
+
+    // ───────────────────────────────────────────
+    // HP 회복 — 현재 하트 1개 회복 (최대 하트 내에서)
+    // ───────────────────────────────────────────
+    public void HealthUp()
+    {
+        if (CurrentHearts < MaxActiveHearts)
+        {
+            CurrentHearts++;
+            RefreshHPUI();
+        }
+    }
+
+    // ───────────────────────────────────────────
+    // 전체 HP 회복
+    // ───────────────────────────────────────────
+    public void FullHeal()
+    {
+        CurrentHearts = MaxActiveHearts;
+        RefreshHPUI();
+    }
+
+    // ───────────────────────────────────────────
+    // 최대 하트 증가 — HP Up 아이템 획득 시
+    // 슬롯이 남아있을 때만 증가
+    // ───────────────────────────────────────────
+    public void IncreaseMaxHearts()
+    {
+        if (MaxActiveHearts >= maxHearts)
+        {
+            Debug.Log("[PlayerStats] 최대 하트 수에 도달했습니다.");
+            return;
+        }
+
+        MaxActiveHearts++;
+        CurrentHearts = Mathf.Min(CurrentHearts + 1, MaxActiveHearts);
+        RefreshHPUI();
+    }
+
+    // ───────────────────────────────────────────
+    // HP UI 갱신
+    // MaxActiveHearts까지 꽉찬/빈 하트 표시
+    // MaxActiveHearts 초과 슬롯은 비활성화
+    // ───────────────────────────────────────────
+    public void RefreshHPUI()
+    {
+        for (int i = 0; i < heartSlots.Length; i++)
+        {
+            if (heartSlots[i] == null) continue;
+
+            if (i < MaxActiveHearts)
+            {
+                heartSlots[i].gameObject.SetActive(true);
+                heartSlots[i].sprite = i < CurrentHearts ? fullHeartSprite : emptyHeartSprite;
+            }
+            else
+            {
+                heartSlots[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+    // ───────────────────────────────────────────
+    // 스테이지 전환 시 리셋
+    // MaxActiveHearts 유지, 현재 하트만 풀 회복
+    // ───────────────────────────────────────────
     public void ResetForNextStage()
     {
-        health = 3;
         stagePoint = 0;
-        UIHealth.sprite = hpSprite3;
-        SetKnightHP(100f);
-        savedKnightHP = 100f;
+        CurrentHearts = MaxActiveHearts;
+        RefreshHPUI();
 
-        // 변신 상태도 토끼로 리셋
         PlayerTransformHandler transformHandler = FindObjectOfType<PlayerTransformHandler>();
         if (transformHandler != null)
             transformHandler.ResetToRabbit();
-    }
-
-    // ───────────────────────────────────────────
-    // 검사 HP 관련
-    // ───────────────────────────────────────────
-
-    /// <summary>
-    /// 검사 HP 설정 및 UI 갱신
-    /// </summary>
-    public void SetKnightHP(float value)
-    {
-        knightHP = Mathf.Clamp(value, 0f, 100f);
-        RefreshKnightHPUI();
-
-        if (knightHP <= 0f)
-        {
-            gameObject.GetComponentInParent<PlayerDeathHandler>().OnDie();
-            GameManager.Instance.ViewBtn();
-        }
-    }
-
-    /// <summary>
-    /// 검사 피격 시 HP 감소 (PlayerDamageHandler에서 호출)
-    /// 11% 감소: 토끼(33.3%) 대비 약 3배 더 버팀
-    /// 100% 기준 약 9번 피격 후 사망 (토끼는 3번)
-    /// </summary>
-    public void KnightHealthDown(float amount = 11f)
-    {
-        SetKnightHP(knightHP - amount);
-    }
-
-    /// <summary>
-    /// 검사 HP UI 갱신
-    /// </summary>
-    public void RefreshKnightHPUI()
-    {
-        if (knightHPSlider != null)
-            knightHPSlider.value = knightHP / 100f;
-    }
-
-    /// <summary>
-    /// 토끼 HP UI 갱신 (변신 복귀 시 호출)
-    /// </summary>
-    public void RefreshRabbitHPUI()
-    {
-        if (UIHealth == null) return;
-        if (health >= 3)      UIHealth.sprite = hpSprite3;
-        else if (health == 2) UIHealth.sprite = hpSprite2;
-        else if (health == 1) UIHealth.sprite = hpSprite1;
-        else                  UIHealth.sprite = hpSprite0;
     }
 }
