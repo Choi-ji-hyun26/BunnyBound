@@ -3,43 +3,38 @@ using UnityEngine;
 
 /// <summary>
 /// 검사 전용 공격 시스템
-/// - Q/W/E/R 4종 공격
-/// - 1개 예약 버퍼링 (공격 중 다음 공격 1개 예약)
-/// - 공격마다 별도 HitBox 활성화
+/// - Q: 근접 slash (hitBox1)
+/// - W: 원거리 slash 투사체 (SlashProjectile)
+/// - E/R: 미사용 (추후 확장)
+/// - 1개 예약 버퍼링
 /// - 해금된 공격만 사용 가능
-/// - 공격 시작 시점에 플레이어 방향(flipX) 반영 → HitBox localPosition.x 부호 전환
+/// - 공격 시작 시점에 플레이어 방향(flipX) 반영
 /// </summary>
 public class PlayerSwordAttackHandler : MonoBehaviour
 {
-    [Header("HitBox (공격별 별도 콜라이더)")]
-    [SerializeField] private Collider2D hitBox1; // Q: 위→아래 slash
-    [SerializeField] private Collider2D hitBox2; // W: 아래→위 slash
-    [SerializeField] private Collider2D hitBox3; // E: 찌르기
-    [SerializeField] private Collider2D hitBox4; // R: 회전 공격
+    [Header("HitBox")]
+    [SerializeField] private Collider2D hitBox1; // Q: 근접 slash
+
+    [Header("W: 원거리 Slash 투사체")]
+    [SerializeField] private GameObject slashProjectilePrefab; // SlashProjectile Prefab
+    [SerializeField] private Transform hitBox2Transform;       // 투사체 생성 위치 (기존 hitBox2 위치)
 
     [Header("데미지")]
     [SerializeField] private int damage1 = 10; // Q
     [SerializeField] private int damage2 = 15; // W
-    [SerializeField] private int damage3 = 20; // E
-    [SerializeField] private int damage4 = 8;  // R
 
-    [Header("공격 지속 시간 (애니메이션과 맞춰서 조정)")]
+    [Header("공격 지속 시간")]
     [SerializeField] private float attackDuration1 = 0.4f;
     [SerializeField] private float attackDuration2 = 0.4f;
-    [SerializeField] private float attackDuration3 = 0.35f;
-    [SerializeField] private float attackDuration4 = 0.5f;
 
     [Header("HitBox 활성화 타이밍 (0~1, 애니메이션 진행률 기준)")]
     [SerializeField] private float hitBoxStartRatio = 0.2f;
     [SerializeField] private float hitBoxEndRatio   = 0.7f;
 
-    // 상태
     public bool IsAttacking { get; private set; } = false;
-    private int bufferedAttack = -1; // -1 = 없음
+    private int bufferedAttack = -1;
 
-    // HitBox 기본 localPosition.x 절댓값 저장 (Awake 시점 기준)
-    // flipX에 따라 부호를 반전해서 방향 적용
-    private float[] hitBoxDefaultOffsetX = new float[4];
+    private float[] hitBoxDefaultOffsetX = new float[1]; // hitBox1만 관리
 
     private PlayerCoordinator coordinator;
     private PlayerInputHandler input;
@@ -55,16 +50,10 @@ public class PlayerSwordAttackHandler : MonoBehaviour
         animator         = coordinator.Animator;
         spriteRenderer   = coordinator.SpriteRenderer;
 
-        // 각 HitBox의 기본 localPosition.x 절댓값 저장
-        // Inspector에서 오른쪽 기준으로 설정해두면 flipX 시 자동으로 반전
-        Collider2D[] boxes = { hitBox1, hitBox2, hitBox3, hitBox4 };
-        for (int i = 0; i < boxes.Length; i++)
-        {
-            if (boxes[i] != null)
-                hitBoxDefaultOffsetX[i] = Mathf.Abs(boxes[i].transform.localPosition.x);
-        }
+        if (hitBox1 != null)
+            hitBoxDefaultOffsetX[0] = Mathf.Abs(hitBox1.transform.localPosition.x);
 
-        DisableAllHitBoxes();
+        if (hitBox1 != null) hitBox1.enabled = false;
     }
 
     private void Update()
@@ -97,8 +86,6 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     {
         if (input.Attack1Pressed) return 1;
         if (input.Attack2Pressed) return 2;
-        if (input.Attack3Pressed) return 3;
-        if (input.Attack4Pressed) return 4;
         return -1;
     }
 
@@ -109,26 +96,36 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     {
         IsAttacking = true;
 
-        // 공격 시작 시점에 방향 반영
-        // 공격 중 방향 전환은 허용하지 않으므로 시작 시점 한 번만 처리
         ApplyHitBoxDirection();
 
         float duration = GetDuration(attackIndex);
-        Collider2D hitBox = GetHitBox(attackIndex);
 
         animator.SetInteger("attackIndex", attackIndex);
         animator.SetTrigger("doAttack");
 
-        float hitStart = duration * hitBoxStartRatio;
-        float hitEnd   = duration * hitBoxEndRatio;
+        if (attackIndex == 2)
+        {
+            // W: 원거리 투사체 — hitStart 타이밍에 생성
+            float hitStart = duration * hitBoxStartRatio;
+            yield return new WaitForSeconds(hitStart);
+            SpawnSlashProjectile();
+            yield return new WaitForSeconds(duration - hitStart);
+        }
+        else
+        {
+            // Q: 근접 HitBox 활성화
+            Collider2D hitBox = GetHitBox(attackIndex);
+            float hitStart = duration * hitBoxStartRatio;
+            float hitEnd   = duration * hitBoxEndRatio;
 
-        yield return new WaitForSeconds(hitStart);
-        ActivateHitBox(hitBox, attackIndex);
+            yield return new WaitForSeconds(hitStart);
+            ActivateHitBox(hitBox, attackIndex);
 
-        yield return new WaitForSeconds(hitEnd - hitStart);
-        DeactivateHitBox(hitBox);
+            yield return new WaitForSeconds(hitEnd - hitStart);
+            DeactivateHitBox(hitBox);
 
-        yield return new WaitForSeconds(duration - hitEnd);
+            yield return new WaitForSeconds(duration - hitEnd);
+        }
 
         IsAttacking = false;
 
@@ -143,27 +140,55 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     }
 
     // ───────────────────────────────────────────
-    // HitBox 방향 적용
-    // flipX == true  → 왼쪽: localPosition.x = -절댓값
-    // flipX == false → 오른쪽: localPosition.x = +절댓값
+    // W: 원거리 Slash 투사체 생성
+    // hitBox2Transform 위치에서 플레이어 방향으로 발사
     // ───────────────────────────────────────────
-    private void ApplyHitBoxDirection()
+    private void SpawnSlashProjectile()
     {
-        bool facingLeft = spriteRenderer.flipX;
-        Collider2D[] boxes = { hitBox1, hitBox2, hitBox3, hitBox4 };
-
-        for (int i = 0; i < boxes.Length; i++)
+        if (slashProjectilePrefab == null)
         {
-            if (boxes[i] == null) continue;
+            Debug.LogError("[SwordAttack] slashProjectilePrefab이 연결되지 않았습니다.");
+            return;
+        }
 
-            Vector3 pos = boxes[i].transform.localPosition;
-            pos.x = facingLeft ? -hitBoxDefaultOffsetX[i] : hitBoxDefaultOffsetX[i];
-            boxes[i].transform.localPosition = pos;
+        // 생성 위치: hitBox2Transform (flipX 방향 반영된 상태)
+        Vector3 spawnPos = hitBox2Transform != null
+            ? hitBox2Transform.position
+            : transform.position;
+
+        GameObject obj = Instantiate(slashProjectilePrefab, spawnPos, Quaternion.identity);
+        SlashProjectile slash = obj.GetComponent<SlashProjectile>();
+
+        if (slash != null)
+        {
+            float dir = spriteRenderer.flipX ? -1f : 1f;
+            slash.Initialize(dir, damage2);
         }
     }
 
     // ───────────────────────────────────────────
-    // HitBox 제어
+    // HitBox 방향 적용 (Q 근접 공격용)
+    // ───────────────────────────────────────────
+    private void ApplyHitBoxDirection()
+    {
+        if (hitBox1 == null) return;
+
+        bool facingLeft = spriteRenderer.flipX;
+        Vector3 pos = hitBox1.transform.localPosition;
+        pos.x = facingLeft ? -hitBoxDefaultOffsetX[0] : hitBoxDefaultOffsetX[0];
+        hitBox1.transform.localPosition = pos;
+
+        // hitBox2Transform도 방향 반영 (투사체 생성 위치)
+        if (hitBox2Transform != null)
+        {
+            Vector3 pos2 = hitBox2Transform.localPosition;
+            pos2.x = facingLeft ? -Mathf.Abs(pos2.x) : Mathf.Abs(pos2.x);
+            hitBox2Transform.localPosition = pos2;
+        }
+    }
+
+    // ───────────────────────────────────────────
+    // HitBox 제어 (Q 근접 공격용)
     // ───────────────────────────────────────────
     private void ActivateHitBox(Collider2D hitBox, int attackIndex)
     {
@@ -177,9 +202,6 @@ public class PlayerSwordAttackHandler : MonoBehaviour
         CheckBreakables(hitBox);
     }
 
-    // ───────────────────────────────────────────
-    // Breakable 오브젝트 탐색 및 파괴
-    // ───────────────────────────────────────────
     private void CheckBreakables(Collider2D hitBox)
     {
         BoxCollider2D box = hitBox as BoxCollider2D;
@@ -190,7 +212,6 @@ public class PlayerSwordAttackHandler : MonoBehaviour
         float angle = hitBox.transform.eulerAngles.z;
 
         Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, angle);
-
         foreach (Collider2D hit in hits)
         {
             if (!hit.CompareTag("Breakable")) continue;
@@ -205,14 +226,6 @@ public class PlayerSwordAttackHandler : MonoBehaviour
         hitBox.enabled = false;
     }
 
-    private void DisableAllHitBoxes()
-    {
-        if (hitBox1 != null) hitBox1.enabled = false;
-        if (hitBox2 != null) hitBox2.enabled = false;
-        if (hitBox3 != null) hitBox3.enabled = false;
-        if (hitBox4 != null) hitBox4.enabled = false;
-    }
-
     // ───────────────────────────────────────────
     // 유틸리티
     // ───────────────────────────────────────────
@@ -220,8 +233,6 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     {
         1 => attackDuration1,
         2 => attackDuration2,
-        3 => attackDuration3,
-        4 => attackDuration4,
         _ => 0.4f
     };
 
@@ -229,17 +240,12 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     {
         1 => damage1,
         2 => damage2,
-        3 => damage3,
-        4 => damage4,
         _ => 10
     };
 
     private Collider2D GetHitBox(int index) => index switch
     {
         1 => hitBox1,
-        2 => hitBox2,
-        3 => hitBox3,
-        4 => hitBox4,
         _ => null
     };
 }
