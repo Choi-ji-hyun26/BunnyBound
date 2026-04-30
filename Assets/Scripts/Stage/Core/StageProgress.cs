@@ -7,15 +7,14 @@ public static class StageProgress
 {
     public static StageProgressData data;
     private static Dictionary<int, StageData> stageMap = new();
-    private static string SavePath => Path.Combine(Application.persistentDataPath, "stage_progress.json");
-    public static int CurrentStageId {get; private set;} = 1;
+    private static string SavePath => Path.Combine(Application.persistentDataPath, "game_progress.json");
 
-    public static void Load() // Load == Read
+    public static void Load()
     {
         if(data != null)
             return;
 
-        Application.quitting -= Flush; // 중복 등록 방지
+        Application.quitting -= Flush;
         Application.focusChanged -= OnFocusChanged;
         
         var wrapper = SaveManager.Load<StageProgressData>(SavePath);
@@ -32,16 +31,16 @@ public static class StageProgress
             data = wrapper.data;
         }
         
-        BuildCache(); // 딕셔너리 생성
+        BuildCache();
 
-        Application.quitting += Flush; // 종료 시 자동 저장 등록
-        Application.focusChanged += OnFocusChanged; // 모바일 홈 화면 나갈 시 자동 저장 등록
+        Application.quitting += Flush;
+        Application.focusChanged += OnFocusChanged;
     }
 
     private static void OnFocusChanged(bool hasFocus)
     {
         if(!hasFocus)
-            Flush(); // 모바일에서 유저가 나갈 때 즉시 저장
+            Flush();
     }
 
     private static void SaveDeferred()
@@ -55,7 +54,7 @@ public static class StageProgress
         Flush();
     }
 
-    private static void Flush() // 실제 파일 쓰기
+    private static void Flush()
     {
         SaveManager.Flush(SavePath, data, SaveVersion.CURRENT);
     }
@@ -65,12 +64,12 @@ public static class StageProgress
         CurrentStageId = stageId;
     }
 
+    public static int CurrentStageId {get; private set;} = 1;
+
     public static bool IsStageCleared(int stageId)
     {
         if(stageMap.TryGetValue(stageId, out var data))
-        {
             return data.StarRank > 0;
-        }
         return false;
     }
 
@@ -86,7 +85,7 @@ public static class StageProgress
             return stageData;
         stageData = new StageData(stageId);
         stageMap[stageId] = stageData;
-        data.stages.Add(stageData); // 리스트에도 추가
+        data.stages.Add(stageData);
 
         SaveDeferred();
         return stageData;
@@ -108,9 +107,8 @@ public static class StageProgress
     {
         StageData stageData = GetStageData(stageId);
         
-        bool dirty = false; 
+        bool dirty = false;
 
-        // best score
         if (score > stageData.BestScore)
         {
             stageData.BestScore = score;
@@ -118,7 +116,7 @@ public static class StageProgress
         }
         if(starRank > stageData.StarRank)
         {
-            stageData.StarRank = starRank; // 별은 내려가지 않음
+            stageData.StarRank = starRank;
             dirty = true;
         }
 
@@ -126,7 +124,6 @@ public static class StageProgress
             SaveDeferred();
     }
 
-    // 노말/진 엔딩 판단
     public static bool IsAllStagesPerfect()
     {
         if(data.stages == null || data.stages.Count == 0)
