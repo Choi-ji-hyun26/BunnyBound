@@ -10,14 +10,14 @@ using TMPro;
 /// - 토끼/검사 HP 통합: 캐릭터 타입 무관하게 하트 1개 감소
 /// - 시작 하트: 3개 / 최대 하트: 6개
 /// - 피격 시 오른쪽 하트부터 빈 하트로 교체
-/// - HP 아이템(당근) 획득 시 최대 하트 +1 (빈 하트 슬롯 활성화)
+/// - HP Up 아이템: 최대 하트 +1 + 전체 회복
 ///
 /// [UI 구조]
 /// Canvas → HPContainer (HorizontalLayoutGroup)
 ///   → HeartSlot_0 ~ HeartSlot_5 (Image 컴포넌트)
 /// heartSlots 배열에 순서대로 연결
-/// fullHeartSprite  = Tilesheet_1 (꽉 찬 하트)
-/// emptyHeartSprite = Tilesheet_2 (빈 하트)
+/// fullHeartSprite  = Tilesheet_0 (꽉 찬 하트)
+/// emptyHeartSprite = Tilesheet_1 (빈 하트)
 /// </summary>
 public class PlayerStats : MonoBehaviour
 {
@@ -27,15 +27,15 @@ public class PlayerStats : MonoBehaviour
     // HP
     // ───────────────────────────────────────────
     [Header("HP Settings")]
-    [SerializeField] private int startHearts = 3;       // 시작 하트 수
-    [SerializeField] private int maxHearts = 6;         // 최대 하트 수 (슬롯 수와 일치)
+    [SerializeField] private int startHearts = 3;
+    [SerializeField] private int maxHearts = 6;
 
-    public int CurrentHearts { get; private set; }      // 현재 하트 수
-    public int MaxActiveHearts { get; private set; }    // 현재 최대 하트 수 (아이템으로 증가)
+    public int CurrentHearts { get; private set; }
+    public int MaxActiveHearts { get; private set; }
 
     [Header("HP UI")]
-    [SerializeField] private Image[] heartSlots;        // Inspector에서 HeartSlot_0~5 연결
-    [SerializeField] private Sprite fullHeartSprite;    // Tilesheet_2
+    [SerializeField] private Image[] heartSlots;
+    [SerializeField] private Sprite fullHeartSprite;    // Tilesheet_0
     [SerializeField] private Sprite emptyHeartSprite;   // Tilesheet_1
 
     // ───────────────────────────────────────────
@@ -95,8 +95,17 @@ public class PlayerStats : MonoBehaviour
     }
 
     // ───────────────────────────────────────────
-    // 최대 하트 증가 — HP 아이템 획득 시
-    // 슬롯이 남아있을 때만 증가, 증가 후 새 하트는 꽉 찬 상태로 추가
+    // 전체 HP 회복
+    // ───────────────────────────────────────────
+    public void FullHeal()
+    {
+        CurrentHearts = MaxActiveHearts;
+        RefreshHPUI();
+    }
+
+    // ───────────────────────────────────────────
+    // 최대 하트 증가 — HP Up 아이템 획득 시
+    // 슬롯이 남아있을 때만 증가
     // ───────────────────────────────────────────
     public void IncreaseMaxHearts()
     {
@@ -107,8 +116,7 @@ public class PlayerStats : MonoBehaviour
         }
 
         MaxActiveHearts++;
-        CurrentHearts++;    // 새 하트는 꽉 찬 상태로 추가
-        CurrentHearts = Mathf.Min(CurrentHearts, MaxActiveHearts);
+        CurrentHearts = Mathf.Min(CurrentHearts + 1, MaxActiveHearts);
         RefreshHPUI();
     }
 
@@ -130,7 +138,6 @@ public class PlayerStats : MonoBehaviour
             }
             else
             {
-                // 아직 해금되지 않은 슬롯 — 비활성화
                 heartSlots[i].gameObject.SetActive(false);
             }
         }
@@ -138,12 +145,11 @@ public class PlayerStats : MonoBehaviour
 
     // ───────────────────────────────────────────
     // 스테이지 전환 시 리셋
+    // MaxActiveHearts 유지, 현재 하트만 풀 회복
     // ───────────────────────────────────────────
     public void ResetForNextStage()
     {
         stagePoint = 0;
-
-        // HP는 MaxActiveHearts 유지, 현재 하트만 풀 회복
         CurrentHearts = MaxActiveHearts;
         RefreshHPUI();
 
