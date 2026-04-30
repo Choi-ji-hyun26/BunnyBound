@@ -7,6 +7,7 @@ using UnityEngine;
 /// - 1개 예약 버퍼링 (공격 중 다음 공격 1개 예약)
 /// - 공격마다 별도 HitBox 활성화
 /// - 해금된 공격만 사용 가능
+/// - 공격 시작 시점에 플레이어 방향(flipX) 반영 → HitBox localPosition.x 부호 전환
 /// </summary>
 public class PlayerSwordAttackHandler : MonoBehaviour
 {
@@ -36,10 +37,15 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     public bool IsAttacking { get; private set; } = false;
     private int bufferedAttack = -1; // -1 = 없음
 
+    // HitBox 기본 localPosition.x 절댓값 저장 (Awake 시점 기준)
+    // flipX에 따라 부호를 반전해서 방향 적용
+    private float[] hitBoxDefaultOffsetX = new float[4];
+
     private PlayerCoordinator coordinator;
     private PlayerInputHandler input;
     private PlayerTransformHandler transformHandler;
     private Animator animator;
+    private SpriteRenderer spriteRenderer;
 
     private void Awake()
     {
@@ -47,29 +53,34 @@ public class PlayerSwordAttackHandler : MonoBehaviour
         input            = GetComponent<PlayerInputHandler>();
         transformHandler = GetComponent<PlayerTransformHandler>();
         animator         = coordinator.Animator;
+        spriteRenderer   = coordinator.SpriteRenderer;
 
-        // 시작 시 모든 HitBox 비활성화
+        // 각 HitBox의 기본 localPosition.x 절댓값 저장
+        // Inspector에서 오른쪽 기준으로 설정해두면 flipX 시 자동으로 반전
+        Collider2D[] boxes = { hitBox1, hitBox2, hitBox3, hitBox4 };
+        for (int i = 0; i < boxes.Length; i++)
+        {
+            if (boxes[i] != null)
+                hitBoxDefaultOffsetX[i] = Mathf.Abs(boxes[i].transform.localPosition.x);
+        }
+
         DisableAllHitBoxes();
     }
 
     private void Update()
     {
-        // 검사 상태일 때만 공격 처리
         if (transformHandler.currentType != CharacterType.Knight) return;
-
         HandleAttackInput();
     }
 
     // ───────────────────────────────────────────
     // 입력 처리
     // ───────────────────────────────────────────
-
     private void HandleAttackInput()
     {
         int pressedAttack = GetPressedAttack();
         if (pressedAttack == -1) return;
 
-        // 해금 체크
         if (!SkillUnlockManager.Instance.IsUnlocked(pressedAttack))
         {
             Debug.Log($"[SwordAttack] Attack{pressedAttack}는 아직 해금되지 않았습니다.");
@@ -77,15 +88,9 @@ public class PlayerSwordAttackHandler : MonoBehaviour
         }
 
         if (!IsAttacking)
-        {
-            // 공격 중이 아니면 즉시 실행
             StartCoroutine(ExecuteAttack(pressedAttack));
-        }
         else
-        {
-            // 공격 중이면 1개 예약 (덮어쓰기)
             bufferedAttack = pressedAttack;
-        }
     }
 
     private int GetPressedAttack()
@@ -100,19 +105,20 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     // ───────────────────────────────────────────
     // 공격 실행
     // ───────────────────────────────────────────
-
     private IEnumerator ExecuteAttack(int attackIndex)
     {
         IsAttacking = true;
 
+        // 공격 시작 시점에 방향 반영
+        // 공격 중 방향 전환은 허용하지 않으므로 시작 시점 한 번만 처리
+        ApplyHitBoxDirection();
+
         float duration = GetDuration(attackIndex);
         Collider2D hitBox = GetHitBox(attackIndex);
 
-        // 애니메이션 트리거 (attackIndex 세팅 후 doAttack Trigger)
         animator.SetInteger("attackIndex", attackIndex);
         animator.SetTrigger("doAttack");
 
-        // HitBox 활성화 타이밍
         float hitStart = duration * hitBoxStartRatio;
         float hitEnd   = duration * hitBoxEndRatio;
 
@@ -126,7 +132,6 @@ public class PlayerSwordAttackHandler : MonoBehaviour
 
         IsAttacking = false;
 
-        // 예약된 공격 실행
         if (bufferedAttack != -1)
         {
             int next = bufferedAttack;
@@ -138,31 +143,45 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     }
 
     // ───────────────────────────────────────────
+    // HitBox 방향 적용
+    // flipX == true  → 왼쪽: localPosition.x = -절댓값
+    // flipX == false → 오른쪽: localPosition.x = +절댓값
+    // ───────────────────────────────────────────
+    private void ApplyHitBoxDirection()
+    {
+        bool facingLeft = spriteRenderer.flipX;
+        Collider2D[] boxes = { hitBox1, hitBox2, hitBox3, hitBox4 };
+
+        for (int i = 0; i < boxes.Length; i++)
+        {
+            if (boxes[i] == null) continue;
+
+            Vector3 pos = boxes[i].transform.localPosition;
+            pos.x = facingLeft ? -hitBoxDefaultOffsetX[i] : hitBoxDefaultOffsetX[i];
+            boxes[i].transform.localPosition = pos;
+        }
+    }
+
+    // ───────────────────────────────────────────
     // HitBox 제어
     // ───────────────────────────────────────────
-
     private void ActivateHitBox(Collider2D hitBox, int attackIndex)
     {
         if (hitBox == null) return;
         hitBox.enabled = true;
 
-        // HitBox에 데미지 전달
         SwordHitBox swordHitBox = hitBox.GetComponent<SwordHitBox>();
         if (swordHitBox != null)
             swordHitBox.SetDamage(GetDamage(attackIndex));
 
-        // OverlapBox로 Breakable 오브젝트 직접 탐색 및 파괴
-        // Trigger 방식의 Enter/Stay 문제를 우회
         CheckBreakables(hitBox);
     }
 
     // ───────────────────────────────────────────
     // Breakable 오브젝트 탐색 및 파괴
-    // Physics2D.OverlapBoxAll로 HitBox 범위 내 탐색
     // ───────────────────────────────────────────
     private void CheckBreakables(Collider2D hitBox)
     {
-        // HitBox의 실제 월드 크기와 위치로 OverlapBox 탐색
         BoxCollider2D box = hitBox as BoxCollider2D;
         if (box == null) return;
 
@@ -170,13 +189,11 @@ public class PlayerSwordAttackHandler : MonoBehaviour
         Vector2 size = box.size;
         float angle = hitBox.transform.eulerAngles.z;
 
-        // Breakable 레이어 마스크 없이 태그로 필터링
         Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, angle);
 
         foreach (Collider2D hit in hits)
         {
             if (!hit.CompareTag("Breakable")) continue;
-
             IBreakable breakable = hit.GetComponent<IBreakable>();
             breakable?.OnBreak();
         }
@@ -199,7 +216,6 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     // ───────────────────────────────────────────
     // 유틸리티
     // ───────────────────────────────────────────
-
     private float GetDuration(int index) => index switch
     {
         1 => attackDuration1,
