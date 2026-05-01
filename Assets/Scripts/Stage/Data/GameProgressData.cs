@@ -1,9 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 [System.Serializable]
-public class StageProgressData
+public class GameProgressData
 {
+    public PlayerProgressData player = new();
     public List<StageData> stages = new();
 }

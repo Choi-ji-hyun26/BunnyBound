@@ -8,7 +8,7 @@ public class Title : MonoBehaviour
     void Awake()
     {
         Time.timeScale = 1f;
-        StageProgress.Load();
+        GameProgress.Load();
     }
     public void LoadGame() // public : 유니티 UI BUTTON 연결
     {
