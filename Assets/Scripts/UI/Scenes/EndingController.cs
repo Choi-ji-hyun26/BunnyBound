@@ -10,9 +10,9 @@ public class EndingController : MonoBehaviour
     [SerializeField] private GameObject trueEndingUI;
     void Start()
     {
-        StageProgress.Load(); // 안전장치
+        GameProgress.Load(); // 안전장치
 
-        bool isTrueEnding = StageProgress.IsAllStagesPerfect();
+        bool isTrueEnding = GameProgress.IsAllStagesPerfect();
 
         normalEndingUI.SetActive(!isTrueEnding);
         trueEndingUI.SetActive(isTrueEnding);

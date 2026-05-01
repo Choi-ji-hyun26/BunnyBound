@@ -1,29 +1,38 @@
-
+/// <summary>
+/// 저장 파일 버전 마이그레이션
+///
+/// [버전 히스토리]
+/// v0 → v1: StarRank 음수 보정
+/// v1 → v2: 파일명 변경(stage_progress.json → game_progress.json)으로
+///           v1 파일을 읽는 경우가 없어 마이그레이션 불필요. v2부터 새 시작.
+/// </summary>
 public static class SaveMigration
 {
-    public static SaveFile<StageProgressData> Migrate(SaveFile<StageProgressData> oldSave)
+    public static SaveFile<GameProgressData> Migrate(SaveFile<GameProgressData> oldSave)
     {
         int version = oldSave.version;
         var data = oldSave.data;
 
-        while(version < SaveVersion.CURRENT)
+        while (version < SaveVersion.CURRENT)
         {
             switch (version)
             {
                 case 0:
                     data = Migrate_0_To_1(data);
                     break;
+                // v1 → v2: 파일명 변경으로 v1 파일 접근 불가 → 마이그레이션 없음
             }
             version++;
         }
-        return new SaveFile<StageProgressData>(SaveVersion.CURRENT, data);
+        return new SaveFile<GameProgressData>(SaveVersion.CURRENT, data);
     }
-    static StageProgressData Migrate_0_To_1(StageProgressData old)
+
+    // v0 → v1: StarRank 음수 보정
+    static GameProgressData Migrate_0_To_1(GameProgressData old)
     {
-        // 새 필드 추가 대응
-        foreach(var s in old.stages)
+        foreach (var s in old.stages)
         {
-            if(s.StarRank < 0)
+            if (s.StarRank < 0)
                 s.StarRank = 0;
         }
         return old;

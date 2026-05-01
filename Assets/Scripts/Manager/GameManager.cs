@@ -38,6 +38,10 @@ public class GameManager : MonoBehaviour
     {
         StageIdentifier info = FindObjectOfType<StageIdentifier>();
         totalStarCount = info.totalStarCount;
+
+        // 스테이지 진입 시 player 스냅샷 저장
+        // 클리어 없이 이탈 시 RollbackPlayer()로 복원
+        GameProgress.TakeSnapshot();
     }
 
     private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
@@ -51,9 +55,9 @@ public class GameManager : MonoBehaviour
 
     public void InitializeStageFromProgress()
     {
-        currentStageIndex = StageProgress.CurrentStageId - 1;
+        currentStageIndex = GameProgress.CurrentStageId - 1;
         ActivateStage(currentStageIndex);
-        UIStage.text = "STAGE " + StageProgress.CurrentStageId;
+        UIStage.text = "STAGE " + GameProgress.CurrentStageId;
     }
 
     private void ActivateStage(int index)
@@ -79,8 +83,9 @@ public class GameManager : MonoBehaviour
 
         int starRank = CalculateStarRank(collectedStarCount, totalStarCount);
 
-        StageProgress.UpdateStageResult(stageId, collectedStarCount, starRank);
-        StageProgress.SaveImmediate();
+        GameProgress.UpdateStageResult(stageId, collectedStarCount, starRank);
+        GameProgress.CommitSnapshot(); // 스냅샷 폐기 — 클리어로 확정
+        GameProgress.SaveImmediate();
         Debug.Log($"Cleared Stage: {stageId}");
 
         PlayerStats.instance.ResetForNextStage();
@@ -104,6 +109,9 @@ public class GameManager : MonoBehaviour
         currentStageIndex++;
         ActivateStage(currentStageIndex);
 
+        // 다음 스테이지 진입 시 새 스냅샷 저장
+        GameProgress.TakeSnapshot();
+
         PlayerReposition();
 
         var cam = Camera.main.GetComponent<CameraController>();
@@ -124,8 +132,6 @@ public class GameManager : MonoBehaviour
     {
         if (!collision.CompareTag("Player")) return;
 
-        // HP 단일화 — 토끼/검사 구분 없이 HealthDown() 호출
-        // 마지막 하트에서 낭떨어지 시 원위치 없이 사망 처리
         if (PlayerStats.instance.CurrentHearts > 1)
             PlayerReposition();
 
@@ -146,6 +152,9 @@ public class GameManager : MonoBehaviour
 
     public void Restart()
     {
+        // 클리어 없이 재시작 — player 데이터 롤백
+        GameProgress.RollbackPlayer();
+
         Destroy(GameManager.Instance.gameObject);
         Destroy(PlayerStats.instance.gameObject);
         Time.timeScale = 1f;
@@ -154,6 +163,9 @@ public class GameManager : MonoBehaviour
 
     public void BackToStageSelect()
     {
+        // 클리어 없이 이탈 — player 데이터 롤백
+        GameProgress.RollbackPlayer();
+
         Time.timeScale = 1f;
         SceneManager.LoadScene("StageSelect");
     }
