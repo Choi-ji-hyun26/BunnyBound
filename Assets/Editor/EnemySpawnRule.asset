@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: EnemySpawnRule
   m_EditorClassIdentifier: 
   enemyRanges:
-  - enemyPrefab: {fileID: 1348131611115332300, guid: bb68c82876cae433e984a56082a695ee, type: 3}
+  - enemyPrefab: {fileID: 4362077488420128415, guid: 8c5c35d380ce143dbab857bb9fc54ac0, type: 3}
     minDifficulty: 0
     maxDifficulty: 0.3
   - enemyPrefab: {fileID: 4385207330390193776, guid: 3068d4908129a49e49188a0eac7106a0, type: 3}

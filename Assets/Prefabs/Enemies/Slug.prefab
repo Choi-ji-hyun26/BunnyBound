@@ -173,7 +173,8 @@ MonoBehaviour:
   maxHp: 20
   defaultFacingLeft: 1
   isMovingEnemy: 1
-  knockbackStunDuration: 0.4
+  knockbackSpeed: 8
+  knockbackDuration: 0.3
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
