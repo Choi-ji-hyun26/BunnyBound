@@ -3,7 +3,8 @@ using UnityEngine;
 /// <summary>
 /// 적 피격 HurtBox
 /// - 항상 활성화
-/// - PlayerHitBox(SwordHitBox) 레이어 감지 시 TakeDamage() 호출
+/// - PlayerHitBox(SwordHitBox, FeverHitBox) 레이어 감지 시 TakeDamage() 호출
+/// - hitPosition을 함께 전달 → EnemyBase에서 넉백/스턴 방향 계산에 사용
 /// - Layer: EnemyHurtBox / IsTrigger: ON
 /// </summary>
 public class EnemyHurtBox : MonoBehaviour
@@ -21,9 +22,8 @@ public class EnemyHurtBox : MonoBehaviour
     {
         if (other.gameObject.layer != LayerMask.NameToLayer("PlayerHitBox")) return;
 
-        // IAttackHitBox 인터페이스로 SwordHitBox, FeverHitBox 통일 처리
         IAttackHitBox attackHitBox = other.GetComponent<IAttackHitBox>();
         if (attackHitBox != null && enemy != null)
-            enemy.TakeDamage(attackHitBox.Damage);
+            enemy.TakeDamage(attackHitBox.Damage, other.transform.position);
     }
 }

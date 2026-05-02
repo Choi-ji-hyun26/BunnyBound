@@ -13,26 +13,26 @@ public class EnemyBase : MonoBehaviour
 
     [SerializeField] private bool defaultFacingLeft = true;
 
-    // 이동형/고정형 구분 (Shield 넉백/스턴 제어)
-    [SerializeField] protected bool isMovingEnemy = true; // Slug, Bee: true / Piranha: false
+    // 이동형: 넉백 / 고정형: 스턴
+    [SerializeField] protected bool isMovingEnemy = true;
     public bool IsMovingEnemy => isMovingEnemy;
 
-    // 스턴 상태 (넉백 경직 포함)
     public bool IsStunned { get; protected set; } = false;
 
     /// <summary>
     /// 공격 판정 중 여부
-    /// - 순찰형(Slug, Bee, Slime): 항상 false
+    /// - 순찰형(Slug, Bee, Slime, Bat): 항상 false
     /// - 패턴형(Piranha): Enbox()/Debox() 애니메이션 이벤트에서 세팅
     /// </summary>
     public bool IsAttacking { get; protected set; } = false;
 
     [Header("Death Settings")]
-    [SerializeField] private float deathDelay = 0.5f; // Death 애니메이션 길이에 맞게 Inspector에서 조정
+    [SerializeField] private float deathDelay = 0.5f;
 
-    [Header("Knockback Settings")]
-    [SerializeField] private float knockbackSpeed = 8f;
+    [Header("Hit Reaction Settings")]
+    [SerializeField] private float knockbackSpeed    = 5f;
     [SerializeField] private float knockbackDuration = 0.3f;
+    [SerializeField] private float hitStunDuration   = 0.3f;
 
     protected Rigidbody2D rigid;
     protected Animator animator;
@@ -70,17 +70,46 @@ public class EnemyBase : MonoBehaviour
         spriteRenderer.flipX = defaultFacingLeft ? !movingLeft : movingLeft;
     }
 
-    public virtual void TakeDamage(int amount)
+    /// <summary>
+    /// 피격 처리
+    /// - HP 감소 → 사망 시 Die()
+    /// - 생존 시 doHurt 트리거 + 피격 반응 (이동형: 넉백 / 고정형: 스턴)
+    /// </summary>
+    public virtual void TakeDamage(int amount, Vector2 hitPosition)
     {
         currentHp -= amount;
         if (currentHp <= 0)
+        {
             Die();
-        else
-            animator.SetTrigger("doHurt");
+            return;
+        }
+
+        animator.SetTrigger("doHurt");
+        ApplyHitReaction(hitPosition);
     }
 
     /// <summary>
-    /// 이동형 적 전용 — 쉴드 차단 시 넉백
+    /// 피격 반응 — isMovingEnemy 기준으로 분기
+    /// 이동형(Slug, Bat, Slime): 수평 넉백
+    /// 고정형(Piranha): 스턴
+    /// </summary>
+    private void ApplyHitReaction(Vector2 hitPosition)
+    {
+        if (isMovingEnemy)
+        {
+            // x축만 사용 → 수평 넉백으로 통일
+            float dirX = transform.position.x - hitPosition.x;
+            Vector2 knockbackDir = new Vector2(Mathf.Sign(dirX), 0f);
+            TakeKnockback(knockbackDir, knockbackSpeed);
+        }
+        else
+        {
+            Stun(hitStunDuration);
+        }
+    }
+
+    /// <summary>
+    /// 이동형 적 전용 — 넉백 (쉴드 차단 / 일반 피격 공용)
     /// </summary>
     public void TakeKnockback(Vector2 direction, float speed)
     {
@@ -117,7 +146,8 @@ public class EnemyBase : MonoBehaviour
     }
 
     /// <summary>
-    /// 고정형 적 전용 — 쉴드 차단 시 일시 정지
+    /// 고정형 적 전용 — 스턴 (쉴드 차단 / 일반 피격 공용)
+    /// Piranha에서 override해서 animator.speed 제어
     /// </summary>
     public virtual void Stun(float duration)
     {
@@ -138,15 +168,17 @@ public class EnemyBase : MonoBehaviour
     }
 
     /// <summary>
-    /// 사망 처리 — 상태머신 우회, 직접 처리
-    /// 1. 충돌/물리 비활성화
-    /// 2. 상태머신 Update 중단 (IsStunned 활용)
-    /// 3. doDeath 트리거 → 각 적의 Animator에서 Death 클립 재생
-    /// 4. deathDelay 후 오브젝트 파괴
+    /// 플레이어 HitBox에 충돌했을 때 EnemyHitBox에서 호출
+    /// 충돌 반응이 필요한 적(Bat 등)에서 override
+    /// </summary>
+    public virtual void OnHitPlayer() { }
+
+    /// <summary>
+    /// 사망 처리
     /// </summary>
     protected virtual void Die()
     {
-        IsStunned = true; // Update() 내 stateMachine.Update() 중단
+        IsStunned = true;
 
         if (boxCollider != null) boxCollider.enabled = false;
         if (rigid != null) rigid.simulated = false;
