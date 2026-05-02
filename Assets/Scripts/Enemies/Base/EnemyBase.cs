@@ -22,15 +22,17 @@ public class EnemyBase : MonoBehaviour
 
     /// <summary>
     /// 공격 판정 중 여부
-    /// - 순찰형(Slug, Bee): 항상 false — 쉴드 반응은 IsMovingEnemy로만 판단
-    /// - 패턴형(Piranha): AttackState Enter/Exit에서 true/false 세팅
-    ///   → 공격 중일 때만 쉴드 stun 발동
+    /// - 순찰형(Slug, Bee, Slime): 항상 false
+    /// - 패턴형(Piranha): Enbox()/Debox() 애니메이션 이벤트에서 세팅
     /// </summary>
     public bool IsAttacking { get; protected set; } = false;
 
+    [Header("Death Settings")]
+    [SerializeField] private float deathDelay = 0.5f; // Death 애니메이션 길이에 맞게 Inspector에서 조정
+
     [Header("Knockback Settings")]
-    [SerializeField] private float knockbackSpeed = 8f;      // 넉백 이동 속도
-    [SerializeField] private float knockbackDuration = 0.3f; // 넉백 지속 시간 → 거리 = speed * duration
+    [SerializeField] private float knockbackSpeed = 8f;
+    [SerializeField] private float knockbackDuration = 0.3f;
 
     protected Rigidbody2D rigid;
     protected Animator animator;
@@ -57,7 +59,6 @@ public class EnemyBase : MonoBehaviour
 
     protected virtual void Update()
     {
-        // 스턴/경직 중에는 상태머신 업데이트 안 함 → Move()의 velocity 덮어쓰기 차단
         if (IsStunned) return;
         stateMachine.Update();
     }
@@ -74,14 +75,12 @@ public class EnemyBase : MonoBehaviour
         currentHp -= amount;
         if (currentHp <= 0)
             Die();
+        else
+            animator.SetTrigger("doHurt");
     }
 
     /// <summary>
     /// 이동형 적 전용 — 쉴드 차단 시 넉백
-    /// velocity 직접 세팅으로 GravityScale/drag에 무관하게 일정한 넉백 거리 보장
-    /// 이동 거리 = knockbackSpeed * knockbackDuration
-    /// - 지상 적 (GravityScale > 0): 수평 방향만 적용 (y는 중력에 맡김)
-    /// - 공중 적 (GravityScale = 0): 전달받은 방향 그대로 적용
     /// </summary>
     public void TakeKnockback(Vector2 direction, float speed)
     {
@@ -119,7 +118,6 @@ public class EnemyBase : MonoBehaviour
 
     /// <summary>
     /// 고정형 적 전용 — 쉴드 차단 시 일시 정지
-    /// 하위 클래스에서 override 가능 (애니메이션 freeze 등)
     /// </summary>
     public virtual void Stun(float duration)
     {
@@ -139,8 +137,22 @@ public class EnemyBase : MonoBehaviour
         IsStunned = false;
     }
 
+    /// <summary>
+    /// 사망 처리 — 상태머신 우회, 직접 처리
+    /// 1. 충돌/물리 비활성화
+    /// 2. 상태머신 Update 중단 (IsStunned 활용)
+    /// 3. doDeath 트리거 → 각 적의 Animator에서 Death 클립 재생
+    /// 4. deathDelay 후 오브젝트 파괴
+    /// </summary>
     protected virtual void Die()
     {
-        stateMachine.ChangeState(new EnemyDeathState(this));
+        IsStunned = true; // Update() 내 stateMachine.Update() 중단
+
+        if (boxCollider != null) boxCollider.enabled = false;
+        if (rigid != null) rigid.simulated = false;
+
+        animator.SetTrigger("doDeath");
+
+        Object.Destroy(gameObject, deathDelay);
     }
 }
