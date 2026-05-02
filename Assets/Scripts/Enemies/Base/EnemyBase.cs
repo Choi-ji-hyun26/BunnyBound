@@ -13,7 +13,7 @@ public class EnemyBase : MonoBehaviour
 
     [SerializeField] private bool defaultFacingLeft = true;
 
-    // 이동형: 넉백 / 고정형: 스턴
+    // 이동형: 넉백 / 고정형: Hurt 트리거만 (스턴 없음)
     [SerializeField] protected bool isMovingEnemy = true;
     public bool IsMovingEnemy => isMovingEnemy;
 
@@ -21,7 +21,7 @@ public class EnemyBase : MonoBehaviour
 
     /// <summary>
     /// 공격 판정 중 여부
-    /// - 순찰형(Slug, Bee, Slime, Bat): 항상 false
+    /// - 순찰형(Slime, Bat): 항상 false
     /// - 패턴형(Piranha): Enbox()/Debox() 애니메이션 이벤트에서 세팅
     /// </summary>
     public bool IsAttacking { get; protected set; } = false;
@@ -32,7 +32,6 @@ public class EnemyBase : MonoBehaviour
     [Header("Hit Reaction Settings")]
     [SerializeField] private float knockbackSpeed    = 5f;
     [SerializeField] private float knockbackDuration = 0.3f;
-    [SerializeField] private float hitStunDuration   = 0.3f;
 
     protected Rigidbody2D rigid;
     protected Animator animator;
@@ -73,7 +72,9 @@ public class EnemyBase : MonoBehaviour
     /// <summary>
     /// 피격 처리
     /// - HP 감소 → 사망 시 Die()
-    /// - 생존 시 doHurt 트리거 + 피격 반응 (이동형: 넉백 / 고정형: 스턴)
+    /// - 생존 시 doHurt 트리거 + 피격 반응
+    ///   이동형: 수평 넉백 (IsStunned로 행동 캔슬)
+    ///   고정형: doHurt 트리거만 — Hurt 애니메이션이 피격 표현 담당, 별도 Stun 없음
     /// </summary>
     public virtual void TakeDamage(int amount, Vector2 hitPosition)
     {
@@ -89,23 +90,19 @@ public class EnemyBase : MonoBehaviour
     }
 
     /// <summary>
-    /// 피격 반응 — isMovingEnemy 기준으로 분기
-    /// 이동형(Slug, Bat, Slime): 수평 넉백
-    /// 고정형(Piranha): 스턴
+    /// 피격 반응
+    /// 이동형: 수평 넉백
+    /// 고정형: 반응 없음 (doHurt 트리거는 TakeDamage에서 이미 세팅)
     /// </summary>
     private void ApplyHitReaction(Vector2 hitPosition)
     {
         if (isMovingEnemy)
         {
-            // x축만 사용 → 수평 넉백으로 통일
             float dirX = transform.position.x - hitPosition.x;
             Vector2 knockbackDir = new Vector2(Mathf.Sign(dirX), 0f);
             TakeKnockback(knockbackDir, knockbackSpeed);
         }
-        else
-        {
-            Stun(hitStunDuration);
-        }
+        // 고정형: Stun() 호출 제거 — Hurt 애니메이션으로 피격 표현 충분
     }
 
     /// <summary>
@@ -146,8 +143,9 @@ public class EnemyBase : MonoBehaviour
     }
 
     /// <summary>
-    /// 고정형 적 전용 — 스턴 (쉴드 차단 / 일반 피격 공용)
-    /// Piranha에서 override해서 animator.speed 제어
+    /// 고정형 적 전용 — 쉴드 차단 시 스턴
+    /// Piranha에서 override: Debox() + animator.speed = 0f freeze
+    /// 일반 피격에서는 호출하지 않음
     /// </summary>
     public virtual void Stun(float duration)
     {
