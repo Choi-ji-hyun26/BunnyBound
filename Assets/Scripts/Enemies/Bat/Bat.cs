@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -22,8 +21,8 @@ public class Bat : EnemyBase
     [SerializeField] private float patrolHeight = 2f;
 
     [Header("Bounce")]
-    [SerializeField] private float bounceForce    = 6f;  // 튕겨나가는 힘
-    [SerializeField] private float bounceDuration = 0.6f; // 튕겨나간 후 대기 시간
+    [SerializeField] private float bounceForce    = 6f;
+    [SerializeField] private float bounceDuration = 0.6f;
 
     public float DetectRange    => detectRange;
     public float PatrolSpeed    => patrolSpeed;
@@ -65,11 +64,6 @@ public class Bat : EnemyBase
             Debug.LogWarning("[Bat] Player 태그를 가진 오브젝트를 찾을 수 없습니다.");
 
         stateMachine.Initialize(PatrolState);
-    }
-
-    protected override void Update()
-    {
-        base.Update();
     }
 
     // ─────────────────────────────────────────
