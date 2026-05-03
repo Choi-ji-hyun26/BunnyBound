@@ -18,6 +18,10 @@ public class Piranha : EnemyBase
     protected float defaultColliderX;
 
     private Transform player;
+
+    // 사망 여부 플래그 — StunRoutine 종료 시 ChangeState 방지
+    private bool isDead = false;
+
     public PiranhaIdleState IdleState { get; private set; }
     public PiranhaAttackState AttackState { get; private set; }
 
@@ -54,6 +58,7 @@ public class Piranha : EnemyBase
         Vector2 direction = player.position - transform.position;
         float distance = direction.magnitude;
 
+        // 위쪽 플레이어만 감지
         if (distance > detectionRadius || direction.y < -0.1f) return false;
 
         if (obstacleLayer.value != 0)
@@ -121,7 +126,7 @@ public class Piranha : EnemyBase
         IsStunned = true;
         Debox();
 
-        // Stun 클립 재생
+        // Stun 클립 재생 (공격 프레임 역순)
         animator.SetTrigger("doStun");
 
         // 클립 재생이 끝날 때까지 대기
@@ -133,7 +138,17 @@ public class Piranha : EnemyBase
         animator.speed = 1f;
 
         IsStunned = false;
-        stateMachine.ChangeState(IdleState);
+
+        // 사망 중이면 ChangeState 스킵 — Die()에서 이미 처리됨
+        if (!isDead)
+            stateMachine.ChangeState(IdleState);
+    }
+
+    protected override void Die()
+    {
+        isDead = true;
+        animator.speed = 1f; // Stun 중 freeze 상태였을 경우 복귀
+        base.Die();
     }
 
     private void OnDrawGizmos()
