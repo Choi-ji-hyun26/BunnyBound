@@ -17,6 +17,8 @@ public class BatBounceState : IEnemyState
     private Bat bat;
     private EnemyStateMachine stateMachine;
 
+    private Coroutine bounceCoroutine;
+
     public BatBounceState(Bat bat, EnemyStateMachine stateMachine)
     {
         this.bat          = bat;
@@ -26,13 +28,20 @@ public class BatBounceState : IEnemyState
     public void Enter()
     {
         bat.Animator.SetBool("isAttacking", false);
-        bat.StartCoroutine(BounceRoutine());
+        bounceCoroutine = bat.StartCoroutine(BounceRoutine());
     }
 
     public void Update() { }
 
     public void Exit()
     {
+        // 사망 등 외부 강제 전환 시 코루틴 정지 — ChangeState() 중복 호출 방지
+        if (bounceCoroutine != null)
+        {
+            bat.StopCoroutine(bounceCoroutine);
+            bounceCoroutine = null;
+        }
+
         bat.Rigid.velocity = Vector2.zero;
     }
 
@@ -56,6 +65,8 @@ public class BatBounceState : IEnemyState
 
         // bounceDuration 동안 분리 — 플레이어 재정비 시간
         yield return new WaitForSeconds(bat.BounceDuration);
+
+        bounceCoroutine = null;
 
         // 플레이어 재감지 여부에 따라 분기
         if (bat.IsPlayerDetected())
