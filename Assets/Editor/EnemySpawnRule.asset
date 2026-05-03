@@ -19,6 +19,6 @@ MonoBehaviour:
   - enemyPrefab: {fileID: 4385207330390193776, guid: 3068d4908129a49e49188a0eac7106a0, type: 3}
     minDifficulty: 0.3
     maxDifficulty: 0.6
-  - enemyPrefab: {fileID: 8644562310753182494, guid: f6de291c11ac64d558fc41b3cd59a303, type: 3}
+  - enemyPrefab: {fileID: 2959211984373737548, guid: f8ad9e91f9ca349b48e3059831888dbe, type: 3}
     minDifficulty: 0.6
     maxDifficulty: 1
