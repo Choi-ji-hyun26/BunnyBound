@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Security.Cryptography;
 using UnityEngine;
 
 public class PiranhaIdleState : IEnemyState
@@ -10,13 +7,13 @@ public class PiranhaIdleState : IEnemyState
 
     public PiranhaIdleState(Piranha piranha, EnemyStateMachine stateMachine)
     {
-        this.piranha = piranha;
+        this.piranha      = piranha;
         this.stateMachine = stateMachine;
     }
 
     public void Enter()
     {
-        piranha.Animator.Play("Piranha_Idle");
+        piranha.Animator.SetBool("isAttacking", false);
     }
 
     public void Update()
@@ -28,8 +25,5 @@ public class PiranhaIdleState : IEnemyState
         }
     }
 
-    public void Exit()
-    {
-        
-    }
+    public void Exit() { }
 }

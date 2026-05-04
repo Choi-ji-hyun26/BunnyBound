@@ -1,10 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyStateMachine
 {
     private IEnemyState currentState;
+
+    public IEnemyState CurrentState => currentState;
 
     public void Initialize(IEnemyState startState)
     {

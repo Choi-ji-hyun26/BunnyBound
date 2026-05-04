@@ -10,12 +10,18 @@ public class Piranha : EnemyBase
 
     [Header("Timing")]
     public float cooldownTime = 1.0f;
+    [SerializeField] private float stunClipDuration = 0.3f; // Stun 클립(역재생) 길이
+    [SerializeField] private float stunHoldDuration = 0.5f; // 마지막 프레임 유지 시간
 
     [Header("Attack Collider")]
     [SerializeField] protected CircleCollider2D attackCollider;
     protected float defaultColliderX;
 
     private Transform player;
+
+    // 사망 여부 플래그 — StunRoutine 종료 시 ChangeState 방지
+    private bool isDead = false;
+
     public PiranhaIdleState IdleState { get; private set; }
     public PiranhaAttackState AttackState { get; private set; }
 
@@ -31,19 +37,18 @@ public class Piranha : EnemyBase
             attackCollider.enabled = false;
         }
 
-        IdleState = new PiranhaIdleState(this, stateMachine);
+        IdleState   = new PiranhaIdleState(this, stateMachine);
         AttackState = new PiranhaAttackState(this, stateMachine);
     }
 
-    protected virtual void Start()
+    protected override void Start()
     {
-        if (player == null)
-        {
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj != null) player = playerObj.transform;
-        }
+        base.Start();
 
-        stateMachine.Initialize(new PiranhaIdleState(this, stateMachine));
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null) player = playerObj.transform;
+
+        stateMachine.Initialize(IdleState);
     }
 
     public bool IsPlayerDetected()
@@ -53,6 +58,7 @@ public class Piranha : EnemyBase
         Vector2 direction = player.position - transform.position;
         float distance = direction.magnitude;
 
+        // 위쪽 플레이어만 감지
         if (distance > detectionRadius || direction.y < -0.1f) return false;
 
         if (obstacleLayer.value != 0)
@@ -86,12 +92,9 @@ public class Piranha : EnemyBase
         attackCollider.offset = offset;
     }
 
-    // ───────────────────────────────────────────
-    // Animation Event
-    // 3~4프레임: 실제 공격 판정 구간
-    // Enbox: 콜라이더 ON + IsAttacking = true  → 이때만 쉴드 가드 가능
-    // Debox: 콜라이더 OFF + IsAttacking = false → 공격 판정 종료
-    // ───────────────────────────────────────────
+    // ─────────────────────────────────────────
+    // Animation Events
+    // ─────────────────────────────────────────
     public void Enbox()
     {
         attackCollider.enabled = true;
@@ -104,14 +107,14 @@ public class Piranha : EnemyBase
         SetAttacking(false);
     }
 
-    /// <summary>
-    /// EnemyBase.IsAttacking setter — PiranhaAttackState 및 Animation Event에서 호출
-    /// </summary>
     public void SetAttacking(bool value) => IsAttacking = value;
 
-    // ───────────────────────────────────────────
-    // 쉴드 차단 stun — 공격 애니메이션 freeze
-    // ───────────────────────────────────────────
+    // ─────────────────────────────────────────
+    // 쉴드 차단 스턴
+    // 1. doStun 트리거 → 역재생 클립 재생 (stunClipDuration)
+    // 2. 마지막 프레임에서 animator.speed = 0f 로 freeze (stunHoldDuration)
+    // 3. animator.speed 복귀 → IdleState
+    // ─────────────────────────────────────────
     public override void Stun(float duration)
     {
         if (!IsStunned)
@@ -121,16 +124,31 @@ public class Piranha : EnemyBase
     protected override IEnumerator StunRoutine(float duration)
     {
         IsStunned = true;
-        Debox(); // 콜라이더 OFF + IsAttacking = false
+        Debox();
 
+        // Stun 클립 재생 (공격 프레임 역순)
+        animator.SetTrigger("doStun");
+
+        // 클립 재생이 끝날 때까지 대기
+        yield return new WaitForSeconds(stunClipDuration);
+
+        // 마지막 프레임 freeze — stunHoldDuration 동안 유지
         animator.speed = 0f;
-
-        yield return new WaitForSeconds(duration);
-
+        yield return new WaitForSeconds(stunHoldDuration);
         animator.speed = 1f;
+
         IsStunned = false;
 
-        stateMachine.ChangeState(IdleState);
+        // 사망 중이면 ChangeState 스킵 — Die()에서 이미 처리됨
+        if (!isDead)
+            stateMachine.ChangeState(IdleState);
+    }
+
+    protected override void Die()
+    {
+        isDead = true;
+        animator.speed = 1f; // Stun 중 freeze 상태였을 경우 복귀
+        base.Die();
     }
 
     private void OnDrawGizmos()
@@ -152,7 +170,7 @@ public class Piranha : EnemyBase
         }
         Gizmos.DrawLine(lastPos, transform.position + new Vector3(detectionRadius, 0, 0));
 
-        if (IsPlayerDetected())
+        if (player != null && IsPlayerDetected())
         {
             Gizmos.color = Color.red;
             Gizmos.DrawLine(transform.position, player.position);
