@@ -33,6 +33,9 @@ public class EnemyBase : MonoBehaviour
     [SerializeField] private float knockbackSpeed    = 5f;
     [SerializeField] private float knockbackDuration = 0.3f;
 
+    [Header("Damage Number Settings")]
+    [SerializeField] private Vector3 damageNumberOffset = new Vector3(0f, 2f, 0f); // 피격 위치 오프셋
+
     protected Rigidbody2D rigid;
     protected Animator animator;
     protected SpriteRenderer spriteRenderer;
@@ -72,13 +75,17 @@ public class EnemyBase : MonoBehaviour
     /// <summary>
     /// 피격 처리
     /// - HP 감소 → 사망 시 Die()
-    /// - 생존 시 doHurt 트리거 + 피격 반응
+    /// - 생존 시 doHurt 트리거 + 피격 반응 + 데미지 숫자 표시
     ///   이동형: 수평 넉백 (IsStunned로 행동 캔슬)
-    ///   고정형: doHurt 트리거만 — Hurt 애니메이션이 피격 표현 담당, 별도 Stun 없음
+    ///   고정형: doHurt 트리거만 — Hurt 애니메이션이 피격 표현 담당
     /// </summary>
     public virtual void TakeDamage(int amount, Vector2 hitPosition)
     {
         currentHp -= amount;
+
+        // 데미지 숫자 표시 — 사망/생존 공통 적용
+        ShowDamageNumber(amount);
+
         if (currentHp <= 0)
         {
             Die();
@@ -87,6 +94,16 @@ public class EnemyBase : MonoBehaviour
 
         animator.SetTrigger("doHurt");
         ApplyHitReaction(hitPosition);
+    }
+
+    /// <summary>
+    /// 데미지 숫자 표시 — DamageNumberPool에서 꺼내서 피격 위치 위에 표시
+    /// </summary>
+    private void ShowDamageNumber(int amount)
+    {
+        if (DamageNumberPool.Instance == null) return;
+        Vector3 spawnPos = transform.position + damageNumberOffset;
+        DamageNumberPool.Instance.Get(amount, spawnPos);
     }
 
     /// <summary>
@@ -102,7 +119,6 @@ public class EnemyBase : MonoBehaviour
             Vector2 knockbackDir = new Vector2(Mathf.Sign(dirX), 0f);
             TakeKnockback(knockbackDir, knockbackSpeed);
         }
-        // 고정형: Stun() 호출 제거 — Hurt 애니메이션으로 피격 표현 충분
     }
 
     /// <summary>
@@ -144,7 +160,7 @@ public class EnemyBase : MonoBehaviour
 
     /// <summary>
     /// 고정형 적 전용 — 쉴드 차단 시 스턴
-    /// Piranha에서 override: Debox() + animator.speed = 0f freeze
+    /// Piranha에서 override: Debox() + doStun 트리거
     /// 일반 피격에서는 호출하지 않음
     /// </summary>
     public virtual void Stun(float duration)

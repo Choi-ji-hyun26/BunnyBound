@@ -166,6 +166,7 @@ MonoBehaviour:
   deathDelay: 0.5
   knockbackSpeed: 8
   knockbackDuration: 0.3
+  damageNumberOffset: {x: 0, y: 3, z: 0}
   detectRange: 5
   playerLayer:
     serializedVersion: 2

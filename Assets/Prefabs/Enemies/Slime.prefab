@@ -247,10 +247,11 @@ MonoBehaviour:
   deathDelay: 0.5
   knockbackSpeed: 8
   knockbackDuration: 0.3
+  damageNumberOffset: {x: 0, y: 3, z: 0}
   moveSpeed: 2
   groundLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
   jumpForce: 5
   jumpChance: 20
 --- !u!1 &4789674652825724214
