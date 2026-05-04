@@ -102,24 +102,42 @@ public class EnemyAutoSpawnerEditor : EditorWindow
 
         for (int i = 0; i < Mathf.Min(enemyTotalCount, groundPositions.Count); i++)
         {
-            float t = i / (float)(enemyTotalCount - 1);
+            float t = enemyTotalCount > 1
+                ? i / (float)(enemyTotalCount - 1)
+                : 0f;
+
             GameObject prefabToSpawn = PickEnemyByDifficulty(t);
+            if (prefabToSpawn == null) continue;
 
-            if (prefabToSpawn != null)
+            Vector3 spawnPos = groundPositions[i];
+
+            GameObject tempEnemy = (GameObject)PrefabUtility.InstantiatePrefab(prefabToSpawn);
+
+            // 콜라이더 타입별 하단 오프셋 계산
+            // bounds 대신 offset/size/radius로 직접 계산 — 에디터에서 physics 미계산 대응
+            BoxCollider2D box       = tempEnemy.GetComponent<BoxCollider2D>();
+            CircleCollider2D circle = tempEnemy.GetComponent<CircleCollider2D>();
+
+            if (box != null)
             {
-                Vector3 spawnPos = groundPositions[i];
-
-                // Bat은 비행형 적이므로 공중 배치
-                if (prefabToSpawn.name.ToLower().Contains("bat"))
-                {
-                    spawnPos.y += Random.Range(1f, 3f);
-                }
-
-                GameObject enemy = (GameObject)PrefabUtility.InstantiatePrefab(prefabToSpawn);
-                enemy.transform.position = spawnPos;
-                enemy.transform.SetParent(enemyParent);
-                Undo.RegisterCreatedObjectUndo(enemy, "Spawn Enemy");
+                // 박스 콜라이더 하단: offset.y - size.y * 0.5
+                float colBottomOffset = box.offset.y - box.size.y * 0.5f;
+                spawnPos.y -= colBottomOffset;
             }
+            else if (circle != null)
+            {
+                // 원형 콜라이더 하단: offset.y - radius
+                float colBottomOffset = circle.offset.y - circle.radius;
+                spawnPos.y -= colBottomOffset;
+            }
+
+            // Bat은 비행형 적이므로 보정 후 추가 공중 배치
+            if (prefabToSpawn.name.ToLower().Contains("bat"))
+                spawnPos.y += Random.Range(1f, 3f);
+
+            tempEnemy.transform.position = spawnPos;
+            tempEnemy.transform.SetParent(enemyParent);
+            Undo.RegisterCreatedObjectUndo(tempEnemy, "Spawn Enemy");
         }
 
         Undo.CollapseUndoOperations(group);
