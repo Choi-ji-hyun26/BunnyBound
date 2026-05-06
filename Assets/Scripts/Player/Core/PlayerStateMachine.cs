@@ -10,8 +10,8 @@ public class PlayerStateMachine : MonoBehaviour
 
     [Header("Movement Stats")]
     public float maxSpeed = 6f;
-    public float firstJumpForce = 20f;
-    public float doubleJumpForce = 16f;
+    public float firstJumpForce = 22f;
+    public float doubleJumpForce = 18f;
     public int maxJumpCount = 2;
     public float defaultGravity = 4f;
 
