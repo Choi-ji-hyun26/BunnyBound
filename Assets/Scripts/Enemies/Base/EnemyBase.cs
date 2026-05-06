@@ -156,7 +156,13 @@ public class EnemyBase : MonoBehaviour
             : new Vector2(0f, rigid.velocity.y);
 
         IsStunned = false;
+        OnKnockbackEnd();
     }
+
+    /// <summary>
+    /// 넉백 종료 콜백 — 넉백이 필요한 적에서 override
+    /// </summary>
+    protected virtual void OnKnockbackEnd() { }
 
     /// <summary>
     /// 고정형 적 전용 — 쉴드 차단 시 스턴

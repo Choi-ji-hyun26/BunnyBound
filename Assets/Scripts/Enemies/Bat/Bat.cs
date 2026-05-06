@@ -66,6 +66,29 @@ public class Bat : EnemyBase
         stateMachine.Initialize(PatrolState);
     }
 
+    // 피격 후 강제 돌진 관련 (ex. bat의 플레이어 감지 밖에서 플레이어가 원거리 공격을 한 경우)
+    public bool IsForceDash { get; private set; }
+    public Vector2 LastKnownPlayerPosition { get; private set; }
+
+    // ─────────────────────────────────────────
+    // 피격 후 상태 전환 — 넉백 종료 시 무조건 DashState
+    // 피격 자체를 플레이어 인지 트리거로 사용
+    // ─────────────────────────────────────────
+    protected override void OnKnockbackEnd()
+    {
+        // BounceState 중이면 BounceRoutine이 상태 전환 담당 — 중복 전환 방지
+        if (stateMachine.CurrentState == BounceState) return;
+
+        IsForceDash = true;
+        LastKnownPlayerPosition = Player.position;
+        stateMachine.ChangeState(DashState);
+    }
+
+    public void ClearForceDash()
+    {
+        IsForceDash = false;
+    }
+
     // ─────────────────────────────────────────
     // 플레이어 충돌 콜백 — EnemyHitBox에서 호출
     // DashState일 때만 BounceState로 전환
