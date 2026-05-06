@@ -31,12 +31,12 @@ public class PlayerDamageHandler : MonoBehaviour
         spikeLayer = LayerMask.NameToLayer("Spike");
     }
 
-    public void OnDamaged(Vector2 targetPos)
+    public void OnDamaged(Vector2 targetPos, int damage)
     {
         if (isDamageInvincible || feverHandler.isUnBeatTime || (shieldHandler != null && shieldHandler.IsShielding)) return;
 
-        // 토끼/검사 타입 무관 — HP 단일화
-        PlayerStats.instance.HealthDown();
+        // 적별 데미지 전달
+        PlayerStats.instance.TakeDamage(damage);
 
         isDamageInvincible = true;
         coordinator.SpriteRenderer.color = new Color(1, 1, 1, 0.4f);

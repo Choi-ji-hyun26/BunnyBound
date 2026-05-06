@@ -128,14 +128,15 @@ public class GameManager : MonoBehaviour
 
     private void LoadScenes() => SceneManager.LoadScene("Ending");
 
+    // 낙사 안전망 — 맵 하단 트리거 감지 시 리포지션 + 하트 1개 데미지
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!collision.CompareTag("Player")) return;
 
-        if (PlayerStats.instance.CurrentHearts > 1)
+        if (PlayerStats.instance.CurrentHP > PlayerStats.HP_PER_HEART)
             PlayerReposition();
 
-        PlayerStats.instance.HealthDown();
+        PlayerStats.instance.TakeDamage(PlayerStats.HP_PER_HEART);
     }
 
     private void PlayerReposition()
