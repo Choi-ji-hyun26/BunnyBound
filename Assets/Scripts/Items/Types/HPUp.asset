@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: HPUp
   m_EditorClassIdentifier: 
   itemName: HPUp
-  itemPrefab: {fileID: 0}
+  itemPrefab: {fileID: 2252069854767202104, guid: d996e3ada09f045c6bf56581f2d3d0a3, type: 3}
+  isOneTimeItem: 1
   itemEffectClassName: HPUpEffect

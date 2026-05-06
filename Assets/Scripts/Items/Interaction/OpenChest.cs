@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class OpenChest : MonoBehaviour
@@ -7,21 +6,33 @@ public class OpenChest : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     [SerializeField] private Sprite opendChest;
     [SerializeField] private GameObject containedItemObject;
-    [SerializeField] private string originalItemLayer = "ChestItem"; // 아이템의 원래 레이어 이름
-    //[SerializeField] private string tempIgnoreLayer = "TempIgnoreItem";       // 임시 무시 레이어 이름
-    
+    [SerializeField] private string originalItemLayer = "ChestItem";
+
+    [Header("1회용 상자 설정")]
+    [Tooltip("스테이지 번호 * 100 + 상자 번호 (예: 스테이지1 → 101, 102)\n1회용 아이템이 아닌 상자는 0으로 두세요.")]
+    [SerializeField] private int chestId = 0;
+
     private int originalLayerID;
-    //private int tempIgnoreLayerID;
     private bool isOpened = false;
+
+    private void Awake()
+    {
+        originalLayerID = LayerMask.NameToLayer(originalItemLayer);
+    }
 
     private void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-    }
-    private void Awake()
-    {
-        originalLayerID = LayerMask.NameToLayer(originalItemLayer);
-        //tempIgnoreLayerID = LayerMask.NameToLayer(tempIgnoreLayer);
+
+        // 1회용 상자이고 이미 획득한 경우 — 열린 상태로 시작, 아이템 비활성화
+        if (chestId > 0 && GameProgress.IsChestCollected(chestId))
+        {
+            isOpened = true;
+            if (spriteRenderer != null && opendChest != null)
+                spriteRenderer.sprite = opendChest;
+            if (containedItemObject != null)
+                containedItemObject.SetActive(false);
+        }
     }
 
     public void Open()
@@ -32,18 +43,22 @@ public class OpenChest : MonoBehaviour
 
         if (containedItemObject != null)
         {
+            // 1회용 아이템 여부 확인 후 획득 기록
+            CollectibleItem collectible = containedItemObject.GetComponent<CollectibleItem>();
+            if (chestId > 0 && collectible != null && collectible.itemData != null && collectible.itemData.isOneTimeItem)
+                GameProgress.CollectChest(chestId);
+
             containedItemObject.SetActive(true);
 
             Rigidbody2D itemBody = containedItemObject.GetComponent<Rigidbody2D>();
-
             if (itemBody != null)
             {
                 Vector3 targetPos = containedItemObject.transform.position + new Vector3(0, 2.5f, 0);
-
                 StartCoroutine(RiseAndActivateItem(containedItemObject, targetPos));
             }
         }
     }
+
     private IEnumerator RiseAndActivateItem(GameObject itemInstance, Vector3 targetPos)
     {
         while (itemInstance.transform.position != targetPos)
@@ -51,34 +66,31 @@ public class OpenChest : MonoBehaviour
             itemInstance.transform.position = Vector3.MoveTowards(
                 itemInstance.transform.position,
                 targetPos,
-                5 * Time.deltaTime // 속도 제어
+                5 * Time.deltaTime
             );
-            yield return null; // 다음 프레임까지 대기
+            yield return null;
         }
 
-        // layer collision 활성화된 ChestItem 레이어로 교체, 기존 레이어 : player - (비활) - TempIgnoreItem
-        itemInstance.layer = originalLayerID; 
+        itemInstance.layer = originalLayerID;
     }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Player" && !isOpened)
         {
             PlayerInteractionHandler handler = collision.GetComponent<PlayerInteractionHandler>();
             if (handler != null)
-            {
-                handler.SetInteractable(this); 
-            }
+                handler.SetInteractable(this);
         }
     }
+
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
             PlayerInteractionHandler handler = collision.GetComponent<PlayerInteractionHandler>();
             if (handler != null)
-            {
-                handler.ClearInteractable(); 
-            }
+                handler.ClearInteractable();
         }
     }
 }

@@ -8,6 +8,10 @@ public class ItemData : ScriptableObject
     public string itemName;
     public GameObject itemPrefab;
 
+    // 1회용 아이템 여부 — HPUp, SkillBook은 true, 나머지는 false
+    // Inspector에서 해당 ScriptableObject에 체크
+    public bool isOneTimeItem = false;
+
     // 이 아이템이 사용할 효과 클래스의 타입을 저장
     [SerializeField]
     private string itemEffectClassName;
