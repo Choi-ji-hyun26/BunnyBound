@@ -94,7 +94,8 @@ public static class GameProgress
         playerSnapshot = new PlayerProgressData
         {
             unlockedSkills = (bool[])data.player.unlockedSkills.Clone(),
-            maxHearts = data.player.maxHearts
+            maxHearts = data.player.maxHearts,
+            collectedChestIds = new System.Collections.Generic.List<int>(data.player.collectedChestIds)
         };
     }
 
@@ -108,6 +109,7 @@ public static class GameProgress
 
         data.player.unlockedSkills = (bool[])playerSnapshot.unlockedSkills.Clone();
         data.player.maxHearts = playerSnapshot.maxHearts;
+        data.player.collectedChestIds = new List<int>(playerSnapshot.collectedChestIds);
         playerSnapshot = null;
     }
 
@@ -219,6 +221,29 @@ public static class GameProgress
     {
         if (data?.player == null) return;
         data.player.maxHearts = maxHearts;
+    }
+
+    // ───────────────────────────────────────────
+    // 1회용 보물상자 API
+    // ───────────────────────────────────────────
+
+    /// <summary>
+    /// 해당 chestId의 상자를 이미 획득했는지 확인
+    /// </summary>
+    public static bool IsChestCollected(int chestId)
+    {
+        return data?.player?.collectedChestIds?.Contains(chestId) ?? false;
+    }
+
+    /// <summary>
+    /// 1회용 상자 획득 기록 — 메모리에만 반영
+    /// 클리어 시 SaveImmediate()로 저장, 이탈 시 RollbackPlayer()로 복원
+    /// </summary>
+    public static void CollectChest(int chestId)
+    {
+        if (data?.player == null) return;
+        if (!data.player.collectedChestIds.Contains(chestId))
+            data.player.collectedChestIds.Add(chestId);
     }
 
     // ───────────────────────────────────────────
