@@ -39,7 +39,7 @@ TagManager:
   - EnemyHitBox
   - EnemyHurtBox
   - PlayerShieldBox
-  - 
+  - Breakable
   - 
   - 
   - 

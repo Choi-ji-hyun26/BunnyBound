@@ -251,7 +251,7 @@ MonoBehaviour:
   moveSpeed: 2
   groundLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 8388864
   jumpForce: 5
   jumpChance: 20
 --- !u!1 &4789674652825724214
