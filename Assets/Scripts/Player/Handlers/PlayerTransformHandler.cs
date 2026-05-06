@@ -16,15 +16,15 @@ public class PlayerTransformHandler : MonoBehaviour
 
     [Header("Rabbit Stats")]
     [SerializeField] private float rabbitMoveSpeed = 6f;
-    [SerializeField] private float rabbitFirstJumpForce = 20f;
-    [SerializeField] private float rabbitDoubleJumpForce = 16f;
+    [SerializeField] private float rabbitFirstJumpForce = 22f;
+    [SerializeField] private float rabbitDoubleJumpForce = 18f;
     [SerializeField] private Vector2 rabbitColliderSize = new Vector2(0.8f, 1f);
     [SerializeField] private Vector2 rabbitColliderOffset = new Vector2(0f, 0f);
 
     [Header("Knight Stats")]
     [SerializeField] private float knightMoveSpeed = 3.5f;
-    [SerializeField] private float knightFirstJumpForce = 14f;
-    [SerializeField] private float knightDoubleJumpForce = 11f;
+    [SerializeField] private float knightFirstJumpForce = 15f;
+    [SerializeField] private float knightDoubleJumpForce = 12f;
     [SerializeField] private Vector2 knightColliderSize = new Vector2(0.9f, 1.4f);
     [SerializeField] private Vector2 knightColliderOffset = new Vector2(0f, 0.2f);
 

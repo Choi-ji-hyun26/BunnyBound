@@ -52,6 +52,30 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Ladder
+  - name: Background
     uniqueID: 3764063731
+    locked: 0
+  - name: Platform
+    uniqueID: 2877358487
+    locked: 0
+  - name: Harzard
+    uniqueID: 4096681809
+    locked: 0
+  - name: Item
+    uniqueID: 1830029443
+    locked: 0
+  - name: Interactive
+    uniqueID: 1421905517
+    locked: 0
+  - name: Character
+    uniqueID: 4004902027
+    locked: 0
+  - name: 
+    uniqueID: 57868231
+    locked: 0
+  - name: 
+    uniqueID: 1930347789
+    locked: 0
+  - name: 
+    uniqueID: 1633700505
     locked: 0
