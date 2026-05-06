@@ -423321,7 +423321,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shieldDuration: 0.5
-  cooldownTime: 1.5
+  cooldownTime: 1
   knockbackSpeed: 8
   stunDuration: 2
   shieldHitBox: {fileID: 1791702865}

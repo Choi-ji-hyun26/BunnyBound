@@ -23,6 +23,11 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     [SerializeField] private int damage1 = 10; // Q
     [SerializeField] private int damage2 = 15; // W
 
+    [Header("W 쿨타임")]
+    [SerializeField] private float cooldownTime2 = 2.5f;
+    public bool IsAttack2OnCooldown { get; private set; } = false;
+    public float Attack2CooldownRemaining { get; private set; } = 0f;
+
     [Header("공격 지속 시간")]
     [SerializeField] private float attackDuration1 = 0.4f;
     [SerializeField] private float attackDuration2 = 0.4f;
@@ -76,6 +81,9 @@ public class PlayerSwordAttackHandler : MonoBehaviour
             return;
         }
 
+        // W 쿨타임 체크
+        if (pressedAttack == 2 && IsAttack2OnCooldown) return;
+
         if (!IsAttacking)
             StartCoroutine(ExecuteAttack(pressedAttack));
         else
@@ -110,6 +118,9 @@ public class PlayerSwordAttackHandler : MonoBehaviour
             yield return new WaitForSeconds(hitStart);
             SpawnSlashProjectile();
             yield return new WaitForSeconds(duration - hitStart);
+
+            // W 쿨타임 시작
+            StartCoroutine(Attack2CooldownRoutine());
         }
         else
         {
@@ -135,8 +146,30 @@ public class PlayerSwordAttackHandler : MonoBehaviour
             bufferedAttack = -1;
 
             if (SkillUnlockManager.Instance.IsUnlocked(next))
+            {
+                if (next == 2 && IsAttack2OnCooldown) yield break;
                 StartCoroutine(ExecuteAttack(next));
+            }
         }
+    }
+
+    // ───────────────────────────────────────────
+    // W 쿨타임 루틴
+    // UI 연동을 위해 Attack2CooldownRemaining 매 프레임 갱신
+    // ───────────────────────────────────────────
+    private IEnumerator Attack2CooldownRoutine()
+    {
+        IsAttack2OnCooldown = true;
+        Attack2CooldownRemaining = cooldownTime2;
+
+        while (Attack2CooldownRemaining > 0f)
+        {
+            Attack2CooldownRemaining -= Time.deltaTime;
+            yield return null;
+        }
+
+        Attack2CooldownRemaining = 0f;
+        IsAttack2OnCooldown = false;
     }
 
     // ───────────────────────────────────────────
