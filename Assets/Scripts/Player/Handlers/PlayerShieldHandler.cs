@@ -22,6 +22,7 @@ public class PlayerShieldHandler : MonoBehaviour
     [Header("Shield Settings")]
     [SerializeField] private float shieldDuration = 0.5f; // Shield 클립 길이에 맞게 설정
     [SerializeField] private float cooldownTime = 1.0f;
+    public float CooldownTime => cooldownTime;
 
     [Header("Shield Reaction")]
     [SerializeField] private float knockbackSpeed = 8f;
@@ -36,6 +37,7 @@ public class PlayerShieldHandler : MonoBehaviour
 
     public bool IsShielding { get; private set; } = false;
     public bool IsOnCooldown { get; private set; } = false;
+    public float CooldownRemaining { get; private set; } = 0f;
 
     private Animator animator;
     private HashSet<EnemyBase> reactedEnemies = new HashSet<EnemyBase>();
@@ -125,7 +127,15 @@ public class PlayerShieldHandler : MonoBehaviour
     private IEnumerator CooldownRoutine()
     {
         IsOnCooldown = true;
-        yield return new WaitForSeconds(cooldownTime);
+        CooldownRemaining = cooldownTime;
+
+        while (CooldownRemaining > 0f)
+        {
+            CooldownRemaining -= Time.deltaTime;
+            yield return null;
+        }
+
+        CooldownRemaining = 0f;
         IsOnCooldown = false;
     }
 

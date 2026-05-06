@@ -25,6 +25,7 @@ public class PlayerSwordAttackHandler : MonoBehaviour
 
     [Header("W 쿨타임")]
     [SerializeField] private float cooldownTime2 = 2.5f;
+    public float CooldownTime2 => cooldownTime2;
     public bool IsAttack2OnCooldown { get; private set; } = false;
     public float Attack2CooldownRemaining { get; private set; } = 0f;
 
