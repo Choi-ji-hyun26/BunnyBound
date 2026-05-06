@@ -25,8 +25,13 @@ public class PlayerSwordAttackHandler : MonoBehaviour
 
     [Header("W 쿨타임")]
     [SerializeField] private float cooldownTime2 = 2.5f;
+    public float CooldownTime2 => cooldownTime2;
     public bool IsAttack2OnCooldown { get; private set; } = false;
     public float Attack2CooldownRemaining { get; private set; } = 0f;
+
+    // Q 입력 피드백
+    public float AttackDuration1 => attackDuration1;
+    public float Attack1ActiveRemaining { get; private set; } = 0f;
 
     [Header("공격 지속 시간")]
     [SerializeField] private float attackDuration1 = 0.4f;
@@ -65,6 +70,10 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     {
         if (transformHandler.currentType != CharacterType.Knight) return;
         HandleAttackInput();
+
+        // Q 입력 피드백 진행
+        if (Attack1ActiveRemaining > 0f)
+            Attack1ActiveRemaining = Mathf.Max(0f, Attack1ActiveRemaining - Time.deltaTime);
     }
 
     // ───────────────────────────────────────────
@@ -128,6 +137,9 @@ public class PlayerSwordAttackHandler : MonoBehaviour
             Collider2D hitBox = GetHitBox(attackIndex);
             float hitStart = duration * hitBoxStartRatio;
             float hitEnd   = duration * hitBoxEndRatio;
+
+            // Q 입력 피드백 시작
+            Attack1ActiveRemaining = attackDuration1;
 
             yield return new WaitForSeconds(hitStart);
             ActivateHitBox(hitBox, attackIndex);

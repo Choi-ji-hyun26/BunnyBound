@@ -37,6 +37,9 @@ public class PlayerTransformHandler : MonoBehaviour
     [SerializeField] private RuntimeAnimatorController rabbitAnimator;
     [SerializeField] private RuntimeAnimatorController knightAnimator;
 
+    [Header("Skill Slot UI")]
+    [SerializeField] private GameObject skillSlotContainer;
+
     [Header("Transform Control")]
     public bool CanTransform = true;
 
@@ -68,6 +71,8 @@ public class PlayerTransformHandler : MonoBehaviour
         ApplyAnimator(CharacterType.Rabbit);
         ApplyCollider(CharacterType.Rabbit);
         ApplySpriteScale(CharacterType.Rabbit);
+        if (skillSlotContainer != null)
+            skillSlotContainer.SetActive(false);
     }
 
     /// <summary>
@@ -99,6 +104,10 @@ public class PlayerTransformHandler : MonoBehaviour
         currentType = next;
 
         ApplySpriteScale(next);
+
+        // 스킬 슬롯 UI — 검사일 때만 활성화
+        if (skillSlotContainer != null)
+            skillSlotContainer.SetActive(next == CharacterType.Knight);
 
         // 변신 후 Idle로 리셋 (애니메이션 꼬임 방지)
         stateMachine.ChangeState(stateMachine.IdleState);
