@@ -5,22 +5,25 @@ using TMPro;
 /// <summary>
 /// 플레이어 HP 및 점수 관리
 ///
-/// [HP 설계 — 젤다 방식]
-/// - 토끼/검사 HP 통합: 캐릭터 타입 무관하게 하트 1개 감소
+/// [HP 설계]
+/// - 내부 HP는 정수 (하트 1개 = HP_PER_HEART = 4)
+/// - 토끼/검사 HP 통합: 캐릭터 타입 무관하게 동일한 데미지 처리
 /// - 시작 하트: 3개 / 최대 하트: 6개
 /// - MaxActiveHearts는 GameProgress에서 로드/저장
 /// - HP Up 아이템: 최대 하트 +1 + 전체 회복
 ///
-/// [UI 구조]
-/// Canvas → HPContainer (HorizontalLayoutGroup)
-///   → HeartSlot_0 ~ HeartSlot_5 (Image 컴포넌트)
-/// heartSlots 배열에 순서대로 연결
-/// fullHeartSprite  = Tilesheet_1 (꽉 찬 하트)
-/// emptyHeartSprite = Tilesheet_2 (빈 하트)
+/// [슬롯별 렌더링 로직]
+/// slotHP = CurrentHP - (i * HP_PER_HEART)
+/// slotHP >= 4 → full / == 3 → 3/4 / == 2 → half / == 1 → quarter / <= 0 → empty
 /// </summary>
 public class PlayerStats : MonoBehaviour
 {
     public static PlayerStats instance;
+
+    // ───────────────────────────────────────────
+    // HP 상수
+    // ───────────────────────────────────────────
+    public const int HP_PER_HEART = 4;
 
     // ───────────────────────────────────────────
     // HP
@@ -29,13 +32,17 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private int startHearts = 3;
     [SerializeField] private int maxHearts = 6;     // 슬롯 수 상한선
 
-    public int CurrentHearts { get; private set; }
+    public int CurrentHP { get; private set; }
+    public int MaxHP => MaxActiveHearts * HP_PER_HEART;
     public int MaxActiveHearts { get; private set; }
 
     [Header("HP UI")]
     [SerializeField] private Image[] heartSlots;
-    [SerializeField] private Sprite fullHeartSprite;    // Tilesheet_1
-    [SerializeField] private Sprite emptyHeartSprite;   // Tilesheet_2
+    [SerializeField] private Sprite fullHeartSprite;        
+    [SerializeField] private Sprite threeQuarterSprite;     
+    [SerializeField] private Sprite halfHeartSprite;        
+    [SerializeField] private Sprite quarterHeartSprite;     
+    [SerializeField] private Sprite emptyHeartSprite;       
 
     // ───────────────────────────────────────────
     // 점수
@@ -57,7 +64,7 @@ public class PlayerStats : MonoBehaviour
         // GameProgress에서 최대 하트 수 로드
         GameProgress.Load();
         MaxActiveHearts = Mathf.Clamp(GameProgress.GetMaxHearts(), startHearts, maxHearts);
-        CurrentHearts = MaxActiveHearts;
+        CurrentHP = MaxHP;
         RefreshHPUI();
     }
 
@@ -68,15 +75,14 @@ public class PlayerStats : MonoBehaviour
     }
 
     // ───────────────────────────────────────────
-    // HP 감소 — 캐릭터 타입 무관 (토끼/검사 통합)
+    // 데미지 처리 — 적별 amount 전달
     // ───────────────────────────────────────────
-    public void HealthDown()
+    public void TakeDamage(int amount)
     {
-        CurrentHearts--;
-        CurrentHearts = Mathf.Max(0, CurrentHearts);
+        CurrentHP = Mathf.Max(0, CurrentHP - amount);
         RefreshHPUI();
 
-        if (CurrentHearts <= 0)
+        if (CurrentHP <= 0)
         {
             GetComponentInParent<PlayerDeathHandler>()?.OnDie();
             GameManager.Instance.ViewBtn();
@@ -84,13 +90,13 @@ public class PlayerStats : MonoBehaviour
     }
 
     // ───────────────────────────────────────────
-    // HP 회복 — 현재 하트 1개 회복 (최대 하트 내에서)
+    // HP 회복 — 1/4하트(1) 단위 회복
     // ───────────────────────────────────────────
     public void HealthUp()
     {
-        if (CurrentHearts < MaxActiveHearts)
+        if (CurrentHP < MaxHP)
         {
-            CurrentHearts++;
+            CurrentHP = Mathf.Min(MaxHP, CurrentHP + HP_PER_HEART);
             RefreshHPUI();
         }
     }
@@ -100,7 +106,7 @@ public class PlayerStats : MonoBehaviour
     // ───────────────────────────────────────────
     public void FullHeal()
     {
-        CurrentHearts = MaxActiveHearts;
+        CurrentHP = MaxHP;
         RefreshHPUI();
     }
 
@@ -117,7 +123,7 @@ public class PlayerStats : MonoBehaviour
         }
 
         MaxActiveHearts++;
-        CurrentHearts = Mathf.Min(CurrentHearts + 1, MaxActiveHearts);
+        CurrentHP = Mathf.Min(CurrentHP + HP_PER_HEART, MaxHP);
 
         // 저장
         GameProgress.SaveMaxHearts(MaxActiveHearts);
@@ -125,7 +131,7 @@ public class PlayerStats : MonoBehaviour
     }
 
     // ───────────────────────────────────────────
-    // HP UI 갱신
+    // HP UI 갱신 — 슬롯별 잔량으로 4단계 스프라이트 결정
     // ───────────────────────────────────────────
     public void RefreshHPUI()
     {
@@ -136,7 +142,8 @@ public class PlayerStats : MonoBehaviour
             if (i < MaxActiveHearts)
             {
                 heartSlots[i].gameObject.SetActive(true);
-                heartSlots[i].sprite = i < CurrentHearts ? fullHeartSprite : emptyHeartSprite;
+                int slotHP = CurrentHP - (i * HP_PER_HEART);
+                heartSlots[i].sprite = GetHeartSprite(slotHP);
             }
             else
             {
@@ -145,14 +152,23 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    private Sprite GetHeartSprite(int slotHP)
+    {
+        if (slotHP >= 4) return fullHeartSprite;
+        if (slotHP == 3) return threeQuarterSprite;
+        if (slotHP == 2) return halfHeartSprite;
+        if (slotHP == 1) return quarterHeartSprite;
+        return emptyHeartSprite;
+    }
+
     // ───────────────────────────────────────────
     // 스테이지 전환 시 리셋
-    // MaxActiveHearts 유지 (저장된 값 그대로), 현재 하트만 풀 회복
+    // MaxActiveHearts 유지 (저장된 값 그대로), 현재 HP만 풀 회복
     // ───────────────────────────────────────────
     public void ResetForNextStage()
     {
         stagePoint = 0;
-        CurrentHearts = MaxActiveHearts;
+        CurrentHP = MaxHP;
         RefreshHPUI();
 
         PlayerTransformHandler transformHandler = FindObjectOfType<PlayerTransformHandler>();
