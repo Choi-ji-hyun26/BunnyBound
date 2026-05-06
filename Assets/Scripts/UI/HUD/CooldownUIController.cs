@@ -3,27 +3,14 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// W 공격 / 쉴드 쿨타임 UI
-///
-/// [구조]
-/// Canvas → SkillSlotContainer
-///   → SlotW
-///     → IconImage      (Image — 스킬 아이콘)
-///     → OverlayImage   (Image — fillAmount, 검은 반투명, ImageType: Filled, FillMethod: Radial360)
-///     → CooldownText   (TextMeshPro — 남은 시간 표시)
-///   → SlotShield
-///     → (동일 구조)
-///
-/// [OverlayImage 설정]
-/// Image Type: Filled / Fill Method: Radial360 / Fill Origin: Top / Clockwise: true
-/// Color: (0, 0, 0, 0.55)
-///
-/// [동작]
-/// 쿨타임 중: OverlayImage.fillAmount = 잔여/전체, CooldownText 표시
-/// 쿨타임 종료: OverlayImage.fillAmount = 0, CooldownText 비활성화
+/// Q, W 공격 / 쉴드 쿨타임 UI
 /// </summary>
 public class CooldownUIController : MonoBehaviour
 {
+    [Header("Q 공격 슬롯")]
+    [SerializeField] private Image qAttackOverlay;
+    [SerializeField] private TextMeshProUGUI qAttackText;
+
     [Header("W 공격 슬롯")]
     [SerializeField] private Image wAttackOverlay;
     [SerializeField] private TextMeshProUGUI wAttackText;
@@ -43,6 +30,7 @@ public class CooldownUIController : MonoBehaviour
         if (shieldHandler == null)
             Debug.LogError("[CooldownUIController] shieldHandler가 연결되지 않았습니다.");
 
+        SetOverlay(qAttackOverlay, qAttackText, 0f, 0f);
         SetOverlay(wAttackOverlay, wAttackText, 0f, 0f);
         SetOverlay(shieldOverlay, shieldText, 0f, 0f);
     }
@@ -51,6 +39,12 @@ public class CooldownUIController : MonoBehaviour
     {
         if (swordAttackHandler != null)
         {
+            // Q 입력 피드백
+            float qRemaining = swordAttackHandler.Attack1ActiveRemaining;
+            float qTotal = swordAttackHandler.AttackDuration1;
+            SetOverlay(qAttackOverlay, qAttackText, qRemaining, qTotal);
+
+            // W 쿨타임
             float wRemaining = swordAttackHandler.Attack2CooldownRemaining;
             float wTotal = swordAttackHandler.CooldownTime2;
             SetOverlay(wAttackOverlay, wAttackText, wRemaining, wTotal);
