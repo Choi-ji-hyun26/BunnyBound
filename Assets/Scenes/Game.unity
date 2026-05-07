@@ -363394,7 +363394,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1145856058
 RectTransform:
   m_ObjectHideFlags: 0
@@ -570473,6 +570473,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   qAttackOverlay: {fileID: 413153654}
   qAttackText: {fileID: 0}
+  wSlot: {fileID: 1145856057}
   wAttackOverlay: {fileID: 262338951}
   wAttackText: {fileID: 1268418344}
   shieldOverlay: {fileID: 347393115}
