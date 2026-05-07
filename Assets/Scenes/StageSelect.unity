@@ -566,7 +566,6 @@ GameObject:
   - component: {fileID: 609173980}
   - component: {fileID: 609173979}
   - component: {fileID: 609173978}
-  - component: {fileID: 609173977}
   - component: {fileID: 609173976}
   m_Layer: 5
   m_Name: Ending Button
@@ -592,8 +591,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 206, y: -406}
-  m_SizeDelta: {x: 80, y: 60}
+  m_AnchoredPosition: {x: 190, y: -378}
+  m_SizeDelta: {x: 170, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &609173976
 MonoBehaviour:
@@ -608,29 +607,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   finalStageId: 9
---- !u!114 &609173977
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 609173974}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a16b5071803d415887a83bdf4f470b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  stageId: 9
-  button: {fileID: 609173978}
-  UIStageImage: {fileID: 609173979}
-  lockedSprite: {fileID: 855060879, guid: f09d9a955677c4f99baab275beb960e2, type: 3}
-  unlockedSprite: {fileID: 474017697, guid: f09d9a955677c4f99baab275beb960e2, type: 3}
-  clearedSprite: {fileID: 1399513811, guid: f09d9a955677c4f99baab275beb960e2, type: 3}
-  UIStarImage: {fileID: 0}
-  starSprite1: {fileID: 21300000, guid: d834d36466a75415fb2cfc5c39885e55, type: 3}
-  starSprite2: {fileID: 21300000, guid: 0c23230db26634cf38d183b81aeb7abf, type: 3}
-  starSprite3: {fileID: 21300000, guid: 3c6e42fa9ef0740e1bb1ac90363de2f0, type: 3}
-  stageManager: {fileID: 999095216}
 --- !u!114 &609173978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -707,7 +683,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 855060879, guid: f09d9a955677c4f99baab275beb960e2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 851d05237a88848a6a28a46ef80af89b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
