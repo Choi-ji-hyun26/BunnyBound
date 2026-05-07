@@ -10,6 +10,9 @@ public class SkillUnlockManager : MonoBehaviour
 {
     public static SkillUnlockManager Instance { get; private set; }
 
+    // 스킬 해금 이벤트 — CooldownUIController 등에서 구독
+    public event System.Action<int> OnSkillUnlocked;
+
     private void Awake()
     {
         if (Instance == null)
@@ -44,6 +47,7 @@ public class SkillUnlockManager : MonoBehaviour
         }
 
         GameProgress.UnlockSkill(attackIndex);
+        OnSkillUnlocked?.Invoke(attackIndex);
         Debug.Log($"[SkillUnlock] Attack{attackIndex} 해금 완료!");
     }
 }

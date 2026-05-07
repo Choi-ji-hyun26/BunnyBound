@@ -12,6 +12,7 @@ public class CooldownUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI qAttackText;
 
     [Header("W 공격 슬롯")]
+    [SerializeField] private GameObject wSlot;
     [SerializeField] private Image wAttackOverlay;
     [SerializeField] private TextMeshProUGUI wAttackText;
 
@@ -33,6 +34,33 @@ public class CooldownUIController : MonoBehaviour
         SetOverlay(qAttackOverlay, qAttackText, 0f, 0f);
         SetOverlay(wAttackOverlay, wAttackText, 0f, 0f);
         SetOverlay(shieldOverlay, shieldText, 0f, 0f);
+    }
+
+    private void Start()
+    {
+        // W 슬롯 초기 상태 — 1회만 실행
+        if (wSlot != null)
+            wSlot.SetActive(SkillUnlockManager.Instance != null &&
+                            SkillUnlockManager.Instance.IsUnlocked(2));
+    }
+
+    private void OnEnable()
+    {
+        if (SkillUnlockManager.Instance != null)
+            SkillUnlockManager.Instance.OnSkillUnlocked += OnSkillUnlocked;
+    }
+
+    private void OnDisable()
+    {
+        if (SkillUnlockManager.Instance != null)
+            SkillUnlockManager.Instance.OnSkillUnlocked -= OnSkillUnlocked;
+    }
+
+    private void OnSkillUnlocked(int attackIndex)
+    {
+        // W 스킬(index 2) 해금 시 W 슬롯 활성화
+        if (attackIndex == 2 && wSlot != null)
+            wSlot.SetActive(true);
     }
 
     private void Update()
