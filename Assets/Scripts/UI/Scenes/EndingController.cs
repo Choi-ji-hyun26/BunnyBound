@@ -17,8 +17,15 @@ public class EndingController : MonoBehaviour
         normalEndingUI.SetActive(!isTrueEnding);
         trueEndingUI.SetActive(isTrueEnding);
     }
-    public void OnRestartButtonClick() // public : 유니티 UI BUTTON 연결
+    public void OnRestartButtonClick()
     {
-        SceneManager.LoadScene("Title");
+        StartCoroutine(LoadWithFade("Title"));
+    }
+
+    private IEnumerator LoadWithFade(string sceneName)
+    {
+        if (FadeController.Instance != null)
+            yield return StartCoroutine(FadeController.Instance.FadeOut());
+        SceneManager.LoadScene(sceneName);
     }
 }

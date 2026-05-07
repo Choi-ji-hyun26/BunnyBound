@@ -10,8 +10,15 @@ public class Title : MonoBehaviour
         Time.timeScale = 1f;
         GameProgress.Load();
     }
-    public void LoadGame() // public : 유니티 UI BUTTON 연결
+    public void LoadGame()
     {
-        SceneManager.LoadScene("StageSelect");
+        StartCoroutine(LoadWithFade("StageSelect"));
+    }
+
+    private IEnumerator LoadWithFade(string sceneName)
+    {
+        if (FadeController.Instance != null)
+            yield return StartCoroutine(FadeController.Instance.FadeOut());
+        SceneManager.LoadScene(sceneName);
     }
 }
