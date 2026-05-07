@@ -34,18 +34,23 @@ public class CooldownUIController : MonoBehaviour
         SetOverlay(qAttackOverlay, qAttackText, 0f, 0f);
         SetOverlay(wAttackOverlay, wAttackText, 0f, 0f);
         SetOverlay(shieldOverlay, shieldText, 0f, 0f);
+    }
 
-        // W 슬롯 초기 상태 — 스킬 해금 여부로 결정
+    private void Start()
+    {
+        // W 슬롯 초기 상태 — 1회만 실행
         if (wSlot != null)
             wSlot.SetActive(SkillUnlockManager.Instance != null &&
                             SkillUnlockManager.Instance.IsUnlocked(2));
+    }
 
-        // 스킬 해금 이벤트 구독
+    private void OnEnable()
+    {
         if (SkillUnlockManager.Instance != null)
             SkillUnlockManager.Instance.OnSkillUnlocked += OnSkillUnlocked;
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
         if (SkillUnlockManager.Instance != null)
             SkillUnlockManager.Instance.OnSkillUnlocked -= OnSkillUnlocked;
