@@ -11,6 +11,8 @@ public class FadeController : MonoBehaviour
 
     public float fadeDuration = 0.5f;
 
+    [SerializeField] private bool startFaded = false;
+
     private void Awake()
     {
         if (Instance == null)
@@ -18,8 +20,16 @@ public class FadeController : MonoBehaviour
         else
             Destroy(gameObject);
         fadeCanvasGroup = fadeImage.GetComponent<CanvasGroup>();
-        SetAlpha(0f); // 이미지 투명
-        
+
+        if (startFaded)
+        {
+            SetAlpha(1f);
+            StartCoroutine(FadeIn());
+        }
+        else
+        {
+            SetAlpha(0f);
+        }
     }
 
     // 알파값 직접 세팅 함수

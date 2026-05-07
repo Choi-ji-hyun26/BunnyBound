@@ -94,7 +94,7 @@ public class GameManager : MonoBehaviour
             StartCoroutine(TransitionToNextStage());
         else
         {
-            Time.timeScale = 0;
+            player.CanMove = false;
             LoadScenes();
         }
     }
@@ -126,7 +126,17 @@ public class GameManager : MonoBehaviour
         player.CanMove = true;
     }
 
-    private void LoadScenes() => SceneManager.LoadScene("StageSelect");
+    private void LoadScenes()
+    {
+        StartCoroutine(LoadWithFade("StageSelect"));
+    }
+
+    private IEnumerator LoadWithFade(string sceneName)
+    {
+        if (FadeController.Instance != null)
+            yield return StartCoroutine(FadeController.Instance.FadeOut());
+        SceneManager.LoadScene(sceneName);
+    }
 
     // 낙사 안전망 — 맵 하단 트리거 감지 시 리포지션 + 하트 1개 데미지
     private void OnTriggerEnter2D(Collider2D collision)

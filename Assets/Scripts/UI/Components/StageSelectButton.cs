@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class StageSelectButton : MonoBehaviour
 {
@@ -36,7 +37,14 @@ public class StageSelectButton : MonoBehaviour
     {
         if (!GameProgress.IsStageUnlocked(stageId)) return;
         GameProgress.SelectStage(stageId);
-        SceneManager.LoadScene("Game");
+        StartCoroutine(LoadWithFade("Game"));
+    }
+
+    private IEnumerator LoadWithFade(string sceneName)
+    {
+        if (FadeController.Instance != null)
+            yield return StartCoroutine(FadeController.Instance.FadeOut());
+        SceneManager.LoadScene(sceneName);
     }
 
     private void UpdateStageUI(bool unlocked, bool cleared)
