@@ -121982,7 +121982,25 @@ CompositeCollider2D:
   m_GeometryType: 0
   m_GenerationType: 0
   m_EdgeRadius: 0
-  m_ColliderPaths: []
+  m_ColliderPaths:
+  - m_Collider: {fileID: 188997703}
+    m_ColliderPaths:
+    - - X: -150000096
+        Y: -39999960
+      - X: -150000096
+        Y: -50000044
+      - X: -150000032
+        Y: -50000100
+      - X: 240000032
+        Y: -50000100
+      - X: 240000096
+        Y: -50000044
+      - X: 240000096
+        Y: -39999960
+      - X: 240000032
+        Y: -39999900
+      - X: -150000032
+        Y: -39999900
   m_CompositePaths:
     m_Paths:
     - - {x: 23.999975, y: -5.00001}
@@ -162324,7 +162342,53 @@ CompositeCollider2D:
   m_GeometryType: 0
   m_GenerationType: 0
   m_EdgeRadius: 0
-  m_ColliderPaths: []
+  m_ColliderPaths:
+  - m_Collider: {fileID: 316745485}
+    m_ColliderPaths:
+    - - X: 390000064
+        Y: 89375056
+      - X: 389375040
+        Y: 90000088
+      - X: 389375040
+        Y: 90000096
+      - X: 240624976
+        Y: 90000096
+      - X: 240624944
+        Y: 90000088
+      - X: 239999920
+        Y: 89375056
+      - X: 239999904
+        Y: 89375016
+      - X: 239999904
+        Y: -39999900
+      - X: -149999904
+        Y: -39999900
+      - X: -149999904
+        Y: 79375016
+      - X: -149999920
+        Y: 79375056
+      - X: -150624944
+        Y: 80000088
+      - X: -150624976
+        Y: 80000096
+      - X: -179375024
+        Y: 80000096
+      - X: -179375056
+        Y: 80000088
+      - X: -180000080
+        Y: 79375056
+      - X: -180000096
+        Y: 79375016
+      - X: -180000096
+        Y: -100000040
+      - X: -180000032
+        Y: -100000096
+      - X: 390000032
+        Y: -100000096
+      - X: 390000128
+        Y: -100000040
+      - X: 390000128
+        Y: 89375016
   m_CompositePaths:
     m_Paths:
     - - {x: 38.999973, y: -10.00001}
@@ -341475,7 +341539,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1492727678
 Transform:
   m_ObjectHideFlags: 0
@@ -361399,6 +361463,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1528366818}
     m_Modifications:
+    - target: {fileID: 2856459075567603032, guid: d893d4c6ffc134b6ea09b37f47903dd4, type: 3}
+      propertyPath: m_Size.x
+      value: 0.65
+      objectReference: {fileID: 0}
+    - target: {fileID: 2856459075567603032, guid: d893d4c6ffc134b6ea09b37f47903dd4, type: 3}
+      propertyPath: m_Size.y
+      value: 0.65
+      objectReference: {fileID: 0}
+    - target: {fileID: 2856459075567603032, guid: d893d4c6ffc134b6ea09b37f47903dd4, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: b082891ee80c24b1386e0a22e7726db8, type: 3}
+    - target: {fileID: 2856459075567603032, guid: d893d4c6ffc134b6ea09b37f47903dd4, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2856459075567603034, guid: d893d4c6ffc134b6ea09b37f47903dd4, type: 3}
       propertyPath: m_Name
       value: Star
