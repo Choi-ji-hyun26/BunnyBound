@@ -276886,7 +276886,6 @@ GameObject:
   - component: {fileID: 1396984546}
   - component: {fileID: 1396984548}
   - component: {fileID: 1396984551}
-  - component: {fileID: 1396984553}
   - component: {fileID: 1396984554}
   - component: {fileID: 1396984555}
   - component: {fileID: 1396984558}
@@ -277097,7 +277096,6 @@ MonoBehaviour:
   halfHeartSprite: {fileID: 199451689, guid: c231411b3d14645bcba06996142038aa, type: 3}
   quarterHeartSprite: {fileID: 2137446680, guid: c231411b3d14645bcba06996142038aa, type: 3}
   emptyHeartSprite: {fileID: -1161245031, guid: c231411b3d14645bcba06996142038aa, type: 3}
-  stagePoint: 0
   UIPoint: {fileID: 1494189435}
 --- !u!114 &1396984548
 MonoBehaviour:
@@ -277138,18 +277136,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isUnBeatTime: 0
   feverHitBox: {fileID: 711838984}
---- !u!114 &1396984553
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1396984537}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f123e5d92843c4f2d9e214fc9b58c6b0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1396984554
 MonoBehaviour:
   m_ObjectHideFlags: 0

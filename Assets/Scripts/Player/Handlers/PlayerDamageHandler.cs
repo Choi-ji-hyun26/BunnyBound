@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerDamageHandler : MonoBehaviour
@@ -35,7 +36,6 @@ public class PlayerDamageHandler : MonoBehaviour
     {
         if (isDamageInvincible || feverHandler.isUnBeatTime || (shieldHandler != null && shieldHandler.IsShielding)) return;
 
-        // 적별 데미지 전달
         PlayerStats.instance.TakeDamage(damage);
 
         isDamageInvincible = true;
@@ -50,7 +50,14 @@ public class PlayerDamageHandler : MonoBehaviour
 
         SoundManager.Instance.PlaySound("DAMAGED");
 
-        Invoke("OffDamaged", invincibleDuration);
+        // Invoke 대신 Coroutine 사용 — 문자열 기반 리플렉션 제거
+        StartCoroutine(InvincibleRoutine());
+    }
+
+    private IEnumerator InvincibleRoutine()
+    {
+        yield return new WaitForSeconds(invincibleDuration);
+        OffDamaged();
     }
 
     private void OffDamaged()

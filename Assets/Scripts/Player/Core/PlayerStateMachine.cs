@@ -45,6 +45,8 @@ public class PlayerStateMachine : MonoBehaviour
 
     private PlayerTransformHandler transformHandler;
 
+    private int playerLayerBit;
+
     private void Awake()
     {
         coordinator = GetComponent<PlayerCoordinator>();
@@ -70,12 +72,15 @@ public class PlayerStateMachine : MonoBehaviour
         JumpState = new JumpState(this);
         FallState = new FallState(this);
         ClimbState = new ClimbState(this);
+
+        playerLayerBit = 1 << LayerMask.NameToLayer("Player");
     }
 
     private void Start()
     {
         ChangeState(IdleState);
     }
+
     private void Update()
     {
         // 변신 입력 처리
@@ -84,6 +89,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         CurrentState?.UpdateState();
     }
+
     private void FixedUpdate()
     {
         IsGroundedCached = IsGrounded();
@@ -123,7 +129,7 @@ public class PlayerStateMachine : MonoBehaviour
     }
 
     /// <summary>
-    /// LadderZone에서 호출 — 사다리 진입/퇈장 시
+    /// LadderZone에서 호출 — 사다리 진입/퇴장 시
     /// </summary>
     public void SetOnLadder(bool value)
     {
@@ -155,9 +161,8 @@ public class PlayerStateMachine : MonoBehaviour
         StartCoroutine(LadderDropRoutine());
     }
 
-    private System.Collections.IEnumerator LadderDropRoutine()
+    private IEnumerator LadderDropRoutine()
     {
-        int playerLayerBit = 1 << LayerMask.NameToLayer("Player");
         PlatformEffector2D[] effectors = FindObjectsOfType<PlatformEffector2D>();
 
         // OneWayPlatform 통과 허용

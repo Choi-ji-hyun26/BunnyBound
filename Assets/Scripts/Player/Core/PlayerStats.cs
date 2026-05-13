@@ -47,8 +47,11 @@ public class PlayerStats : MonoBehaviour
     // ───────────────────────────────────────────
     // 점수
     // ───────────────────────────────────────────
-    public int stagePoint;
+    public int stagePoint { get; private set; }
     [SerializeField] private TextMeshProUGUI UIPoint;
+
+    // FindObjectOfType 캐싱 — ResetForNextStage 호출마다 탐색 제거
+    private PlayerTransformHandler transformHandler;
 
     private void Awake()
     {
@@ -61,15 +64,27 @@ public class PlayerStats : MonoBehaviour
             return;
         }
 
+        transformHandler = GetComponentInParent<PlayerTransformHandler>();
+        if (transformHandler == null)
+            Debug.LogError("[PlayerStats] PlayerTransformHandler를 찾을 수 없습니다.");
+
         // GameProgress에서 최대 하트 수 로드
         GameProgress.Load();
         MaxActiveHearts = Mathf.Clamp(GameProgress.GetMaxHearts(), startHearts, maxHearts);
         CurrentHP = MaxHP;
         RefreshHPUI();
+
+        // 점수 UI 초기화 — Inspector 설정값 무관하게 0으로 시작
+        if (UIPoint != null)
+            UIPoint.text = "0";
     }
 
-    private void Update()
+    // ───────────────────────────────────────────
+    // 점수 추가 — 변경 시에만 UI 갱신 (매 프레임 Update 제거)
+    // ───────────────────────────────────────────
+    public void AddPoint(int amount)
     {
+        stagePoint += amount;
         if (UIPoint != null)
             UIPoint.text = stagePoint.ToString();
     }
@@ -168,10 +183,11 @@ public class PlayerStats : MonoBehaviour
     public void ResetForNextStage()
     {
         stagePoint = 0;
+        if (UIPoint != null)
+            UIPoint.text = "0";
         CurrentHP = MaxHP;
         RefreshHPUI();
 
-        PlayerTransformHandler transformHandler = FindObjectOfType<PlayerTransformHandler>();
         if (transformHandler != null)
             transformHandler.ResetToRabbit();
     }
