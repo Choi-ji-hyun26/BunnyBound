@@ -62,11 +62,14 @@ public class SoundManager : MonoBehaviour
         int index = type switch
         {
             "JUMP"   => 0,
-            "ATTACK" => 1,
-            "DAMAGED"=> 2,
-            "DIE"    => 3,
-            "ITEM"   => 4,
-            "FINISH" => 5,
+            "ATTACK_Q" => 1,
+            "ATTACK_W" => 2,
+            "SHIELD" => 3,
+            "DAMAGED"=> 4,
+            "DIE"    => 5,
+            "ITEM"   => 6,
+            "INTERACT" => 7,
+            "FINISH" => 8,
             _        => -1
         };
 

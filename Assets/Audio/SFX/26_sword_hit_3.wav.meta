@@ -1,11 +1,5 @@
 fileFormatVersion: 2
-guid: a0010a1a0c474473b81729eb770c485f
-labels:
-- Audio
-- Casual
-- Sound
-- SFX
-- Effect
+guid: 58d47b4b4785d4fe993e89f6e27cbf96
 AudioImporter:
   externalObjects: {}
   serializedVersion: 6
