@@ -20,8 +20,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject miniMapCamera;
     [SerializeField] private GameObject SettingMenu;
 
-    private int collectedStarCount = 0;
     public int totalStarCount = 0;
+
+    private StageIdentifier stageIdentifier;
 
     private void Awake()
     {
@@ -36,8 +37,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        StageIdentifier info = FindObjectOfType<StageIdentifier>();
-        totalStarCount = info.totalStarCount;
+        stageIdentifier = FindObjectOfType<StageIdentifier>();
+        totalStarCount = stageIdentifier.totalStarCount;
 
         // 스테이지 진입 시 player 스냅샷 저장
         // 클리어 없이 이탈 시 RollbackPlayer()로 복원
@@ -76,9 +77,8 @@ public class GameManager : MonoBehaviour
 
     public void OnStageCleared()
     {
-        StageIdentifier stageInfo = FindObjectOfType<StageIdentifier>();
-        int stageId = stageInfo.StageId;
-        int totalStarCount = stageInfo.totalStarCount;
+        int stageId = stageIdentifier.StageId;
+        int totalStarCount = stageIdentifier.totalStarCount;
         int collectedStarCount = PlayerStats.instance.stagePoint;
 
         int starRank = CalculateStarRank(collectedStarCount, totalStarCount);
