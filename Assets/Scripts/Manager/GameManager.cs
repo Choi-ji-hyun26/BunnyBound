@@ -20,8 +20,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject miniMapCamera;
     [SerializeField] private GameObject SettingMenu;
 
-    public int totalStarCount = 0;
-
     private StageIdentifier stageIdentifier;
 
     private void Awake()
@@ -37,8 +35,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        stageIdentifier = FindObjectOfType<StageIdentifier>();
-        totalStarCount = stageIdentifier.totalStarCount;
+        stageIdentifier = Stages[GameProgress.CurrentStageId - 1].GetComponent<StageIdentifier>();
 
         // 스테이지 진입 시 player 스냅샷 저장
         // 클리어 없이 이탈 시 RollbackPlayer()로 복원
@@ -108,6 +105,10 @@ public class GameManager : MonoBehaviour
 
         currentStageIndex++;
         ActivateStage(currentStageIndex);
+
+        // 다음 스테이지로 전환 시 stageIdentifier 갱신
+        stageIdentifier = Stages[currentStageIndex].GetComponent<StageIdentifier>();
+        GameProgress.SelectStage(currentStageIndex + 1);
 
         // 다음 스테이지 진입 시 새 스냅샷 저장
         GameProgress.TakeSnapshot();
