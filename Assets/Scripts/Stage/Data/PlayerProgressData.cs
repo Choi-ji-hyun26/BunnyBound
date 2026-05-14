@@ -6,9 +6,9 @@ using System.Collections.Generic;
 [System.Serializable]
 public class PlayerProgressData
 {
-    // 스킬 해금 상태 (index 0~3 = attack1~4)
+    // 스킬 해금 상태 (index 0~1 = attack1~2)
     // attack1(Q)은 항상 해금이므로 index 0은 항상 true
-    public bool[] unlockedSkills = { true, false, false, false };
+    public bool[] unlockedSkills = { true, false };
 
     // 최대 하트 수 (HP Up 아이템으로 증가)
     public int maxHearts = 3;
