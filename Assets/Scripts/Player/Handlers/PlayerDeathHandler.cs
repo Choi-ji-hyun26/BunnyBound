@@ -28,6 +28,6 @@ public class PlayerDeathHandler : MonoBehaviour
         // 카메라 따라가기 멈추기
         FindObjectOfType<CameraController>().StopFollowing();
         //Sound
-        SoundManager.Instance.PlaySound("DIE");
+        SoundManager.Instance.PlaySound(SoundType.Die);
     }
 }

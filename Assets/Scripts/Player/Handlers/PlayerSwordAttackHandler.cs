@@ -175,11 +175,11 @@ public class PlayerSwordAttackHandler : MonoBehaviour
         switch (attackIndex)
         {
             case 1:
-                SoundManager.Instance.PlaySound("ATTACK_Q");
+                SoundManager.Instance.PlaySound(SoundType.AttackQ);
                 break;
 
             case 2:
-                SoundManager.Instance.PlaySound("ATTACK_W");
+                SoundManager.Instance.PlaySound(SoundType.AttackW);
                 break;
         }
     }

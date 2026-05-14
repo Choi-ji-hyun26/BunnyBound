@@ -39,7 +39,7 @@ public class OpenChest : MonoBehaviour
     {
         if (isOpened) return;
 
-        SoundManager.Instance.PlaySound("INTERACT");
+        SoundManager.Instance.PlaySound(SoundType.Interact);
         
         isOpened = true;
         spriteRenderer.sprite = opendChest;

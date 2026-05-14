@@ -39,7 +39,7 @@ public class Lever : MonoBehaviour
     {
         if (isActivated || isAnimating) return;
 
-        SoundManager.Instance.PlaySound("INTERACT");
+        SoundManager.Instance.PlaySound(SoundType.Interact);
 
         StartCoroutine(ActivateRoutine());
     }

@@ -34,7 +34,7 @@ public class SkillBookEffect : IItemEffect
         }
 
         SkillUnlockManager.Instance.UnlockAttack(attackIndex);
-        SoundManager.Instance.PlaySound("ITEM");
+        SoundManager.Instance.PlaySound(SoundType.Item);
 
         // 해금 메시지 표시
         if (NotificationUI.Instance != null && attackIndex < unlockMessages.Length)

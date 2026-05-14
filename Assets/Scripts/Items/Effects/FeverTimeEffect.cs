@@ -9,7 +9,7 @@ public class FeverTimeEffect : IItemEffect , IDurationEffect
 
     public void ApplyEffect(PlayerCoordinator player)
     {
-        SoundManager.Instance.PlaySound("ITEM");
+        SoundManager.Instance.PlaySound(SoundType.Item);
         player.FeverHandler.HandleChest();
         Debug.Log("Fever Time ACTIVATED!");
     }

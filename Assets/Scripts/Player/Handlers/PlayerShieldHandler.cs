@@ -77,7 +77,7 @@ public class PlayerShieldHandler : MonoBehaviour
         reactedEnemies.Clear();
         stateMachine.CanMove = false;
         
-        SoundManager.Instance.PlaySound("SHIELD");
+        SoundManager.Instance.PlaySound(SoundType.Shield);
         animator.SetTrigger("doShield");
 
         if (shieldHitBox != null)
