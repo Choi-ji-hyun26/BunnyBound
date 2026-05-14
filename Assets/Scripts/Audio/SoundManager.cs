@@ -37,10 +37,12 @@ public class SoundManager : MonoBehaviour
     private void InitializeSFXPool()
     {
         sfxSources = new AudioSource[sfxPoolSize];
+        AudioMixerGroup sfxGroup = sfxMixer.FindMatchingGroups("Master")[0];
+
         for (int i = 0; i < sfxPoolSize; i++)
         {
             AudioSource source = gameObject.AddComponent<AudioSource>();
-            source.outputAudioMixerGroup = sfxMixer.FindMatchingGroups("Master")[0];
+            source.outputAudioMixerGroup = sfxGroup;
             sfxSources[i] = source;
         }
     }
