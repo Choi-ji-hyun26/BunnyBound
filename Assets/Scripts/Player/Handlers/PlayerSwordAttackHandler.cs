@@ -5,7 +5,6 @@ using UnityEngine;
 /// 검사 전용 공격 시스템
 /// - Q: 근접 slash (hitBox1)
 /// - W: 원거리 slash 투사체 (SlashProjectile)
-/// - E/R: 미사용 (추후 확장)
 /// - 1개 예약 버퍼링
 /// - 해금된 공격만 사용 가능
 /// - 공격 시작 시점에 플레이어 방향(flipX) 반영

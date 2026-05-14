@@ -69,24 +69,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Attack3",
-                    "type": "Button",
-                    "id": "47507700-31b7-4056-ab98-13bad714225a",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Attack4",
-                    "type": "Button",
-                    "id": "c709a7d0-2b61-49ef-a5ab-bc2f3a7699d5",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Shield",
                     "type": "Button",
                     "id": "d820b8e1-3c42-4f1a-9d3e-7a1b2c3d4e5f",
@@ -254,7 +236,7 @@
                 {
                     "name": "",
                     "id": "723b21da-c805-481d-8497-86c857ba6c95",
-                    "path": "<Keyboard>/g",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -303,28 +285,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Attack2",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "5482903f-7373-420b-b176-6df01ea6fd84",
-                    "path": "<Keyboard>/e",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Attack3",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "ae5b7b0b-739f-4cba-8242-081e24d97be4",
-                    "path": "<Keyboard>/r",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Attack4",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
