@@ -123,6 +123,8 @@ public class PlayerSwordAttackHandler : MonoBehaviour
         animator.SetInteger("attackIndex", attackIndex);
         animator.SetTrigger("doAttack");
 
+        PlayAttackSound(attackIndex);
+
         if (attackIndex == 2)
         {
             // W: 원거리 투사체 — hitStart 타이밍에 생성
@@ -165,6 +167,20 @@ public class PlayerSwordAttackHandler : MonoBehaviour
                 if (next == 2 && IsAttack2OnCooldown) yield break;
                 StartCoroutine(ExecuteAttack(next));
             }
+        }
+    }
+
+    private void PlayAttackSound(int attackIndex)
+    {
+        switch (attackIndex)
+        {
+            case 1:
+                SoundManager.Instance.PlaySound(SoundType.AttackQ);
+                break;
+
+            case 2:
+                SoundManager.Instance.PlaySound(SoundType.AttackW);
+                break;
         }
     }
 

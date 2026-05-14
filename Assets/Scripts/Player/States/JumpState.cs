@@ -25,7 +25,7 @@ public class JumpState : PlayerState
 
         // 점프 횟수 증가
         stateMachine.currentJumpCount++;
-        SoundManager.Instance.PlaySound("JUMP");
+        SoundManager.Instance.PlaySound(SoundType.Jump);
     }
     // Update 로직(입력, 애니메이션 전환등)
     public override void UpdateState()

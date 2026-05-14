@@ -5,6 +5,6 @@ public class CarrotEffect : IItemEffect
     public void ApplyEffect(PlayerCoordinator player)
     {
         player.Stats.HealthUp();
-        SoundManager.Instance.PlaySound("ITEM");
+        SoundManager.Instance.PlaySound(SoundType.Item);
     }
 }

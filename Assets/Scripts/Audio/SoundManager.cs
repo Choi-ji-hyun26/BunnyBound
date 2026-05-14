@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
+public enum SoundType { Jump, AttackQ, AttackW, Shield, Damaged, Die, Item, Interact, Finish }
+
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance;
@@ -37,10 +39,12 @@ public class SoundManager : MonoBehaviour
     private void InitializeSFXPool()
     {
         sfxSources = new AudioSource[sfxPoolSize];
+        AudioMixerGroup sfxGroup = sfxMixer.FindMatchingGroups("Master")[0];
+
         for (int i = 0; i < sfxPoolSize; i++)
         {
             AudioSource source = gameObject.AddComponent<AudioSource>();
-            source.outputAudioMixerGroup = sfxMixer.FindMatchingGroups("Master")[0];
+            source.outputAudioMixerGroup = sfxGroup;
             sfxSources[i] = source;
         }
     }
@@ -57,18 +61,9 @@ public class SoundManager : MonoBehaviour
         sfxMixer.SetFloat("SFXVolume", Mathf.Log10(Mathf.Clamp(value, 0.0001f, 1f)) * 20f);
     }
 
-    public void PlaySound(string type)
+    public void PlaySound(SoundType type)
     {
-        int index = type switch
-        {
-            "JUMP"   => 0,
-            "ATTACK" => 1,
-            "DAMAGED"=> 2,
-            "DIE"    => 3,
-            "ITEM"   => 4,
-            "FINISH" => 5,
-            _        => -1
-        };
+        int index = (int)type;
 
         if (index < 0 || index >= audioClips.Length) return;
 

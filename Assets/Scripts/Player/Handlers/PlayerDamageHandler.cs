@@ -48,7 +48,7 @@ public class PlayerDamageHandler : MonoBehaviour
 
         coordinator.Animator.SetTrigger("doDamaged");
 
-        SoundManager.Instance.PlaySound("DAMAGED");
+        SoundManager.Instance.PlaySound(SoundType.Damaged);
 
         // Invoke 대신 Coroutine 사용 — 문자열 기반 리플렉션 제거
         StartCoroutine(InvincibleRoutine());

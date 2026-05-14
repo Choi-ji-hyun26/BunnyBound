@@ -7,6 +7,6 @@ public class StarEffect : IItemEffect
     public void ApplyEffect(PlayerCoordinator player)
     {
         player.Stats.AddPoint(1);
-        SoundManager.Instance.PlaySound("ITEM");
+        SoundManager.Instance.PlaySound(SoundType.Item);
     }
 }
