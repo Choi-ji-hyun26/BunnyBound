@@ -2,18 +2,21 @@ using UnityEngine;
 
 /// <summary>
 /// 사다리 바닥 감지
-/// - 사다리 하단에 얇은 Trigger
-/// - OnTriggerStay2D로 매 프레임 체크
-/// - 아래로 이동 중일 때 Idle 전환
+/// - ClimbState에서 아래 입력 시 FallState 전환
+/// - 아래 지형이 OneWayPlatform인 경우 platformEffector 연결 (옵셔널)
 /// - Layer: Ladder / IsTrigger: ON
 /// </summary>
 public class LadderBottom : MonoBehaviour
 {
+    [SerializeField] private PlatformEffector2D platformEffector;
+
     private int playerLayer;
+    private int playerLayerBit;
 
     private void Awake()
     {
-        playerLayer = LayerMask.NameToLayer("Player");
+        playerLayer    = LayerMask.NameToLayer("Player");
+        playerLayerBit = 1 << playerLayer;
     }
 
     private void OnTriggerStay2D(Collider2D other)
@@ -22,20 +25,23 @@ public class LadderBottom : MonoBehaviour
 
         PlayerStateMachine sm = other.GetComponentInParent<PlayerStateMachine>();
         if (sm == null) return;
-
         if (!(sm.CurrentState is ClimbState)) return;
         if (sm.Input.ClimbInput.y >= -0.1f) return;
 
-        Rigidbody2D rigid = sm.Coordinator.Rigid;
-        rigid.velocity = Vector2.zero;
+        if (platformEffector != null)
+            platformEffector.colliderMask &= ~playerLayerBit;
 
-        sm.SetOnLadder(false);
-        sm.ChangeState(sm.IdleState);
+        sm.ChangeState(sm.FallState);
     }
 
-    // ───────────────────────────────────────────
-    // Gizmo — 빨간색 (바닥 영역)
-    // ───────────────────────────────────────────
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.layer != playerLayer) return;
+
+        if (platformEffector != null)
+            platformEffector.colliderMask |= playerLayerBit;
+    }
+
     private void OnDrawGizmos()
     {
         BoxCollider2D col = GetComponent<BoxCollider2D>();
