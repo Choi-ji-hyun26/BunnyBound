@@ -8,7 +8,9 @@ public class FallState : PlayerState
 
     public override void EnterState()
     {
-        stateMachine.Coordinator.Animator.SetBool("isJumping", true);
+        // isJumping은 JumpState에서만 세팅
+        // JumpState → FallState 경로에선 이미 true 상태로 유지됨
+        // 사다리 등 다른 경로로 진입 시 isJumping: false인 채로 Fall 처리
         stateMachine.Coordinator.Animator.SetBool("isGrounded", false);
     }
 
@@ -18,25 +20,10 @@ public class FallState : PlayerState
             return;
 
         var input = stateMachine.Input;
-        float h = input.MoveInput.x;
-        float climbY = input.ClimbInput.y;
 
         if (input.JumpPressed && stateMachine.currentJumpCount < stateMachine.maxJumpCount)
         {
             stateMachine.ChangeState(stateMachine.JumpState);
-            return;
-        }
-
-        if (stateMachine.HasLadder() && climbY > 0.1f)
-        {
-            stateMachine.ChangeState(stateMachine.ClimbState);
-            return;
-        }
-
-        // 낙하 중 아래 방향키 → 사다리 진입
-        if (stateMachine.HasLadder() && climbY < -0.1f)
-        {
-            stateMachine.ChangeState(stateMachine.ClimbState);
             return;
         }
     }
@@ -56,8 +43,6 @@ public class FallState : PlayerState
 
         rigid.velocity = new Vector2(newXVelocity, rigid.velocity.y);
 
-        // 착지 체크를 FixedUpdate로 이동
-        // Update와 FixedUpdate 타이밍 차이로 인한 JumpState 애니메이션 유지 방지
         if (stateMachine.IsGroundedCached)
         {
             stateMachine.currentJumpCount = 0;

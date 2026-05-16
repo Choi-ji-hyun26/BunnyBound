@@ -20,26 +20,10 @@ public class IdleState : PlayerState
         var input = stateMachine.Input;
 
         float h = input.MoveInput.x;
-        float climbY = input.ClimbInput.y;
 
         if (input.JumpPressed && stateMachine.IsGroundedCached)
         {
             stateMachine.ChangeState(stateMachine.JumpState);
-            return;
-        }
-
-        if (stateMachine.HasLadder() && climbY > 0.1f)
-        {
-            stateMachine.ChangeState(stateMachine.ClimbState);
-            return;
-        }
-
-        // 바닥에서 아래 입력 시 사다리 진입
-        if (stateMachine.HasLadder() && climbY < -0.1f && stateMachine.IsGroundedCached)
-        {
-            // OneWayPlatform을 잠시 통과 허용
-            stateMachine.StartLadderDrop();
-            stateMachine.ChangeState(stateMachine.ClimbState);
             return;
         }
 

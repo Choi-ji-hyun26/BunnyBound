@@ -17,23 +17,10 @@ public class WalkState : PlayerState
             return;
 
         float h = stateMachine.Input.MoveInput.x;
-        float climbY = stateMachine.Input.ClimbInput.y;
 
         if (stateMachine.Input.JumpPressed && stateMachine.IsGroundedCached)
         {
             stateMachine.ChangeState(stateMachine.JumpState);
-            return;
-        }
-
-        if (stateMachine.HasLadder() && climbY > 0.1f)
-        {
-            stateMachine.ChangeState(stateMachine.ClimbState);
-            return;
-        }
-
-        if (stateMachine.HasLadder() && climbY < -0.1f && stateMachine.IsGroundedCached)
-        {
-            stateMachine.ChangeState(stateMachine.ClimbState);
             return;
         }
 

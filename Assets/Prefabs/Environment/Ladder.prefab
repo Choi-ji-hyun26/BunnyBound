@@ -116,8 +116,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01276fbf7586a4ae4b5efcaf97e4d844, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  exitOffsetY: 1
-  exitVelocityY: 1
+  exitOffsetPadding: 0.04
+  oneWayPlatformObject: {fileID: 0}
+  dropSnapOffsetY: 0.04
 --- !u!1 &5869629500717195307
 GameObject:
   m_ObjectHideFlags: 0
@@ -224,6 +225,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e75fd6da2b4245bc99c4780980051ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dropDuration: 0.3
 --- !u!1 &6227796698394628558
 GameObject:
   m_ObjectHideFlags: 0
@@ -402,7 +404,7 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1421905517
-  m_SortingLayer: 3
+  m_SortingLayer: 5
   m_SortingOrder: 8
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
