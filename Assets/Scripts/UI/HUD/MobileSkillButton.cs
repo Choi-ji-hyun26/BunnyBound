@@ -9,6 +9,7 @@ using TMPro;
 /// [사용법]
 /// Inspector에서 SkillType을 설정하고
 /// swordAttackHandler 또는 shieldHandler를 연결합니다.
+/// Attack2 타입은 스킬 해금 시 CanvasGroup을 통해 자동으로 표시됩니다.
 /// </summary>
 public class MobileSkillButton : MonoBehaviour
 {
@@ -24,6 +25,54 @@ public class MobileSkillButton : MonoBehaviour
     [Header("참조")]
     [SerializeField] private PlayerSwordAttackHandler swordAttackHandler;
     [SerializeField] private PlayerShieldHandler shieldHandler;
+
+    private CanvasGroup canvasGroup;
+
+    private void Awake()
+    {
+        if (skillType == SkillType.Attack2)
+        {
+            canvasGroup = GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+                canvasGroup = gameObject.AddComponent<CanvasGroup>();
+        }
+    }
+
+    private void Start()
+    {
+        if (skillType == SkillType.Attack2)
+        {
+            bool unlocked = SkillUnlockManager.Instance != null &&
+                            SkillUnlockManager.Instance.IsUnlocked(2);
+            SetButtonVisible(unlocked);
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (skillType == SkillType.Attack2 && SkillUnlockManager.Instance != null)
+            SkillUnlockManager.Instance.OnSkillUnlocked += OnSkillUnlocked;
+    }
+
+    private void OnDisable()
+    {
+        if (skillType == SkillType.Attack2 && SkillUnlockManager.Instance != null)
+            SkillUnlockManager.Instance.OnSkillUnlocked -= OnSkillUnlocked;
+    }
+
+    private void OnSkillUnlocked(int attackIndex)
+    {
+        if (skillType == SkillType.Attack2 && attackIndex == 2)
+            SetButtonVisible(true);
+    }
+
+    private void SetButtonVisible(bool visible)
+    {
+        if (canvasGroup == null) return;
+        canvasGroup.alpha = visible ? 1f : 0f;
+        canvasGroup.interactable = visible;
+        canvasGroup.blocksRaycasts = visible;
+    }
 
     private void Update()
     {
