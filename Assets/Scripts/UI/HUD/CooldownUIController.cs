@@ -4,6 +4,7 @@ using TMPro;
 
 /// <summary>
 /// Q, W 공격 / 쉴드 쿨타임 UI
+/// 데스크탑 전용. 모바일에서는 skillSlotContainer를 비활성화합니다.
 /// </summary>
 public class CooldownUIController : MonoBehaviour
 {
@@ -24,6 +25,9 @@ public class CooldownUIController : MonoBehaviour
     [SerializeField] private PlayerSwordAttackHandler swordAttackHandler;
     [SerializeField] private PlayerShieldHandler shieldHandler;
 
+    [Header("플랫폼 제어")]
+    [SerializeField] private GameObject skillSlotContainer;
+
     private void Awake()
     {
         if (swordAttackHandler == null)
@@ -38,6 +42,14 @@ public class CooldownUIController : MonoBehaviour
 
     private void Start()
     {
+        // 모바일에서는 Skill Slot Container 비활성화 — 데스크탑 전용 UI
+        if (Application.isMobilePlatform)
+        {
+            if (skillSlotContainer != null)
+                skillSlotContainer.SetActive(false);
+            return;
+        }
+
         // W 슬롯 초기 상태 — 1회만 실행
         if (wSlot != null)
             wSlot.SetActive(SkillUnlockManager.Instance != null &&
@@ -58,6 +70,8 @@ public class CooldownUIController : MonoBehaviour
 
     private void OnSkillUnlocked(int attackIndex)
     {
+        if (Application.isMobilePlatform) return;
+
         // W 스킬(index 2) 해금 시 W 슬롯 활성화
         if (attackIndex == 2 && wSlot != null)
             wSlot.SetActive(true);

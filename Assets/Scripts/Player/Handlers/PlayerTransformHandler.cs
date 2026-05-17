@@ -59,6 +59,10 @@ public class PlayerTransformHandler : MonoBehaviour
     {
         ApplyStats(CharacterType.Rabbit);
         ApplySpriteScale(CharacterType.Rabbit);
+
+         // 토끼 상태로 시작 — 스킬 슬롯 UI 초기 비활성화
+        if (skillSlotContainer != null)
+            skillSlotContainer.SetActive(false);
     }
 
     /// <summary>
@@ -95,8 +99,6 @@ public class PlayerTransformHandler : MonoBehaviour
 
     private void SwitchTo(CharacterType next)
     {
-        // HP 단일화로 HP 환산 불필요
-
         ApplyStats(next);
         ApplyAnimator(next);
         ApplyCollider(next);
@@ -105,8 +107,8 @@ public class PlayerTransformHandler : MonoBehaviour
 
         ApplySpriteScale(next);
 
-        // 스킬 슬롯 UI — 검사일 때만 활성화
-        if (skillSlotContainer != null)
+        // 스킬 슬롯 UI — 검사일 때만 활성화 (데스크탑 전용)
+        if (skillSlotContainer != null && !Application.isMobilePlatform)
             skillSlotContainer.SetActive(next == CharacterType.Knight);
 
         // 변신 후 Idle로 리셋 (애니메이션 꼬임 방지)
