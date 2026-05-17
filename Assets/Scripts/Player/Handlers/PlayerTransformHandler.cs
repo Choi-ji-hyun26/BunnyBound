@@ -41,6 +41,11 @@ public class PlayerTransformHandler : MonoBehaviour
     [SerializeField] private GameObject skillSlotContainer; // PC 전용
     [SerializeField] private GameObject skillButtons; // Mobile 전용
 
+    [Header("Mobile Tab Button Icon")] // Mobile
+    [SerializeField] private UnityEngine.UI.Image tabButtonIcon;
+    [SerializeField] private Sprite rabbitIcon;
+    [SerializeField] private Sprite knightIcon;
+
 
     [Header("Transform Control")]
     public bool CanTransform = true;
@@ -69,6 +74,9 @@ public class PlayerTransformHandler : MonoBehaviour
         // 스킬 버튼 UI 초기 비활성화 - Mobile
         if (skillButtons != null)
             skillButtons.SetActive(false);
+        // 변신 버튼 아이콘 - Mobile
+        if (tabButtonIcon != null && rabbitIcon != null)
+            tabButtonIcon.sprite = rabbitIcon;
     }
 
     /// <summary>
@@ -86,8 +94,12 @@ public class PlayerTransformHandler : MonoBehaviour
         if (skillSlotContainer != null)
             skillSlotContainer.SetActive(false);
         // Mobile
+        // 스킬 버튼
         if (skillButtons != null)
             skillButtons.SetActive(false);
+        // 변신 버튼
+        if (tabButtonIcon != null && rabbitIcon != null)
+            tabButtonIcon.sprite = rabbitIcon;
     }
 
     /// <summary>
@@ -123,8 +135,12 @@ public class PlayerTransformHandler : MonoBehaviour
         if (skillSlotContainer != null && !Application.isMobilePlatform)
             skillSlotContainer.SetActive(next == CharacterType.Knight);
         // Mobile 전용
+        // 스칼 버튼
         if (skillButtons != null && Application.isMobilePlatform)
             skillButtons.SetActive(next == CharacterType.Knight);
+        // 변신 버튼
+        if (tabButtonIcon != null)
+            tabButtonIcon.sprite = next == CharacterType.Knight ? knightIcon : rabbitIcon;
 
         // 변신 후 Idle로 리셋 (애니메이션 꼬임 방지)
         stateMachine.ChangeState(stateMachine.IdleState);
