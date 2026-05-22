@@ -117,7 +117,12 @@ public class GameManager : MonoBehaviour
 
         var cam = Camera.main.GetComponent<CameraController>();
         if (cam != null)
+        {
             cam.EnableInstantMoveNextFrame();
+            // 모바일에서 지도 줌아웃 상태였다면 복구
+            if (Application.isMobilePlatform)
+                cam.SetMapZoom(false);
+        }
 
         UIStage.text = "STAGE " + (currentStageIndex + 1);
 

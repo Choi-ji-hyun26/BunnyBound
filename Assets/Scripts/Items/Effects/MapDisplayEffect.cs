@@ -7,7 +7,5 @@ public class MapDisplayEffect : IItemEffect
     public void ApplyEffect(PlayerCoordinator player)
     {
         SoundManager.Instance.PlaySound(SoundType.Item);
-        player.UtilityHandler.StartMiniMapDisplay();                                                                   
-        Debug.Log("Map Item Used");
-    }
+        player.UtilityHandler.StartMiniMapDisplay();                                                                       }
 }
