@@ -7,7 +7,6 @@ using UnityEngine.InputSystem;
 public class PlayerInputHandler : MonoBehaviour
 {
     public Vector2 MoveInput { get; private set; }
-    public Vector2 ClimbInput { get; private set; }
 
     public bool JumpPressed { get; private set; }
     public bool JumpHeld { get; private set; }
@@ -31,22 +30,10 @@ public class PlayerInputHandler : MonoBehaviour
         inputActions = new PlayerInputActions();
 
         inputActions.Player.Move.performed += ctx =>
-        {
             MoveInput = ctx.ReadValue<Vector2>();
-            ClimbInput = MoveInput;
-        };
 
         inputActions.Player.Move.canceled += _ =>
-        {
             MoveInput = Vector2.zero;
-            ClimbInput = Vector2.zero;
-        };
-
-        inputActions.Player.Climb.performed += ctx =>
-            ClimbInput = ctx.ReadValue<Vector2>();
-
-        inputActions.Player.Climb.canceled += _ =>
-            ClimbInput = Vector2.zero;
 
         inputActions.Player.Jump.started += _ => JumpPressed = true;
         inputActions.Player.Jump.performed += _ => JumpHeld = true;
