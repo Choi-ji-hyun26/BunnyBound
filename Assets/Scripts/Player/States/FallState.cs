@@ -10,7 +10,6 @@ public class FallState : PlayerState
     {
         // isJumping은 JumpState에서만 세팅
         // JumpState → FallState 경로에선 이미 true 상태로 유지됨
-        // 사다리 등 다른 경로로 진입 시 isJumping: false인 채로 Fall 처리
         stateMachine.Coordinator.Animator.SetBool("isGrounded", false);
     }
 

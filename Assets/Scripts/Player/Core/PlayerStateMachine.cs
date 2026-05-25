@@ -21,19 +21,12 @@ public class PlayerStateMachine : MonoBehaviour
     private RaycastHit2D[] groundHits = new RaycastHit2D[5];
     public bool IsGroundedCached { get; private set; }
 
-    [Header("Ladder")]
-    [SerializeField] private float climbSpeed = 4f;
-
-    public bool IsOnLadder { get; private set; } = false;
-    public float ClimbSpeed => climbSpeed;
-
     // State
     public PlayerState CurrentState { get; private set; }
     public IdleState IdleState { get; private set; }
     public WalkState WalkState { get; private set; }
     public JumpState JumpState { get; private set; }
     public FallState FallState { get; private set; }
-    public ClimbState ClimbState { get; private set; }
 
     private PlayerInputHandler input;
     public PlayerInputHandler Input => input;
@@ -61,7 +54,6 @@ public class PlayerStateMachine : MonoBehaviour
         WalkState  = new WalkState(this);
         JumpState  = new JumpState(this);
         FallState  = new FallState(this);
-        ClimbState = new ClimbState(this);
     }
 
     private void Start()
@@ -105,32 +97,6 @@ public class PlayerStateMachine : MonoBehaviour
                 return true;
         }
         return false;
-    }
-
-    /// <summary>
-    /// LadderZone에서 호출 — 사다리 진입/퇴장 시
-    /// </summary>
-    public void SetOnLadder(bool value)
-    {
-        IsOnLadder = value;
-
-        if (!value && CurrentState is ClimbState)
-        {
-            if (IsGroundedCached)
-                ChangeState(IdleState);
-            else
-                ChangeState(FallState);
-        }
-    }
-
-    /// <summary>
-    /// LadderTop에서 호출 — 올라오기 스냅 후 플래그만 리셋
-    /// 상태 전환 없이 IsOnLadder만 false로 설정
-    /// LadderZone.OnTriggerExit2D 타이밍과 무관하게 즉시 처리
-    /// </summary>
-    public void IsOnLadder_ForceSet(bool value)
-    {
-        IsOnLadder = value;
     }
 
     public void VelocityZero()
