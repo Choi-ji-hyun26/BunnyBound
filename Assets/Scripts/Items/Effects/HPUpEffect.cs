@@ -12,6 +12,6 @@ public class HPUpEffect : IItemEffect
     {
         player.Stats.IncreaseMaxHearts(); // 최대 하트 +1
         player.Stats.FullHeal();          // 전체 HP 회복
-        SoundManager.Instance.PlaySound("ITEM");
+        SoundManager.Instance.PlaySound(SoundType.Item);
     }
 }

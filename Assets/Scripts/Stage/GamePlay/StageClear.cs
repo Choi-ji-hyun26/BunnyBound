@@ -16,7 +16,7 @@ public class StageClear : MonoBehaviour
             return;
 
         isCleared = true;
-        SoundManager.Instance.PlaySound("FINISH");
+        SoundManager.Instance.PlaySound(SoundType.Finish);
         GameManager.Instance.OnStageCleared();
     }
 }

@@ -7,7 +7,6 @@ using UnityEngine.InputSystem;
 public class PlayerInputHandler : MonoBehaviour
 {
     public Vector2 MoveInput { get; private set; }
-    public Vector2 ClimbInput { get; private set; }
 
     public bool JumpPressed { get; private set; }
     public bool JumpHeld { get; private set; }
@@ -17,8 +16,6 @@ public class PlayerInputHandler : MonoBehaviour
     // 검사 공격 입력
     public bool Attack1Pressed { get; private set; } // Q
     public bool Attack2Pressed { get; private set; } // W
-    public bool Attack3Pressed { get; private set; } // E
-    public bool Attack4Pressed { get; private set; } // R
 
     // 쉴드 입력
     // ShieldPressed : 단발 입력 (페링 방식 — LateUpdate에서 리셋)
@@ -33,22 +30,10 @@ public class PlayerInputHandler : MonoBehaviour
         inputActions = new PlayerInputActions();
 
         inputActions.Player.Move.performed += ctx =>
-        {
             MoveInput = ctx.ReadValue<Vector2>();
-            ClimbInput = MoveInput;
-        };
 
         inputActions.Player.Move.canceled += _ =>
-        {
             MoveInput = Vector2.zero;
-            ClimbInput = Vector2.zero;
-        };
-
-        inputActions.Player.Climb.performed += ctx =>
-            ClimbInput = ctx.ReadValue<Vector2>();
-
-        inputActions.Player.Climb.canceled += _ =>
-            ClimbInput = Vector2.zero;
 
         inputActions.Player.Jump.started += _ => JumpPressed = true;
         inputActions.Player.Jump.performed += _ => JumpHeld = true;
@@ -59,8 +44,6 @@ public class PlayerInputHandler : MonoBehaviour
 
         inputActions.Player.Attack1.started += _ => Attack1Pressed = true;
         inputActions.Player.Attack2.started += _ => Attack2Pressed = true;
-        inputActions.Player.Attack3.started += _ => Attack3Pressed = true;
-        inputActions.Player.Attack4.started += _ => Attack4Pressed = true;
 
         // ShieldPressed: started(키 누른 순간 1회) — 페링 단발 입력용
         // ShieldHeld: performed/canceled — 홀드 상태 유지용
@@ -80,8 +63,6 @@ public class PlayerInputHandler : MonoBehaviour
         TransformPressed = false;
         Attack1Pressed = false;
         Attack2Pressed = false;
-        Attack3Pressed = false;
-        Attack4Pressed = false;
         ShieldPressed = false; // 단발 — 매 프레임 리셋
         // ShieldHeld는 홀드 방식이라 리셋하지 않음
     }

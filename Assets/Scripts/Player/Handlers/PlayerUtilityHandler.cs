@@ -8,6 +8,14 @@ public class PlayerUtilityHandler : MonoBehaviour
 
     public void StartMiniMapDisplay()
     {
-        miniMapCamera.SetActive(true);
+        if (Application.isMobilePlatform)
+        {
+            var cam = Camera.main.GetComponent<CameraController>();
+            if (cam != null) cam.SetMapZoom(true);
+        }
+        else
+        {
+            miniMapCamera.SetActive(true);
+        }
     }
 }

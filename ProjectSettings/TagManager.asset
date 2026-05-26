@@ -27,7 +27,7 @@ TagManager:
   - Platform
   - Enemy
   - Player
-  - 
+  - PlayerDrop
   - 
   - Chest
   - Spike

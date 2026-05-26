@@ -5,7 +5,6 @@ using UnityEngine;
 /// 검사 전용 공격 시스템
 /// - Q: 근접 slash (hitBox1)
 /// - W: 원거리 slash 투사체 (SlashProjectile)
-/// - E/R: 미사용 (추후 확장)
 /// - 1개 예약 버퍼링
 /// - 해금된 공격만 사용 가능
 /// - 공격 시작 시점에 플레이어 방향(flipX) 반영
@@ -45,6 +44,9 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     private int bufferedAttack = -1;
 
     private float[] hitBoxDefaultOffsetX = new float[1]; // hitBox1만 관리
+
+    // OverlapBoxNonAlloc용 결과 배열 — 매 공격마다 GC 할당 제거
+    private readonly Collider2D[] overlapResults = new Collider2D[16];
 
     private PlayerCoordinator coordinator;
     private PlayerInputHandler input;
@@ -120,6 +122,8 @@ public class PlayerSwordAttackHandler : MonoBehaviour
         animator.SetInteger("attackIndex", attackIndex);
         animator.SetTrigger("doAttack");
 
+        PlayAttackSound(attackIndex);
+
         if (attackIndex == 2)
         {
             // W: 원거리 투사체 — hitStart 타이밍에 생성
@@ -165,6 +169,20 @@ public class PlayerSwordAttackHandler : MonoBehaviour
         }
     }
 
+    private void PlayAttackSound(int attackIndex)
+    {
+        switch (attackIndex)
+        {
+            case 1:
+                SoundManager.Instance.PlaySound(SoundType.AttackQ);
+                break;
+
+            case 2:
+                SoundManager.Instance.PlaySound(SoundType.AttackW);
+                break;
+        }
+    }
+
     // ───────────────────────────────────────────
     // W 쿨타임 루틴
     // UI 연동을 위해 Attack2CooldownRemaining 매 프레임 갱신
@@ -196,7 +214,6 @@ public class PlayerSwordAttackHandler : MonoBehaviour
             return;
         }
 
-        // 생성 위치: hitBox2Transform (flipX 방향 반영된 상태)
         Vector3 spawnPos = hitBox2Transform != null
             ? hitBox2Transform.position
             : transform.position;
@@ -223,7 +240,6 @@ public class PlayerSwordAttackHandler : MonoBehaviour
         pos.x = facingLeft ? -hitBoxDefaultOffsetX[0] : hitBoxDefaultOffsetX[0];
         hitBox1.transform.localPosition = pos;
 
-        // hitBox2Transform도 방향 반영 (투사체 생성 위치)
         if (hitBox2Transform != null)
         {
             Vector3 pos2 = hitBox2Transform.localPosition;
@@ -256,11 +272,12 @@ public class PlayerSwordAttackHandler : MonoBehaviour
         Vector2 size = box.size;
         float angle = hitBox.transform.eulerAngles.z;
 
-        Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, angle);
-        foreach (Collider2D hit in hits)
+        // OverlapBoxNonAlloc — 매 공격마다 새 배열 할당 제거 (GC 절감)
+        int hitCount = Physics2D.OverlapBoxNonAlloc(center, size, angle, overlapResults);
+        for (int i = 0; i < hitCount; i++)
         {
-            if (!hit.CompareTag("Breakable")) continue;
-            IBreakable breakable = hit.GetComponent<IBreakable>();
+            if (!overlapResults[i].CompareTag("Breakable")) continue;
+            IBreakable breakable = overlapResults[i].GetComponent<IBreakable>();
             breakable?.OnBreak();
         }
     }

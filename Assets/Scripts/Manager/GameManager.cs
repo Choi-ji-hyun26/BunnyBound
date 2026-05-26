@@ -20,8 +20,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject miniMapCamera;
     [SerializeField] private GameObject SettingMenu;
 
-    private int collectedStarCount = 0;
-    public int totalStarCount = 0;
+    private StageIdentifier stageIdentifier;
 
     private void Awake()
     {
@@ -36,8 +35,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        StageIdentifier info = FindObjectOfType<StageIdentifier>();
-        totalStarCount = info.totalStarCount;
+        stageIdentifier = Stages[GameProgress.CurrentStageId - 1].GetComponent<StageIdentifier>();
 
         // 스테이지 진입 시 player 스냅샷 저장
         // 클리어 없이 이탈 시 RollbackPlayer()로 복원
@@ -76,9 +74,8 @@ public class GameManager : MonoBehaviour
 
     public void OnStageCleared()
     {
-        StageIdentifier stageInfo = FindObjectOfType<StageIdentifier>();
-        int stageId = stageInfo.StageId;
-        int totalStarCount = stageInfo.totalStarCount;
+        int stageId = stageIdentifier.StageId;
+        int totalStarCount = stageIdentifier.totalStarCount;
         int collectedStarCount = PlayerStats.instance.stagePoint;
 
         int starRank = CalculateStarRank(collectedStarCount, totalStarCount);
@@ -109,6 +106,10 @@ public class GameManager : MonoBehaviour
         currentStageIndex++;
         ActivateStage(currentStageIndex);
 
+        // 다음 스테이지로 전환 시 stageIdentifier 갱신
+        stageIdentifier = Stages[currentStageIndex].GetComponent<StageIdentifier>();
+        GameProgress.SelectStage(currentStageIndex + 1);
+
         // 다음 스테이지 진입 시 새 스냅샷 저장
         GameProgress.TakeSnapshot();
 
@@ -116,7 +117,12 @@ public class GameManager : MonoBehaviour
 
         var cam = Camera.main.GetComponent<CameraController>();
         if (cam != null)
+        {
             cam.EnableInstantMoveNextFrame();
+            // 모바일에서 지도 줌아웃 상태였다면 복구
+            if (Application.isMobilePlatform)
+                cam.SetMapZoom(false);
+        }
 
         UIStage.text = "STAGE " + (currentStageIndex + 1);
 

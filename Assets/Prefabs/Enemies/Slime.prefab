@@ -242,7 +242,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHp: 25
-  defaultFacingLeft: 1
+  defaultFacingLeft: 0
   isMovingEnemy: 1
   deathDelay: 0.5
   knockbackSpeed: 8

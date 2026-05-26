@@ -1,69 +1,102 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
 using UnityEngine;
 
+/// <summary>
+/// Transform 이동 기반 Parallax 스크롤 컨트롤러
+///
+/// 구조:
+/// - ParallaxLayer: 무한 스크롤이 필요한 레이어 (Far, Mid)
+///   - 3개 오브젝트 세트(left, center, right)로 무한 스크롤 구현
+///   - 카메라 이동량 * parallaxFactor만큼 이동, 화면 밖으로 나가면 반대쪽으로 재배치
+/// - StaticFollowLayer: 카메라를 그대로 추종하는 레이어 (Top, Bottom)
+///   - parallaxFactor = 0으로 카메라와 동일하게 이동
+///
+/// Inspector 설정:
+/// - layers: ParallaxLayer 배열 (Far, Mid 등)
+/// - staticFollowers: 카메라 추종 오브젝트 배열 (Middle_Top, Middle_Bottom)
+/// - cameraTransform: Main Camera Transform 연결
+/// </summary>
 public class ParallaxController : MonoBehaviour
 {
-    [SerializeField] private Transform cameraTransform; // 카메라의 Transform 컴포넌트
-
-    private Vector3 cameraStartPos; // 게임 시작시 카메라 시작 위치
-    private float distance; // cameraStartPos부터 현재 카메라까지의 x 이동거리
-
-    private Material[] materials; // 배경 스크롤을 위한 Material 배열 변수
-    private float[] layerMoveSpeed; // z 값이 다른 배경 레이어 별 이동속도
-
-    [SerializeField][Range(0.01f, 1.0f)] float ParallaxSpeed = 0.018f; // layerMoveSpeed에 곱해서 사용하는 배경 스크롤 이동 속도
-
-    private void Awake()
+    [System.Serializable]
+    public class ParallaxLayer
     {
-        // 게임을 시작할 때 카메라의 위치 저장(이동 거리 계산용)
-        cameraStartPos = cameraTransform.position;
+        public Transform left;
+        public Transform center;
+        public Transform right;
 
-        // 배경의 개수를 구하고 배경 정보를 저장할 GameObject 배열 선언
-        int backgroundCount = transform.childCount;
-        GameObject[] backgrounds = new GameObject[backgroundCount];
+        [Range(0f, 1f)]
+        public float parallaxFactor; // 0: 카메라와 동일, 1: 완전 고정
 
-        // 각 배경의 material과 이동 속도를 저장할 배열 선언
-        materials = new Material[backgroundCount];
-        layerMoveSpeed = new float[backgroundCount];
-
-        // GetChild() 메소드를 호출해 자식으로 있는 배경 정보 불러옴
-        for (int i = 0; i <backgroundCount; ++i)
-        {
-            backgrounds[i] = transform.GetChild(i).gameObject;
-            materials[i] = backgrounds[i].GetComponent<Renderer>().material;
-        }
-        //레이어(카메라의 z 거리 기준) 별로 이동 속도 설정
-        CalculateMoveSpeedLayer(backgrounds, backgroundCount);
+        [HideInInspector] public float spriteWidth;
     }
 
-    private void CalculateMoveSpeedLayer(GameObject[] backgrouds, int count)
-    {
-        float farthestBackDistance = 0;
-        for(int i = 0; i < count; ++i)
-        {
-            if((backgrouds[i].transform.position.z - cameraTransform.position.z) > farthestBackDistance)
-            {
-                farthestBackDistance = backgrouds[i].transform.position.z - cameraTransform.position.z;
-            }
-        }
+    [SerializeField] private Transform cameraTransform;
+    [SerializeField] private ParallaxLayer[] layers;
+    [SerializeField] private Transform[] staticFollowers; // Middle_Top, Middle_Bottom
 
-        for (int i =0 ; i <count; ++ i)
+    private float previousCameraX;
+
+    private void Start()
+    {
+        previousCameraX = cameraTransform.position.x;
+
+        foreach (var layer in layers)
         {
-            layerMoveSpeed[i] = 1 - (backgrouds[i].transform.position.z - cameraTransform.position.z) / farthestBackDistance;
-            Debug.Log($"{layerMoveSpeed[i]}, 실제 이동속도 = {layerMoveSpeed[i] * ParallaxSpeed}");
+            // center 오브젝트의 SpriteRenderer 너비를 기준으로 spriteWidth 계산
+            var sr = layer.center.GetComponent<SpriteRenderer>();
+            if (sr != null)
+                layer.spriteWidth = sr.bounds.size.x;
+            else
+                layer.spriteWidth = 25f; // fallback
         }
     }
 
-    private void LateUpdate() { //각 레이어가 다른 속도로 움직이도록 만들어서 입체감을 줌
-        distance = cameraTransform.position.x - cameraStartPos.x;
-        transform.position = new Vector3(cameraTransform.position.x, transform.position.y, 0);
+    private void LateUpdate()
+    {
+        float deltaX = cameraTransform.position.x - previousCameraX;
+        previousCameraX = cameraTransform.position.x;
 
-        for(int i = 0; i < materials.Length; ++i)
+        foreach (var layer in layers)
         {
-            float speed = layerMoveSpeed[i] * ParallaxSpeed;
-            materials[i].SetTextureOffset("_MainTex", new Vector2(distance, 0) * speed);
+            float move = deltaX * (1f - layer.parallaxFactor);
+
+            layer.left.position   += new Vector3(move, 0f, 0f);
+            layer.center.position += new Vector3(move, 0f, 0f);
+            layer.right.position  += new Vector3(move, 0f, 0f);
+
+            RepositionIfNeeded(layer);
+        }
+
+        // staticFollowers는 카메라 x를 그대로 추종
+        foreach (var follower in staticFollowers)
+        {
+            follower.position = new Vector3(
+                cameraTransform.position.x,
+                follower.position.y,
+                follower.position.z
+            );
+        }
+    }
+
+    /// <summary>
+    /// 카메라 기준으로 화면 밖으로 나간 오브젝트를 반대쪽으로 재배치
+    /// </summary>
+    private void RepositionIfNeeded(ParallaxLayer layer)
+    {
+        float camX = cameraTransform.position.x;
+        float width = layer.spriteWidth;
+
+        Transform[] tiles = { layer.left, layer.center, layer.right };
+
+        foreach (var tile in tiles)
+        {
+            // 오른쪽으로 너무 멀어진 경우
+            if (tile.position.x > camX + width * 1.5f)
+                tile.position -= new Vector3(width * 3f, 0f, 0f);
+
+            // 왼쪽으로 너무 멀어진 경우
+            else if (tile.position.x < camX - width * 1.5f)
+                tile.position += new Vector3(width * 3f, 0f, 0f);
         }
     }
 }

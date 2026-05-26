@@ -37,8 +37,15 @@ public class PlayerTransformHandler : MonoBehaviour
     [SerializeField] private RuntimeAnimatorController rabbitAnimator;
     [SerializeField] private RuntimeAnimatorController knightAnimator;
 
-    [Header("Skill Slot UI")]
-    [SerializeField] private GameObject skillSlotContainer;
+    [Header("Skill UI")]
+    [SerializeField] private GameObject skillSlotContainer; // PC 전용
+    [SerializeField] private GameObject skillButtons; // Mobile 전용
+
+    [Header("Mobile Tab Button Icon")] // Mobile
+    [SerializeField] private UnityEngine.UI.Image tabButtonIcon;
+    [SerializeField] private Sprite rabbitIcon;
+    [SerializeField] private Sprite knightIcon;
+
 
     [Header("Transform Control")]
     public bool CanTransform = true;
@@ -59,6 +66,17 @@ public class PlayerTransformHandler : MonoBehaviour
     {
         ApplyStats(CharacterType.Rabbit);
         ApplySpriteScale(CharacterType.Rabbit);
+
+         // 토끼 상태로 시작
+         // 스킬 슬롯 UI 초기 비활성화 - PC
+        if (skillSlotContainer != null)
+            skillSlotContainer.SetActive(false);
+        // 스킬 버튼 UI 초기 비활성화 - Mobile
+        if (skillButtons != null)
+            skillButtons.SetActive(false);
+        // 변신 버튼 아이콘 - Mobile
+        if (tabButtonIcon != null && rabbitIcon != null)
+            tabButtonIcon.sprite = rabbitIcon;
     }
 
     /// <summary>
@@ -71,8 +89,17 @@ public class PlayerTransformHandler : MonoBehaviour
         ApplyAnimator(CharacterType.Rabbit);
         ApplyCollider(CharacterType.Rabbit);
         ApplySpriteScale(CharacterType.Rabbit);
+
+        // PC
         if (skillSlotContainer != null)
             skillSlotContainer.SetActive(false);
+        // Mobile
+        // 스킬 버튼
+        if (skillButtons != null)
+            skillButtons.SetActive(false);
+        // 변신 버튼
+        if (tabButtonIcon != null && rabbitIcon != null)
+            tabButtonIcon.sprite = rabbitIcon;
     }
 
     /// <summary>
@@ -95,8 +122,6 @@ public class PlayerTransformHandler : MonoBehaviour
 
     private void SwitchTo(CharacterType next)
     {
-        // HP 단일화로 HP 환산 불필요
-
         ApplyStats(next);
         ApplyAnimator(next);
         ApplyCollider(next);
@@ -105,9 +130,17 @@ public class PlayerTransformHandler : MonoBehaviour
 
         ApplySpriteScale(next);
 
-        // 스킬 슬롯 UI — 검사일 때만 활성화
-        if (skillSlotContainer != null)
+        // 스킬 슬롯 UI — 검사일 때만 활성화 
+        // PC 전용
+        if (skillSlotContainer != null && !Application.isMobilePlatform)
             skillSlotContainer.SetActive(next == CharacterType.Knight);
+        // Mobile 전용
+        // 스칼 버튼
+        if (skillButtons != null && Application.isMobilePlatform)
+            skillButtons.SetActive(next == CharacterType.Knight);
+        // 변신 버튼
+        if (tabButtonIcon != null)
+            tabButtonIcon.sprite = next == CharacterType.Knight ? knightIcon : rabbitIcon;
 
         // 변신 후 Idle로 리셋 (애니메이션 꼬임 방지)
         stateMachine.ChangeState(stateMachine.IdleState);

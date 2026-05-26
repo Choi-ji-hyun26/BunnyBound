@@ -34,7 +34,7 @@ public class EnemyBase : MonoBehaviour
     [SerializeField] private float knockbackDuration = 0.3f;
 
     [Header("Damage Number Settings")]
-    [SerializeField] private Vector3 damageNumberOffset = new Vector3(0f, 2f, 0f); // 피격 위치 오프셋
+    [SerializeField] private Vector3 damageNumberOffset = new Vector3(0f, 2f, 0f);
 
     protected Rigidbody2D rigid;
     protected Animator animator;
@@ -45,6 +45,23 @@ public class EnemyBase : MonoBehaviour
     public Animator Animator => animator;
     public SpriteRenderer SpriteRenderer => spriteRenderer;
     public BoxCollider2D BoxCollider => boxCollider;
+
+    // Player Transform 씬 전역 캐싱 — Bat/Piranha 개별 FindGameObjectWithTag 제거
+    // 씬 재로드 시 null로 초기화되므로 OnDestroy에서 정리 불필요
+    private static Transform cachedPlayer;
+    protected static Transform CachedPlayer
+    {
+        get
+        {
+            if (cachedPlayer == null)
+            {
+                GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+                if (playerObj != null)
+                    cachedPlayer = playerObj.transform;
+            }
+            return cachedPlayer;
+        }
+    }
 
     protected virtual void Awake()
     {
@@ -83,7 +100,6 @@ public class EnemyBase : MonoBehaviour
     {
         currentHp -= amount;
 
-        // 데미지 숫자 표시 — 사망/생존 공통 적용
         ShowDamageNumber(amount);
 
         if (currentHp <= 0)

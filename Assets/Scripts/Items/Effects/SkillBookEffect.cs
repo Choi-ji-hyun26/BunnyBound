@@ -16,8 +16,6 @@ public class SkillBookEffect : IItemEffect
         "",                                         // 0 (미사용)
         "",                                         // 1 (기본 공격, 해금 불필요)
         "NEW SKILL UNLOCKED!\nTRY PRESSING W!",     // 2
-        "NEW SKILL UNLOCKED!\nTRY PRESSING E!",     // 3
-        "NEW SKILL UNLOCKED!\nTRY PRESSING R!",     // 4
     };
 
     public SkillBookEffect(int attackIndex)
@@ -34,7 +32,7 @@ public class SkillBookEffect : IItemEffect
         }
 
         SkillUnlockManager.Instance.UnlockAttack(attackIndex);
-        SoundManager.Instance.PlaySound("ITEM");
+        SoundManager.Instance.PlaySound(SoundType.Item);
 
         // 해금 메시지 표시
         if (NotificationUI.Instance != null && attackIndex < unlockMessages.Length)

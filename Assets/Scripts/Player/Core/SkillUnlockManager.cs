@@ -4,7 +4,7 @@ using UnityEngine;
 /// 검사 공격 해금 시스템
 /// - 해금 상태를 GameProgress에서 로드/저장
 /// - 기본 공격(Q, index 1)은 항상 해금
-/// - W/E/R은 던전 보물상자 스킬북으로 해금
+/// - W(index 2)는 던전 보물상자 스킬북으로 해금
 /// </summary>
 public class SkillUnlockManager : MonoBehaviour
 {
@@ -40,7 +40,7 @@ public class SkillUnlockManager : MonoBehaviour
     // ───────────────────────────────────────────
     public void UnlockAttack(int attackIndex)
     {
-        if (attackIndex < 2 || attackIndex > 4)
+        if (attackIndex != 2)
         {
             Debug.LogWarning($"[SkillUnlock] 잘못된 공격 인덱스: {attackIndex}");
             return;
