@@ -7,6 +7,7 @@ public class Title : MonoBehaviour
 {
     void Awake()
     {
+        Application.targetFrameRate = 60;
         Time.timeScale = 1f;
         GameProgress.Load();
     }

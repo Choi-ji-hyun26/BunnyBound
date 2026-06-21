@@ -21,23 +21,9 @@ public class CameraController : MonoBehaviour
     private void Awake()
     {
         cam = GetComponent<Camera>();
-        AdjustCameraSize();
+        cam.orthographicSize = baseOrthographicSize;
     }
 
-    private void AdjustCameraSize()
-    {
-        if (cam == null) return;
-        float currentAspect = (float)Screen.width / Screen.height;
-        if (currentAspect > baseAspect)
-        {
-            // 기준보다 좁은 화면 — Size 키워서 잘림 방지
-            cam.orthographicSize = baseOrthographicSize * (baseAspect / currentAspect);
-        }
-        else
-        {
-            cam.orthographicSize = baseOrthographicSize;
-        }
-    }
     // Mobile 전용
     public void SetMapZoom(bool enable)
     {
