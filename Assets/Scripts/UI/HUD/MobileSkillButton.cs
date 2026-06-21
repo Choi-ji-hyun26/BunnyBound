@@ -38,20 +38,16 @@ public class MobileSkillButton : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        if (skillType == SkillType.Attack2)
-        {
-            bool unlocked = SkillUnlockManager.Instance != null &&
-                            SkillUnlockManager.Instance.IsUnlocked(2);
-            SetButtonVisible(unlocked);
-        }
-    }
-
     private void OnEnable()
     {
         if (skillType == SkillType.Attack2 && SkillUnlockManager.Instance != null)
+        {
             SkillUnlockManager.Instance.OnSkillUnlocked += OnSkillUnlocked;
+
+            // 활성화 시점마다 현재 해금 상태로 재동기화
+            // (버튼이 비활성인 동안 발행된 OnSkillUnlocked 이벤트를 놓쳐도 여기서 보정)
+            SetButtonVisible(SkillUnlockManager.Instance.IsUnlocked(2));
+        }
     }
 
     private void OnDisable()
