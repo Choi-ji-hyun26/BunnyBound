@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 353334578bd584674853743e959f5814, type: 3}
+  m_Name: HintItem_101
+  m_EditorClassIdentifier: 
+  itemName: HintNote1
+  itemPrefab: {fileID: 559215542172827657, guid: 5e782ef9b282f4f02a34f536ccce0462, type: 3}
+  isOneTimeItem: 1
+  itemEffectClassName: 
+  hintId: 101
+  hintText: "On a night sky full of stars, \na little rabbit danced freely beneath
+    the glowing moon."
