@@ -95,7 +95,8 @@ public static class GameProgress
         {
             unlockedSkills = (bool[])data.player.unlockedSkills.Clone(),
             maxHearts = data.player.maxHearts,
-            collectedChestIds = new System.Collections.Generic.List<int>(data.player.collectedChestIds)
+            collectedChestIds = new System.Collections.Generic.List<int>(data.player.collectedChestIds),
+            collectedHintIds = new System.Collections.Generic.List<int>(data.player.collectedHintIds)
         };
     }
 
@@ -110,6 +111,7 @@ public static class GameProgress
         data.player.unlockedSkills = (bool[])playerSnapshot.unlockedSkills.Clone();
         data.player.maxHearts = playerSnapshot.maxHearts;
         data.player.collectedChestIds = new List<int>(playerSnapshot.collectedChestIds);
+        data.player.collectedHintIds = new List<int>(playerSnapshot.collectedHintIds);
         playerSnapshot = null;
     }
 
@@ -244,6 +246,48 @@ public static class GameProgress
         if (data?.player == null) return;
         if (!data.player.collectedChestIds.Contains(chestId))
             data.player.collectedChestIds.Add(chestId);
+    }
+
+    // ───────────────────────────────────────────
+    // 힌트 API
+    // ───────────────────────────────────────────
+
+    /// <summary>
+    /// 해당 hintId의 힌트를 이미 획득했는지 확인
+    /// </summary>
+    public static bool IsHintCollected(int hintId)
+    {
+        return data?.player?.collectedHintIds?.Contains(hintId) ?? false;
+    }
+
+    /// <summary>
+    /// 힌트 획득 기록 — 메모리에만 반영
+    /// 클리어 시 SaveImmediate()로 저장, 이탈 시 RollbackPlayer()로 복원
+    /// </summary>
+    public static void CollectHint(int hintId)
+    {
+        if (data?.player == null) return;
+        if (!data.player.collectedHintIds.Contains(hintId))
+            data.player.collectedHintIds.Add(hintId);
+    }
+
+    /// <summary>
+    /// 현재 획득한 힌트 ID 목록 반환
+    /// HintSlotUI에서 슬롯 구성에 사용
+    /// </summary>
+    public static List<int> GetCollectedHintIds()
+    {
+        return data?.player?.collectedHintIds ?? new List<int>();
+    }
+
+    /// <summary>
+    /// 챕터 클리어 시 힌트 목록 초기화
+    /// SequenceGate에서 정답 확인 후 호출
+    /// </summary>
+    public static void ClearHints()
+    {
+        if (data?.player == null) return;
+        data.player.collectedHintIds.Clear();
     }
 
     // ───────────────────────────────────────────
