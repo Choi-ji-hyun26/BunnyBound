@@ -1,22 +1,22 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// 엔딩 씬 컨트롤러
+/// - 퍼즐 클리어 시 진입, trueEndingUI 표시
+/// - 챕터 2 구현 시 normalEndingUI 복구 및 씬 분리 예정
+/// </summary>
 public class EndingController : MonoBehaviour
 {
-    [SerializeField] private GameObject normalEndingUI;
     [SerializeField] private GameObject trueEndingUI;
+
     void Start()
     {
-        GameProgress.Load(); // 안전장치
-
-        bool isTrueEnding = GameProgress.IsAllStagesPerfect();
-
-        normalEndingUI.SetActive(!isTrueEnding);
-        trueEndingUI.SetActive(isTrueEnding);
+        GameProgress.Load();
+        trueEndingUI.SetActive(true);
     }
+
     public void OnRestartButtonClick()
     {
         StartCoroutine(LoadWithFade("Title"));
