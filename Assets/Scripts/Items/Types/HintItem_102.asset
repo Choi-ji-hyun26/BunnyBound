@@ -17,9 +17,9 @@ MonoBehaviour:
   isOneTimeItem: 1
   itemEffectClassName: 
   hintId: 102
-  hintText: 'The little rabbit stumbled upon a carrot,
+  hintText: 'The knight ate the carrot and fell asleep.
 
-    and as the warm sun rose,
+    When she woke the next
+    morning,
 
-    she
-    couldn''t help but take a bite.'
+    she had turned into a rabbit!'
