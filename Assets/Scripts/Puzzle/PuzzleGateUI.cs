@@ -39,6 +39,8 @@ public class PuzzleGateUI : MonoBehaviour
     [SerializeField] private float shakeDuration = 0.3f;
     [SerializeField] private float shakeStrength = 10f;
 
+    private SequenceGate currentGate;
+
     void Awake()
     {
         Instance = this;
@@ -52,12 +54,17 @@ public class PuzzleGateUI : MonoBehaviour
     /// </summary>
     public void Open(SequenceGate gate)
     {
+        currentGate = gate;
         SetupButtons(gate);
         ResetProgress();
         content.SetActive(true);
     }
 
-    public void Close() => content.SetActive(false);
+    public void Close()
+    {
+        currentGate?.ResetInput();
+        content.SetActive(false);
+    }
 
     /// <summary>
     /// 심볼 버튼에 SequenceGate.OnSymbolSelected() 리스너 등록

@@ -6,8 +6,8 @@ public enum PuzzleSymbol
 {
     Star,           // 별
     Moon,           // 달
-    Sun,            // 해
+    Knight,         // 검사
     Carrot,         // 당근
-    BittenCarrot,   // 갉아먹은 당근
+    Sun,            // 해
     Rabbit          // 토끼
 }

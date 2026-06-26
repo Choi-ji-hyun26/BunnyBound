@@ -58,4 +58,12 @@ public class SequenceGate : MonoBehaviour
         inputSequence.Clear();
         puzzleGateUI.OnWrong(); // Shake + 슬롯 리셋
     }
+
+    /// <summary>
+    /// 파업 닫힌 시 호출 — 입력 시퀀스 초기화
+    /// </summary>
+    public void ResetInput()
+    {
+        inputSequence.Clear();
+    }
 }
