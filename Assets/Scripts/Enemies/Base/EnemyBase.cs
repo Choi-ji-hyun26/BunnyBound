@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class EnemyBase : MonoBehaviour
 {
@@ -28,6 +29,7 @@ public class EnemyBase : MonoBehaviour
 
     [Header("Death Settings")]
     [SerializeField] private float deathDelay = 0.5f;
+    [SerializeField] private UnityEvent onDeath;
 
     [Header("Hit Reaction Settings")]
     [SerializeField] private float knockbackSpeed    = 5f;
@@ -211,6 +213,8 @@ public class EnemyBase : MonoBehaviour
 
     /// <summary>
     /// 사망 처리
+    /// - onDeath UnityEvent: 인스펙터에서 사망 시 실행할 콜백 연결
+    /// - 예: FlyingDemon 사망 시 힌트 상자 SetActive(true)
     /// </summary>
     protected virtual void Die()
     {
@@ -220,6 +224,7 @@ public class EnemyBase : MonoBehaviour
         if (rigid != null) rigid.simulated = false;
 
         animator.SetTrigger("doDeath");
+        onDeath?.Invoke();
 
         Object.Destroy(gameObject, deathDelay);
     }
