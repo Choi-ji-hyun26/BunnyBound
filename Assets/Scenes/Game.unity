@@ -384031,7 +384031,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6156608325096039755, guid: ac72496e9784a4d1ba421d26f69f743f, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6156608325096039755, guid: ac72496e9784a4d1ba421d26f69f743f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -384072,14 +384072,6 @@ PrefabInstance:
     - target: {fileID: 6156608325096039755, guid: ac72496e9784a4d1ba421d26f69f743f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6156608325096039756, guid: ac72496e9784a4d1ba421d26f69f743f, type: 3}
-      propertyPath: attackRange
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 6156608325096039756, guid: ac72496e9784a4d1ba421d26f69f743f, type: 3}
-      propertyPath: detectRange
-      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 6156608325096039756, guid: ac72496e9784a4d1ba421d26f69f743f, type: 3}
       propertyPath: onDeath.m_PersistentCalls.m_Calls.Array.data[0].m_Target

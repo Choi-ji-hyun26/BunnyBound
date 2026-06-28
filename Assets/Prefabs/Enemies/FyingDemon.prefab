@@ -180,11 +180,11 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-  knockbackSpeed: 5
+  knockbackSpeed: 10
   knockbackDuration: 0.3
   damageNumberOffset: {x: 0, y: 2, z: 0}
-  detectRange: 7
-  attackRange: 5
+  detectRange: 15
+  attackRange: 10
   playerLayer:
     serializedVersion: 2
     m_Bits: 1024
@@ -197,7 +197,7 @@ MonoBehaviour:
   patrolHeight: 1.5
   fireballPrefab: {fileID: 1956821416843941412, guid: c3f7776a5fd2d4a84ac401b2ae1e9ddc, type: 3}
   firePoint: {fileID: 6156608326828668256}
-  attackCooldown: 5
+  attackCooldown: 2
   spawnPosition: {x: 0, y: 0}
 --- !u!1 &6156608325567429580
 GameObject:
