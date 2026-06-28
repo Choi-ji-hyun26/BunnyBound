@@ -31,6 +31,7 @@ public class FlyingDemon : EnemyBase
     [Header("Attack")]
     [SerializeField] private GameObject fireballPrefab;
     [SerializeField] private Transform firePoint;
+    [SerializeField] private float attackCooldown = 1.5f;
 
     public float DetectRange     => detectRange;
     public float AttackRange     => attackRange;
@@ -40,6 +41,19 @@ public class FlyingDemon : EnemyBase
     public float PatrolHeight    => patrolHeight;
     public GameObject FireballPrefab => fireballPrefab;
     public Transform FirePoint   => firePoint;
+
+    // 공격 쿼다운 — 마지막 공격 시각 기록
+    private float lastAttackTime = -999f;
+
+    /// <summary>
+    /// 쿼다운이 지나 다음 공격이 가능한지 여부
+    /// </summary>
+    public bool CanAttack => Time.time >= lastAttackTime + attackCooldown;
+
+    /// <summary>
+    /// 공격 시각 갱신 — AttackState 진입 시 호출
+    /// </summary>
+    public void MarkAttackTime() => lastAttackTime = Time.time;
 
     [HideInInspector] public Vector2 spawnPosition;
 

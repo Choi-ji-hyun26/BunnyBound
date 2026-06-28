@@ -26,6 +26,7 @@ public class FlyingDemonAttackState : IEnemyState
     {
         demon.Rigid.velocity = Vector2.zero;
         demon.Animator.SetBool("isAttacking", true);
+        demon.MarkAttackTime(); // 쿼다운 타이머 시작
         // isFlying은 끄지 않음 — Flying → Attack 전이를 타야 하므로
     }
 
