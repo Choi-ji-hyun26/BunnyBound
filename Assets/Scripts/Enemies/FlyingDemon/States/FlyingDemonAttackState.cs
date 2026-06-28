@@ -2,16 +2,19 @@ using UnityEngine;
 
 /// <summary>
 /// FlyingDemon 공격 상태
-/// - 제자리에서 불덩이 발사 (ATTACK 클립)
-/// - attackCooldown마다 FireBall 생성
-/// - 플레이어가 공격 사거리 이탈 시 ChaseState 전환
-/// - 플레이어 감지 범위 이탈 시 ReturnState 전환
+/// - 제자리에서 ATTACK 클립 1회 재생
+/// - 불덩이 발사는 Animation Event → FlyingDemon.ShootFireball() 호출
+/// - 클립 1사이클 완료(normalizedTime >= 1f) → ChaseState 전환
+/// - 감지 범위 이탈 시 → ReturnState 전환
+///
+/// [애니메이터 설정]
+/// - ATTACK 클립 Loop Time: OFF
+/// - 입 열리는 프레임에 Animation Event → ShootFireball 등록
 /// </summary>
 public class FlyingDemonAttackState : IEnemyState
 {
     private FlyingDemon demon;
     private EnemyStateMachine stateMachine;
-    private float attackTimer;
 
     public FlyingDemonAttackState(FlyingDemon demon, EnemyStateMachine stateMachine)
     {
@@ -21,9 +24,9 @@ public class FlyingDemonAttackState : IEnemyState
 
     public void Enter()
     {
-        demon.Animator.SetBool("isAttacking", true);
         demon.Rigid.velocity = Vector2.zero;
-        attackTimer = demon.AttackCooldown; // 진입 즉시 발사
+        demon.Animator.SetBool("isAttacking", true);
+        demon.Animator.SetBool("isFlying", false);
     }
 
     public void Update()
@@ -41,41 +44,15 @@ public class FlyingDemonAttackState : IEnemyState
             return;
         }
 
-        // 공격 사거리 이탈 → Chase
-        if (!demon.IsInAttackRange())
-        {
+        // ATTACK 클립 1사이클 완료 → Chase 복귀
+        var stateInfo = demon.Animator.GetCurrentAnimatorStateInfo(0);
+        if (stateInfo.IsName("Attack") && stateInfo.normalizedTime >= 1f)
             stateMachine.ChangeState(demon.ChaseState);
-            return;
-        }
-
-        // 쿨다운마다 불덩이 발사
-        attackTimer += Time.deltaTime;
-        if (attackTimer >= demon.AttackCooldown)
-        {
-            attackTimer = 0f;
-            ShootFireball();
-        }
     }
 
     public void Exit()
     {
         demon.Animator.SetBool("isAttacking", false);
-        attackTimer = 0f;
-    }
-
-    private void ShootFireball()
-    {
-        if (demon.FireballPrefab == null || demon.FirePoint == null) return;
-
-        float dir = demon.Player.position.x > demon.transform.position.x ? 1f : -1f;
-
-        GameObject obj = Object.Instantiate(
-            demon.FireballPrefab,
-            demon.FirePoint.position,
-            Quaternion.identity
-        );
-
-        FireBall fireball = obj.GetComponent<FireBall>();
-        fireball?.Initialize(dir);
+        demon.Animator.SetBool("isFlying", true);
     }
 }

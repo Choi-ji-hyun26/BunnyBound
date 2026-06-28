@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Flying Demon 적 — 공중 원거리 중간 보스
-/// - 스폰 위치 기준 상하 순찰
+/// - 스폰 위치 기준 좌우 순찰
 /// - Raycast로 플레이어 감지 시 Chase → 공격 사거리 진입 시 Attack (불덩이 발사)
 /// - 플레이어 이탈 시 Return
 /// - HP 100, 몸통 데미지 2 (1/2 하트), 불덩이 데미지 1 (1/4 하트)
@@ -26,22 +26,20 @@ public class FlyingDemon : EnemyBase
     [SerializeField] private float patrolSpeed = 1.5f;
     [SerializeField] private float chaseSpeed = 3f;
     [SerializeField] private float returnSpeed = 2.5f;
-    [SerializeField] private float patrolHeight = 1.5f;
+    [SerializeField] private float patrolHeight = 3f;
 
     [Header("Attack")]
     [SerializeField] private GameObject fireballPrefab;
     [SerializeField] private Transform firePoint;
-    [SerializeField] private float attackCooldown = 2f;
 
-    public float DetectRange  => detectRange;
-    public float AttackRange  => attackRange;
-    public float PatrolSpeed  => patrolSpeed;
-    public float ChaseSpeed   => chaseSpeed;
-    public float ReturnSpeed  => returnSpeed;
-    public float PatrolHeight => patrolHeight;
-    public float AttackCooldown => attackCooldown;
+    public float DetectRange     => detectRange;
+    public float AttackRange     => attackRange;
+    public float PatrolSpeed     => patrolSpeed;
+    public float ChaseSpeed      => chaseSpeed;
+    public float ReturnSpeed     => returnSpeed;
+    public float PatrolHeight    => patrolHeight;
     public GameObject FireballPrefab => fireballPrefab;
-    public Transform FirePoint => firePoint;
+    public Transform FirePoint   => firePoint;
 
     [HideInInspector] public Vector2 spawnPosition;
 
@@ -68,6 +66,21 @@ public class FlyingDemon : EnemyBase
 
         spawnPosition = transform.position;
         stateMachine.Initialize(PatrolState);
+    }
+
+    // ─────────────────────────────────────────
+    // 불덩이 발사 — Animation Event에서 호출
+    // ─────────────────────────────────────────
+    public void ShootFireball()
+    {
+        if (FireballPrefab == null || FirePoint == null) return;
+        if (Player == null) return;
+
+        float dir = Player.position.x > transform.position.x ? 1f : -1f;
+
+        GameObject obj = Instantiate(FireballPrefab, FirePoint.position, Quaternion.identity);
+        FireBall fireball = obj.GetComponent<FireBall>();
+        fireball?.Initialize(dir);
     }
 
     // ─────────────────────────────────────────
