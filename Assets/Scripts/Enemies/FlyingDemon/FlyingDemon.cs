@@ -92,6 +92,12 @@ public class FlyingDemon : EnemyBase
 
         float dir = Player.position.x > transform.position.x ? 1f : -1f;
 
+        // 발사 방향에 맞춰 FirePoint 위치 좌우 보정
+        // (spriteRenderer.flipX는 자식 Transform에 영향을 주지 않으므로 수동 반전)
+        Vector3 firePointLocal = FirePoint.localPosition;
+        firePointLocal.x = Mathf.Abs(firePointLocal.x) * dir;
+        FirePoint.localPosition = firePointLocal;
+
         GameObject obj = Instantiate(FireballPrefab, FirePoint.position, Quaternion.identity);
         FireBall fireball = obj.GetComponent<FireBall>();
         fireball?.Initialize(dir);
