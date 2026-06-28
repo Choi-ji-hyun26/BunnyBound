@@ -26,7 +26,7 @@ public class FlyingDemonAttackState : IEnemyState
     {
         demon.Rigid.velocity = Vector2.zero;
         demon.Animator.SetBool("isAttacking", true);
-        demon.Animator.SetBool("isFlying", false);
+        // isFlying은 끄지 않음 — Flying → Attack 전이를 타야 하므로
     }
 
     public void Update()
@@ -53,6 +53,5 @@ public class FlyingDemonAttackState : IEnemyState
     public void Exit()
     {
         demon.Animator.SetBool("isAttacking", false);
-        demon.Animator.SetBool("isFlying", true);
     }
 }
