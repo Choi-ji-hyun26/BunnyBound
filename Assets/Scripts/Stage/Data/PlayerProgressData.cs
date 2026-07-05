@@ -16,4 +16,8 @@ public class PlayerProgressData
     // 획득한 1회용 보물상자 ID 목록
     // chestId 규칙: 스테이지 번호 * 100 + 상자 번호 (예: 스테이지1 → 101, 102)
     public List<int> collectedChestIds = new List<int>();
+
+    // 획득한 힌트 ID 목록 (챕터 클리어 시 초기화)
+    // hintId 규칙: 챕터번호 * 100 + 힌트번호 (예: 챕터1 힌트1 → 101, 힌트2 → 102)
+    public List<int> collectedHintIds = new List<int>();
 }

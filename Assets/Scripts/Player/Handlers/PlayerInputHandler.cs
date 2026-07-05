@@ -6,7 +6,34 @@ using UnityEngine.InputSystem;
 
 public class PlayerInputHandler : MonoBehaviour
 {
-    public Vector2 MoveInput { get; private set; }
+    // MoveInput: 조이스틱이 활성(터치 중)이면 조이스틱 값을, 아니면 Input System 값을 반환.
+    // 모바일 터치와 키보드/게임패드 입력이 서로를 0으로 덮어쓰지 않도록 분리한다.
+    public Vector2 MoveInput => hasJoystickInput ? joystickInput : keyboardMoveInput;
+
+    // Input System(키보드/게임패드) Move 값
+    private Vector2 keyboardMoveInput;
+
+    // 커스텀 모바일 조이스틱 값 및 활성 여부
+    private Vector2 joystickInput;
+    private bool hasJoystickInput;
+
+    /// <summary>
+    /// 커스텀 조이스틱이 드래그 중 매 프레임 호출. 활성 상태로 전환하고 값을 밀어넣는다.
+    /// </summary>
+    public void SetJoystickInput(Vector2 value)
+    {
+        joystickInput = value;
+        hasJoystickInput = true;
+    }
+
+    /// <summary>
+    /// 조이스틱에서 손을 뗐을 때 호출. 오버라이드를 해제해 Input System 값으로 복귀한다.
+    /// </summary>
+    public void ClearJoystickInput()
+    {
+        joystickInput = Vector2.zero;
+        hasJoystickInput = false;
+    }
 
     public bool JumpPressed { get; private set; }
     public bool JumpHeld { get; private set; }
@@ -30,10 +57,10 @@ public class PlayerInputHandler : MonoBehaviour
         inputActions = new PlayerInputActions();
 
         inputActions.Player.Move.performed += ctx =>
-            MoveInput = ctx.ReadValue<Vector2>();
+            keyboardMoveInput = ctx.ReadValue<Vector2>();
 
         inputActions.Player.Move.canceled += _ =>
-            MoveInput = Vector2.zero;
+            keyboardMoveInput = Vector2.zero;
 
         inputActions.Player.Jump.started += _ => JumpPressed = true;
         inputActions.Player.Jump.performed += _ => JumpHeld = true;

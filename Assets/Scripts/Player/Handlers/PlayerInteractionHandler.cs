@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerInteractionHandler : MonoBehaviour
 {
     private OpenChest nearbyInteractableChest;
+    private PuzzleGateTrigger nearbyPuzzleGate;
     private Lever nearbyLever;
 
     public PlayerInputHandler input;
@@ -35,6 +36,15 @@ public class PlayerInteractionHandler : MonoBehaviour
     }
 
     // ───────────────────────────────────────────
+    // 퍼즐 게이트 상호작용
+    // ───────────────────────────────────────────
+    public void SetNearbyPuzzleGate(PuzzleGateTrigger trigger)
+        => nearbyPuzzleGate = trigger;
+
+    public void ClearNearbyPuzzleGate()
+        => nearbyPuzzleGate = null;
+
+    // ───────────────────────────────────────────
     // 레버 상호작용
     // ───────────────────────────────────────────
     public void SetNearbyLever(Lever lever)
@@ -61,6 +71,13 @@ public class PlayerInteractionHandler : MonoBehaviour
         {
             nearbyInteractableChest.Open();
             ClearInteractable();
+            return;
+        }
+
+        // 퍼즐 게이트 상호작용 (토끼/검사 둘 다 가능)
+        if (nearbyPuzzleGate != null)
+        {
+            nearbyPuzzleGate.OpenPuzzleUI();
             return;
         }
 

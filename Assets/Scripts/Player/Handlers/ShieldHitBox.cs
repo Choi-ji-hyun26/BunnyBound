@@ -4,7 +4,9 @@ using UnityEngine;
 /// 쉴드 전면 HitBox
 /// - Player 전면에 배치 (플레이어 방향에 따라 offset 전환)
 /// - 쉴드 중에만 활성화
-/// - EnemyHitBox 레이어 감지 시 넉백/스턴
+/// - EnemyHitBox 레이어 감지 시:
+///   1. IShieldBlockable 구현체(FireBall 등) → BlockedByShield() 호출 후 return
+///   2. EnemyBase → 넉백/스턴
 /// - PlayerShieldHandler에서 활성화/비활성화 제어
 /// </summary>
 public class ShieldHitBox : MonoBehaviour
@@ -53,6 +55,15 @@ public class ShieldHitBox : MonoBehaviour
         if (other.gameObject.layer != enemyHitBoxLayer) return;
         if (shieldHandler == null || !shieldHandler.IsShielding) return;
 
+        // IShieldBlockable 체크 먼저 — FireBall 등 독립 투사체 처리
+        IShieldBlockable blockable = other.GetComponent<IShieldBlockable>();
+        if (blockable != null)
+        {
+            blockable.BlockedByShield();
+            return;
+        }
+
+        // 기존 EnemyBase 처리
         EnemyBase enemy = other.GetComponentInParent<EnemyBase>();
         if (enemy == null) return;
 
