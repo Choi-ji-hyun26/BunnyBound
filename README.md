@@ -55,6 +55,8 @@ PlayerCoordinator
 각 Handler가 `GetComponent()`를 중복 호출하는 문제를 Coordinator가 단일 캐싱·참조 제공 구조로 해결했습니다.     
 기능 추가 시 새 Handler만 작성하면 되어 기존 코드를 건드리지 않습니다.
 
+→ [`Player`](Assets/Scripts/Player/)
+
 <br>
 
 ## 핵심 시스템
@@ -82,38 +84,38 @@ RuntimeAnimatorController 교체는 구조 변경 없이 동일한 결과를 달
 
 피격·넉백·스턴·사망의 공통 흐름을 `EnemyBase`에서 처리하고 각 적은 고유 상태만 정의합니다.
 
-| | 슬라임 | 박쥐 | 피라냐 |
-|---|---|---|---|
-| 이동 | 지상 패트롤 | 공중 | 고정 |
-| 상태 수 | 1 | 4 | 3 |
-| 감지 | — | Raycast 시야 | 근접 상방 반원 Raycast |
-| 실드 반응 | 넉백 | 넉백 | 스턴 |
+| | 슬라임 | 박쥐 | 피라냐 | FlyingDemon |
+|---|---|---|---|---|
+| 이동 | 지상 패트롤 | 공중 | 고정 | 공중 순찰 |
+| 상태 수 | 1 | 4 | 3 | 4 |
+| 감지 | — | Raycast 시야 | 근접 상방 반원 Raycast | Raycast 시야 |
+| 실드 반응 | 넉백 | 넉백 | 스턴 | 넉백 |
+| 역할 | 기본 위협 | 리듬 변주 | 지형 압박 | 원거리 압박 (중간 보스) |
 
-**Bat FSM 상태 전이:**
+
+### Bat — IsForceDash: 버그 수정에서 설계로
 
 ```
 [Patrol] ──감지──▶ [Dash] ──충돌──▶ [Bounce]
-▲                  │                 │
-│                미감지           재감지 → [Dash]
-│                  ▼            미감지 ↓
-└──────────── [Return] ◀─────────────┘
+   ▲                  │                 │
+   │                미감지           재감지 → [Dash]
+   │                  ▼            미감지 ↓
+   └──────────── [Return] ◀─────────────┘
 ```
 
-**`IsForceDash` — 버그 수정에서 설계로:**      
-`DashState`가 피격 후 진입해도 감지 범위 밖이면 첫 프레임에 즉시 ReturnState로 전환되는 문제가 있었습니다.     
-`IsForceDash` 플래그와 `LastKnownPlayerPosition`을 추가해 원거리 공격 시 Bat이 마지막 플레이어 위치로 추격하는 자연스러운 적 반응으로 발전했습니다.
+`DashState`가 피격 후 진입해도 감지 범위 밖이면 첫 프레임에 즉시 `ReturnState`로 전환되는 문제가 있었습니다.     
+`IsForceDash` 플래그와 `LastKnownPlayerPosition`을 추가해 ForceDash 중에는 감지 체크를 건너뛰고 마지막 위치로 돌진하도록 수정했습니다.     
+그 결과 원거리 공격 시 Bat이 플레이어를 추격하는 자연스러운 적 반응으로 발전했습니다.
 
-**단일 피격 진입점 — `PlayerHurtBox.HandleHit()`:**     
-`EnemyHitBox`가 `PlayerDamageHandler.OnDamaged()`를 직접 호출하면서 `hitCooldown` 체크가 우회됐습니다.     
-모든 피격 경로를 `PlayerHurtBox.HandleHit()` 단일 진입점으로 일원화해 cooldown이 항상 적용되도록 수정했습니다.
+### FlyingDemon — IShieldBlockable 인터페이스 기반 투사체 차단
 
-**Slime — ThinkRoutine 분리:**     
-의사결정(`ThinkRoutine` 코루틴)과 물리 실행(`Update`)을 분리해 `Update`는 velocity 적용과 엣지/벽 감지만 담당합니다.    
- 
-**Piranha — 애니메이션 이벤트 공격 타이밍:**      
-`WaitForSeconds` 대신 Animation Event로 공격 콜라이더를 제어합니다. 클립 speed가 변경되어도 판정 타이밍이 항상 애니메이션에 동기화됩니다.
+공중에서 Fireball을 발사하는 중간 보스입니다.      
+`Patrol → Chase → Attack → Chase` 순환 FSM이며 `attackCooldown` 동안 Flying 상태를 유지해 플레이어에게 공격 틈을 확보해줍니다.
 
-→ [`Enemies/`](Assets/Scripts/Enemies/)
+`FireBall`은 `EnemyBase`를 상속하지 않는 독립 투사체입니다.    
+검사 쉴드에 막혀야 하는데 기존 실드 판정(`ShieldHitBox` → 각 적 타입 직접 참조)에 새 투사체 타입을 추가할 때마다 `ShieldHitBox`를 수정해야 하는 구조였습니다.    `IShieldBlockable` 인터페이스를 두고 `ShieldHitBox`가 `GetComponent<IShieldBlockable>()`로 체크하도록 바꿔 `EnemyBase` 계층과 무관한 오브젝트도 쉴드 차단에 참여할 수 있게 했습니다.
+
+→ [`Enemies/Bat/`](Assets/Scripts/Enemies/Bat/) · [`Enemies/FlyingDemon/`](Assets/Scripts/Enemies/FlyingDemon/) · [`Interfaces/IShieldBlockable.cs`](Assets/Scripts/Interfaces/IShieldBlockable.cs)
 
 <br>
 
@@ -141,7 +143,6 @@ Layer 04 · Data    → GameProgressData    (단일 파일 + 내부 구조체)
 ### 4. 에디터 툴 — 난이도 커브 기반 적 자동 배치
 
 Tilemap을 스캔해 유효 바닥 위치를 수집하고 AnimationCurve 기반 난이도 곡선으로 적을 자동 배치합니다.       
-수동 배치 대비 작업 시간 **약 30% 단축**되었습니다.
 
 <img width="2000" height="628" alt="image" src="https://github.com/user-attachments/assets/f979ba9d-da93-4ed1-918c-949350319d7c" />
 
@@ -171,22 +172,22 @@ Physics2D 레이어 하나로 여러 무적 상태를 관리하다 보니 무적
 ## 프로젝트 구조
 
 ```
-Assets/
-├── Scripts/
-│   ├── Player/
-│   │   ├── Core/           # PlayerCoordinator, PlayerStateMachine
-│   │   └── Handlers/       # Transform, Attack, Damage, Shield, Input
-│   ├── Enemies/
-│   │   ├── Base/           # EnemyBase, EnemyStateMachine, IEnemyState
-│   │   ├── Slime/
-│   │   ├── Bat/
-│   │   └── Piranha/
-│   ├── SaveSystem/         # SaveManager, GameProgress, SaveMigration
-│   └── Stage/
-├── Editor/
-│   └── EnemyAutoSpawnerEditor.cs
-└── ScriptableObjects/
-└── EnemySpawnRule
+Assets/Scripts/
+├── Player/
+│   ├── Core/           # PlayerCoordinator, PlayerStateMachine
+│   └── Handlers/       # Transform, Attack, Damage, Shield, Input
+├── Enemies/
+│   ├── Base/           # EnemyBase, EnemyStateMachine, IEnemyState
+│   ├── Slime/
+│   ├── Bat/
+│   ├── Piranha/
+│   └── FlyingDemon/    # FireBall, FlyingDemon FSM
+├── Interfaces/         # IShieldBlockable, IAttackHitBox
+├── SaveSystem/         # SaveManager, GameProgress, SaveMigration
+└── Stage/
+
+Assets/Editor/
+└── EnemyAutoSpawnerEditor.cs
 ```
 
 <br>
@@ -201,7 +202,7 @@ Assets/
 ## 링크
 
 YouTube 게임 소개 영상
-https://youtu.be/dB3QyTMR4tI
+[https://youtu.be/dB3QyTMR4tI](https://youtu.be/4WAo8zS5o88)
 
 ---
 
