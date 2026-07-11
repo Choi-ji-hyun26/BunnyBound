@@ -15,4 +15,4 @@ MonoBehaviour:
   itemName: HPUp
   itemPrefab: {fileID: 2252069854767202104, guid: d996e3ada09f045c6bf56581f2d3d0a3, type: 3}
   isOneTimeItem: 1
-  itemEffectClassName: HPUpEffect
+  effect: {fileID: 11400000, guid: 2b3c4d5e6f78901a2b3c4d5e6f78901a, type: 2}

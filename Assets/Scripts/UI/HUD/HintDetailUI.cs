@@ -26,7 +26,7 @@ public class HintDetailUI : MonoBehaviour
     [SerializeField] private Button dimBackground;
 
     [Header("힌트 데이터")]
-    [SerializeField] private HintItemData[] hintDataList; // 인스펙터에서 SO 연결
+    [SerializeField] private HintEffectSO[] hintDataList; // 인스펙터에서 SO 연결
 
     void Awake()
     {
@@ -52,12 +52,12 @@ public class HintDetailUI : MonoBehaviour
     {
         foreach (var data in hintDataList)
         {
-            if (data.hintId != hintId) continue;
-            hintText.text = data.hintText;
+            if (data.HintId != hintId) continue;
+            hintText.text = data.HintText;
             content.SetActive(true);
             return;
         }
-        Debug.LogWarning($"[HintDetailUI] hintId {hintId}에 해당하는 HintItemData 없음");
+        Debug.LogWarning($"[HintDetailUI] hintId {hintId}에 해당하는 HintEffectSO 없음");
     }
 
     public void Close() => content.SetActive(false);

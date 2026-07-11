@@ -33,7 +33,7 @@ public class HintListUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI emptyText; // 힌트 없을 때 표시
 
     [Header("힌트 데이터")]
-    [SerializeField] private HintItemData[] hintDataList; // 인스펙터에서 SO 연결
+    [SerializeField] private HintEffectSO[] hintDataList; // 인스펙터에서 SO 연결
 
     void Awake()
     {
@@ -76,7 +76,7 @@ public class HintListUI : MonoBehaviour
 
         foreach (int hintId in collectedIds)
         {
-            HintItemData data = FindHintData(hintId);
+            HintEffectSO data = FindHintData(hintId);
             if (data == null) continue;
 
             GameObject entry = Instantiate(entryPrefab, entryContainer);
@@ -84,13 +84,13 @@ public class HintListUI : MonoBehaviour
         }
     }
 
-    private HintItemData FindHintData(int hintId)
+    private HintEffectSO FindHintData(int hintId)
     {
         foreach (var data in hintDataList)
         {
-            if (data.hintId == hintId) return data;
+            if (data.HintId == hintId) return data;
         }
-        Debug.LogWarning($"[HintListUI] hintId {hintId}에 해당하는 HintItemData 없음");
+        Debug.LogWarning($"[HintListUI] hintId {hintId}에 해당하는 HintEffectSO 없음");
         return null;
     }
 }
