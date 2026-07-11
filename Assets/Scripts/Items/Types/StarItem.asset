@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: StarItem
   itemPrefab: {fileID: 2856459075567603034, guid: d893d4c6ffc134b6ea09b37f47903dd4, type: 3}
-  itemEffectClassName: StarEffect
+  isOneTimeItem: 0
+  effect: {fileID: 11400000, guid: 4d5e6f78901a2b3c4d5e6f78901a2b3c, type: 2}

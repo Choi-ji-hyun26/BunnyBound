@@ -68168,8 +68168,8 @@ MonoBehaviour:
   entryPrefab: {fileID: 5952037101396247652, guid: 333b0005326a24e2caed820b6b5ec709, type: 3}
   emptyText: {fileID: 588320093}
   hintDataList:
-  - {fileID: 11400000, guid: 6c79fba8eadd344888310bd9a987819a, type: 2}
-  - {fileID: 11400000, guid: 09671c8c267da4e5d8f72e727cc04c2c, type: 2}
+  - {fileID: 11400000, guid: 6f78901a2b3c4d5e6f78901a2b3c4d5e, type: 2}
+  - {fileID: 11400000, guid: 78901a2b3c4d5e6f78901a2b3c4d5e6f, type: 2}
 --- !u!1 &138097585
 GameObject:
   m_ObjectHideFlags: 0
@@ -214112,8 +214112,8 @@ MonoBehaviour:
   closeButton: {fileID: 1794289151}
   dimBackground: {fileID: 574893327}
   hintDataList:
-  - {fileID: 11400000, guid: 6c79fba8eadd344888310bd9a987819a, type: 2}
-  - {fileID: 11400000, guid: 09671c8c267da4e5d8f72e727cc04c2c, type: 2}
+  - {fileID: 11400000, guid: 6f78901a2b3c4d5e6f78901a2b3c4d5e, type: 2}
+  - {fileID: 11400000, guid: 78901a2b3c4d5e6f78901a2b3c4d5e6f, type: 2}
 --- !u!1 &787063183
 GameObject:
   m_ObjectHideFlags: 0

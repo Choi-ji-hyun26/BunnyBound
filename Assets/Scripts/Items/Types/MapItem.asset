@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: MiniMap
   itemPrefab: {fileID: 5075640065290379474, guid: 49ec325b492224f5c86ea65afdf5a644, type: 3}
-  itemEffectClassName: MapDisplayEffect
+  isOneTimeItem: 0
+  effect: {fileID: 11400000, guid: 3c4d5e6f78901a2b3c4d5e6f78901a2b, type: 2}

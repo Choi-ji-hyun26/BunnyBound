@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Clover
   itemPrefab: {fileID: 3390205003145537222, guid: 96df05ca54e4244939c8502c9740723a, type: 3}
-  itemEffectClassName: FeverTimeEffect
+  isOneTimeItem: 0
+  effect: {fileID: 11400000, guid: 5e6f78901a2b3c4d5e6f78901a2b3c4d, type: 2}

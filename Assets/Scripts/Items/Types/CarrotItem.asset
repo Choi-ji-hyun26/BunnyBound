@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: CarrotItem
   itemPrefab: {fileID: 4898926627292829628, guid: 4e1f40090c9c442f3b4525faa5934acd, type: 3}
-  itemEffectClassName: CarrotEffect
+  isOneTimeItem: 0
+  effect: {fileID: 11400000, guid: 1a2b3c4d5e6f78901a2b3c4d5e6f7890, type: 2}
