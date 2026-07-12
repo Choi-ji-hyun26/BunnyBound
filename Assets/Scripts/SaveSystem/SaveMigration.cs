@@ -11,29 +11,48 @@ public static class SaveMigration
 {
     public static SaveFile<GameProgressData> Migrate(SaveFile<GameProgressData> oldSave)
     {
-        int version = oldSave.version;
-        var data = oldSave.data;
-
-        while (version < SaveVersion.CURRENT)
+        try
         {
-            switch (version)
+            int version = oldSave.version;
+            var data = oldSave.data;
+
+            // 비정상적인 버전 값(음수 또는 CURRENT를 초과) 방어
+            // 손상된 세이브로 간주하고 catch 블록의 폴백 로직을 그대로 재사용
+            if (version < 0 || version > SaveVersion.CURRENT)
+                throw new System.Exception($"Invalid save version: {version}");
+
+            while (version < SaveVersion.CURRENT)
             {
-                case 0:
-                    data = Migrate_0_To_1(data);
-                    break;
-                // v1 → v2: 파일명 변경으로 v1 파일 접근 불가 → 마이그레이션 없음
-                case 2:
-                    data = Migrate_2_To_3(data);
-                    break;
+                switch (version)
+                {
+                    case 0:
+                        data = Migrate_0_To_1(data);
+                        break;
+                    // v1 → v2: 파일명 변경으로 v1 파일 접근 불가 → 마이그레이션 없음
+                    case 2:
+                        data = Migrate_2_To_3(data);
+                        break;
+                }
+                version++;
             }
-            version++;
+            return new SaveFile<GameProgressData>(SaveVersion.CURRENT, data);
         }
-        return new SaveFile<GameProgressData>(SaveVersion.CURRENT, data);
+        catch (System.Exception e)
+        {
+            // 마이그레이션 도중 손상된 데이터로 인한 예외 발생 시
+            // 크래시 대신 새 진행 데이터로 안전하게 폴백
+            UnityEngine.Debug.LogError($"Save migration failed (corrupted save assumed): {e}");
+            return new SaveFile<GameProgressData>(SaveVersion.CURRENT, new GameProgressData());
+        }
     }
 
     // v0 → v1: StarRank 음수 보정
     static GameProgressData Migrate_0_To_1(GameProgressData old)
     {
+        // JsonUtility가 손상된 JSON을 필드 null 상태로 역직렬화할 수 있어 방어
+        if (old.stages == null)
+            return old;
+
         foreach (var s in old.stages)
         {
             if (s.StarRank < 0)
@@ -47,6 +66,10 @@ public static class SaveMigration
     // List<int>는 null로 역직렬화될 수 있어 명시적으로 초기화
     static GameProgressData Migrate_2_To_3(GameProgressData old)
     {
+        // old.player 자체가 null로 역직렬화된 손상 케이스 방어
+        if (old.player == null)
+            return old;
+
         if (old.player.collectedHintIds == null)
             old.player.collectedHintIds = new System.Collections.Generic.List<int>();
         return old;
