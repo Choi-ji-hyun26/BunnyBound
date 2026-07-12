@@ -11,24 +11,34 @@ public static class SaveMigration
 {
     public static SaveFile<GameProgressData> Migrate(SaveFile<GameProgressData> oldSave)
     {
-        int version = oldSave.version;
-        var data = oldSave.data;
-
-        while (version < SaveVersion.CURRENT)
+        try
         {
-            switch (version)
+            int version = oldSave.version;
+            var data = oldSave.data;
+
+            while (version < SaveVersion.CURRENT)
             {
-                case 0:
-                    data = Migrate_0_To_1(data);
-                    break;
-                // v1 → v2: 파일명 변경으로 v1 파일 접근 불가 → 마이그레이션 없음
-                case 2:
-                    data = Migrate_2_To_3(data);
-                    break;
+                switch (version)
+                {
+                    case 0:
+                        data = Migrate_0_To_1(data);
+                        break;
+                    // v1 → v2: 파일명 변경으로 v1 파일 접근 불가 → 마이그레이션 없음
+                    case 2:
+                        data = Migrate_2_To_3(data);
+                        break;
+                }
+                version++;
             }
-            version++;
+            return new SaveFile<GameProgressData>(SaveVersion.CURRENT, data);
         }
-        return new SaveFile<GameProgressData>(SaveVersion.CURRENT, data);
+        catch (System.Exception e)
+        {
+            // 마이그레이션 도중 손상된 데이터로 인한 예외 발생 시
+            // 크래시 대신 새 진행 데이터로 안전하게 폴백
+            UnityEngine.Debug.LogError($"Save migration failed (corrupted save assumed): {e}");
+            return new SaveFile<GameProgressData>(SaveVersion.CURRENT, new GameProgressData());
+        }
     }
 
     // v0 → v1: StarRank 음수 보정
