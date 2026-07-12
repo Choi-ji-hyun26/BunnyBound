@@ -16,6 +16,11 @@ public static class SaveMigration
             int version = oldSave.version;
             var data = oldSave.data;
 
+            // 비정상적인 버전 값(음수 또는 CURRENT를 초과) 방어
+            // 손상된 세이브로 간주하고 catch 블록의 폴백 로직을 그대로 재사용
+            if (version < 0 || version > SaveVersion.CURRENT)
+                throw new System.Exception($"Invalid save version: {version}");
+
             while (version < SaveVersion.CURRENT)
             {
                 switch (version)
