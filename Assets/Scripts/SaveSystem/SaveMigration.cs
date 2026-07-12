@@ -44,6 +44,10 @@ public static class SaveMigration
     // v0 → v1: StarRank 음수 보정
     static GameProgressData Migrate_0_To_1(GameProgressData old)
     {
+        // JsonUtility가 손상된 JSON을 필드 null 상태로 역직렬화할 수 있어 방어
+        if (old.stages == null)
+            return old;
+
         foreach (var s in old.stages)
         {
             if (s.StarRank < 0)
@@ -57,6 +61,10 @@ public static class SaveMigration
     // List<int>는 null로 역직렬화될 수 있어 명시적으로 초기화
     static GameProgressData Migrate_2_To_3(GameProgressData old)
     {
+        // old.player 자체가 null로 역직렬화된 손상 케이스 방어
+        if (old.player == null)
+            return old;
+
         if (old.player.collectedHintIds == null)
             old.player.collectedHintIds = new System.Collections.Generic.List<int>();
         return old;
