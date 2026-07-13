@@ -20,4 +20,12 @@ public class PlayerProgressData
     // 획득한 힌트 ID 목록 (챕터 클리어 시 초기화)
     // hintId 규칙: 챕터번호 * 100 + 힌트번호 (예: 챕터1 힌트1 → 101, 힌트2 → 102)
     public List<int> collectedHintIds = new List<int>();
+
+    // 무기(검) 강화 단계 — 0: 기본, 1: 1차, 2: 2차, ...
+    public int weaponUpgradeTier = 0;
+
+    // 무기 강화에 소비 가능한 큰별 잔액
+    // 스테이지 StarRank가 갱신될 때 증가분(delta)만큼만 적립되며, 강화 시 차감됨
+    // 스테이지별 최고 기록(StageData.StarRank)과는 별개의 소비형 재화
+    public int spendableStars = 0;
 }
