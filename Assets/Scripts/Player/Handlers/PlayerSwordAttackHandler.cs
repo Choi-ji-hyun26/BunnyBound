@@ -18,13 +18,11 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     [SerializeField] private GameObject slashProjectilePrefab; // SlashProjectile Prefab
     [SerializeField] private Transform hitBox2Transform;       // 투사체 생성 위치 (기존 hitBox2 위치)
 
-    [Header("데미지")]
-    [SerializeField] private int baseDamage1 = 8;  // Q 기본
-    [SerializeField] private int baseDamage2 = 13; // W 기본
-    [SerializeField] private int damagePerTier = 2; // 강화 1단계당 증가량 (Q/W 공통)
+    [Header("데미지 — WeaponUpgradeConfig 공유 에셋 참조 (WeaponUpgradeManager와 동일한 에셋 연결)")]
+    [SerializeField] private WeaponUpgradeConfig damageConfig;
 
-    private int damage1; // Q — baseDamage1 + damagePerTier * tier, ApplyWeaponUpgrade()에서 갱신
-    private int damage2; // W — baseDamage2 + damagePerTier * tier, ApplyWeaponUpgrade()에서 갱신
+    private int damage1; // Q — damageConfig.GetDamage1(tier), ApplyWeaponUpgrade()에서 갱신
+    private int damage2; // W — damageConfig.GetDamage2(tier), ApplyWeaponUpgrade()에서 갱신
 
     [Header("W 쿨타임")]
     [SerializeField] private float cooldownTime2 = 2.5f;
@@ -94,12 +92,18 @@ public class PlayerSwordAttackHandler : MonoBehaviour
 
     private void ApplyWeaponUpgrade()
     {
+        if (damageConfig == null)
+        {
+            Debug.LogError("[PlayerSwordAttackHandler] damageConfig가 연결되지 않았습니다.");
+            return;
+        }
+
         int tier = WeaponUpgradeManager.Instance != null
             ? WeaponUpgradeManager.Instance.CurrentTier
             : GameProgress.GetWeaponUpgradeTier();
 
-        damage1 = baseDamage1 + damagePerTier * tier;
-        damage2 = baseDamage2 + damagePerTier * tier;
+        damage1 = damageConfig.GetDamage1(tier);
+        damage2 = damageConfig.GetDamage2(tier);
     }
 
     private void Update()

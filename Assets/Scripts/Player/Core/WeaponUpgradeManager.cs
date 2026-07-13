@@ -13,6 +13,8 @@ public class WeaponUpgradeManager : MonoBehaviour
 
     [SerializeField] private WeaponUpgradeConfig config;
 
+    public WeaponUpgradeConfig Config => config;
+
     // 강화 성공 시 새 tier 전달 — UI 갱신, VFX/SFX 재생 등에서 구독
     public event System.Action<int> OnWeaponUpgraded;
 
