@@ -937,7 +937,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &614335515
 RectTransform:
   m_ObjectHideFlags: 0
@@ -952,7 +952,7 @@ RectTransform:
   m_Children:
   - {fileID: 1118639885}
   m_Father: {fileID: 1381513698}
-  m_RootOrder: 7
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -2468,9 +2468,9 @@ RectTransform:
   - {fileID: 51825422}
   - {fileID: 1096837584}
   - {fileID: 2006359346}
+  - {fileID: 614335515}
   - {fileID: 678167454}
   - {fileID: 590793281}
-  - {fileID: 614335515}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3851,10 +3851,6 @@ PrefabInstance:
     - target: {fileID: 1770518256602228433, guid: a18b76fad8aa54e2b9d502cf4eac1375, type: 3}
       propertyPath: m_Name
       value: WeaponUpgradePanel
-      objectReference: {fileID: 0}
-    - target: {fileID: 1770518256602228433, guid: a18b76fad8aa54e2b9d502cf4eac1375, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a18b76fad8aa54e2b9d502cf4eac1375, type: 3}
