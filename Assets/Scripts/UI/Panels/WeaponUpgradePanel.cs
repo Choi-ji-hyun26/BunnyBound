@@ -5,6 +5,8 @@ using TMPro;
 /// <summary>
 /// 무기 강화 UI 패널 — StageSelect/Game 씬 공용 (버튼으로 여는 모달)
 /// - 강화 진행률(현재 잔액/필요 개수) 표시
+/// - Q/W 공격력 스탯 표시 — W는 스테이지 5 힌트 상자(옵션)로 해금되므로
+///   미해금 상태에서는 잠금 안내로 대체 (레이아웃 고정, 정보 완결성 확보)
 /// - 강화 버튼 클릭 시 WeaponUpgradeManager.TryUpgrade() 호출
 /// - 강화 성공 시 VFX/SFX 재생 + 알림 표시
 /// - 모달 열림/닫힘 시 Time.timeScale 제어 — 배경 오버레이(Raycast 차단)가
@@ -15,10 +17,21 @@ public class WeaponUpgradePanel : MonoBehaviour
     [Header("UI 참조")]
     [SerializeField] private Button upgradeButton;
     [SerializeField] private TextMeshProUGUI progressText; // 예: "12 / 15"
-    [SerializeField] private TextMeshProUGUI tierText;     // 예: "무기 Level 1"
+    [SerializeField] private TextMeshProUGUI tierText;     // 예: "Lv. 1"
+    [SerializeField] private TextMeshProUGUI basicStatText; // 예: "BASIC +8 >> +10"
+    [SerializeField] private TextMeshProUGUI windStatText;  // 예: "WIND +13 >> +15" 또는 잠금 안내
+
+    [Header("데이터 — WeaponUpgradeManager와 동일한 에셋 연결")]
+    [SerializeField] private WeaponUpgradeConfig config;
+
+    [Header("텍스트 강조 색상 (리치 텍스트 태그)")]
+    [SerializeField] private Color highlightColor = new Color(1f, 0.85f, 0.3f); // 강화 후 수치, 별 잔액 강조
+    [SerializeField] private Color lockedColor = new Color(0.6f, 0.6f, 0.6f);   // 미해금 안내 텍스트
 
     [Header("강화 성공 피드백")]
     [SerializeField] private ParticleSystem upgradeVFX;
+
+    private const int WindAttackIndex = 2; // SkillUnlockManager 기준 W 공격 인덱스
 
     private void Start()
     {
@@ -87,22 +100,77 @@ public class WeaponUpgradePanel : MonoBehaviour
             Debug.LogError("[WeaponUpgradePanel] WeaponUpgradeManager.Instance가 없습니다.");
             return;
         }
+        if (config == null)
+        {
+            Debug.LogError("[WeaponUpgradePanel] config가 연결되지 않았습니다.");
+            return;
+        }
 
+        int tier = mgr.CurrentTier;
         int spendable = mgr.SpendableStars;
         int cost = mgr.CostForNextTier;
 
+        RefreshProgress(spendable, cost);
+        RefreshStatLines(tier, cost);
+
+        if (tierText != null)
+            tierText.text = $"Lv. {tier + 1}"; // tier 0(기본)을 Lv.1로 표시 — 게임 관례상 1-indexed
+    }
+
+    private void RefreshProgress(int spendable, int cost)
+    {
         if (cost < 0) // 만렙
         {
             if (progressText != null) progressText.text = "MAX";
             if (upgradeButton != null) upgradeButton.interactable = false;
-        }
-        else
-        {
-            if (progressText != null) progressText.text = $"{spendable} / {cost}";
-            if (upgradeButton != null) upgradeButton.interactable = mgr.CanUpgrade;
+            return;
         }
 
-        if (tierText != null)
-            tierText.text = $"무기 Level {mgr.CurrentTier}";
+        if (progressText != null)
+            progressText.text = $"{Hex(spendable, highlightColor)} / {cost}";
+
+        if (upgradeButton != null)
+            upgradeButton.interactable = WeaponUpgradeManager.Instance.CanUpgrade;
     }
+
+    private void RefreshStatLines(int tier, int cost)
+    {
+        bool isMax = cost < 0;
+        int nextTier = isMax ? tier : tier + 1;
+
+        // BASIC — Q는 항상 해금 상태이므로 조건 없이 표시
+        int curBasic = config.GetDamage1(tier);
+        if (basicStatText != null)
+        {
+            basicStatText.text = isMax
+                ? $"BASIC +{curBasic}"
+                : $"BASIC +{curBasic} >> {Hex($"+{config.GetDamage1(nextTier)}", highlightColor)}";
+        }
+
+        // WIND — 스테이지 5 힌트 상자(옵션)로 해금되므로 미해금 시 잠금 안내로 대체
+        // SkillUnlockManager.Instance가 없는 씬(예: StageSelect)에서도 GameProgress 직접 조회로
+        // 정확한 해금 상태를 판단 — "매니저 없음"을 "미해금"이라고 오판하지 않도록
+        bool windUnlocked = SkillUnlockManager.Instance != null
+            ? SkillUnlockManager.Instance.IsUnlocked(WindAttackIndex)
+            : GameProgress.IsSkillUnlocked(WindAttackIndex);
+
+        if (windStatText == null) return;
+
+        if (!windUnlocked)
+        {
+            windStatText.text = Hex("???? +?? >> +??", lockedColor);
+            return;
+        }
+
+        int curWind = config.GetDamage2(tier);
+        windStatText.text = isMax
+            ? $"WIND +{curWind}"
+            : $"WIND +{curWind} >> {Hex($"+{config.GetDamage2(nextTier)}", highlightColor)}";
+    }
+
+    // ───────────────────────────────────────────
+    // TMP 리치 텍스트 색상 태그 헬퍼
+    // ───────────────────────────────────────────
+    private static string Hex(object value, Color color) =>
+        $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{value}</color>";
 }
