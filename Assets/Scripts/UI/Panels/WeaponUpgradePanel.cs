@@ -29,7 +29,7 @@ public class WeaponUpgradePanel : MonoBehaviour
     [SerializeField] private Color lockedColor = new Color(0.6f, 0.6f, 0.6f);   // 미해금 안내 텍스트
 
     [Header("강화 성공 피드백")]
-    [SerializeField] private ParticleSystem upgradeVFX;
+    [SerializeField] private UpgradeFlipbookEffect upgradeVFX;
 
     private const int WindAttackIndex = 2; // SkillUnlockManager 기준 W 공격 인덱스
 
