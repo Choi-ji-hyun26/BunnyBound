@@ -171,6 +171,11 @@ public static class GameProgress
         }
         if (starRank > stageData.StarRank)
         {
+            // 증가분(delta)만큼만 강화 잔액에 적립 — 반복 클리어로 중복 적립되지 않도록
+            int delta = starRank - stageData.StarRank;
+            if (data.player != null)
+                data.player.spendableStars += delta;
+
             stageData.StarRank = starRank;
             dirty = true;
         }
@@ -223,6 +228,31 @@ public static class GameProgress
     {
         if (data?.player == null) return;
         data.player.maxHearts = maxHearts;
+    }
+
+    // ───────────────────────────────────────────
+    // 무기 강화 API
+    // ───────────────────────────────────────────
+    public static int GetWeaponUpgradeTier() => data?.player?.weaponUpgradeTier ?? 0;
+
+    public static void SetWeaponUpgradeTier(int tier)
+    {
+        if (data?.player == null) return;
+        data.player.weaponUpgradeTier = tier;
+    }
+
+    public static int GetSpendableStars() => data?.player?.spendableStars ?? 0;
+
+    /// <summary>
+    /// 큰별 소비 — 잔액이 부족하면 실패(false)
+    /// </summary>
+    public static bool TrySpendStars(int amount)
+    {
+        if (data?.player == null) return false;
+        if (data.player.spendableStars < amount) return false;
+
+        data.player.spendableStars -= amount;
+        return true;
     }
 
     // ───────────────────────────────────────────
@@ -288,6 +318,22 @@ public static class GameProgress
     {
         if (data?.player == null) return;
         data.player.collectedHintIds.Clear();
+    }
+
+    // ───────────────────────────────────────────
+    // 테스트 지원
+    // ───────────────────────────────────────────
+
+    /// <summary>
+    /// Edit Mode 테스트 전용 — static 상태(data, stageMap) 초기화
+    /// GameProgress는 static class라 테스트 간 상태가 공유되므로
+    /// 각 테스트의 [SetUp]에서 호출해 격리를 보장
+    /// 프로덕션 코드에서는 호출하지 않음
+    /// </summary>
+    public static void ResetForTest(GameProgressData newData = null)
+    {
+        data = newData ?? new GameProgressData();
+        BuildCache();
     }
 
     // ───────────────────────────────────────────
