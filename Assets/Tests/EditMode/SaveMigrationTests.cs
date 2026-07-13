@@ -122,4 +122,69 @@ public class SaveMigrationTests
         Assert.AreEqual(SaveVersion.CURRENT, result.version);
         Assert.AreSame(data, result.data);
     }
+
+    // ─────────────────────────────────────────
+    // v3 → v4: 무기 강화 필드 추가 + spendableStars 소급 적립
+    // ─────────────────────────────────────────
+
+    [Test]
+    public void Migrate_V3ToV4_BackfillsSpendableStarsFromExistingStageRanks()
+    {
+        // 이미 일부 스테이지를 클리어해둔 v3 세이브 재현 (StarRank 3 + 2 + 1 = 6)
+        var oldSave = new SaveFile<GameProgressData>(3, new GameProgressData
+        {
+            stages = new List<StageData>
+            {
+                new StageData(1) { StarRank = 3 },
+                new StageData(2) { StarRank = 2 },
+                new StageData(3) { StarRank = 1 },
+            },
+            player = new PlayerProgressData()
+        });
+
+        var result = SaveMigration.Migrate(oldSave);
+
+        Assert.AreEqual(6, result.data.player.spendableStars);
+        Assert.AreEqual(0, result.data.player.weaponUpgradeTier);
+    }
+
+    [Test]
+    public void Migrate_V3ToV4_NoStages_BackfillsZero()
+    {
+        var oldSave = new SaveFile<GameProgressData>(3, new GameProgressData
+        {
+            stages = new List<StageData>(),
+            player = new PlayerProgressData()
+        });
+
+        var result = SaveMigration.Migrate(oldSave);
+
+        Assert.AreEqual(0, result.data.player.spendableStars);
+    }
+
+    [Test]
+    public void Migrate_V3ToV4_NullPlayer_DoesNotThrow()
+    {
+        var oldSave = new SaveFile<GameProgressData>(3, new GameProgressData
+        {
+            stages = new List<StageData> { new StageData(1) { StarRank = 2 } },
+            player = null
+        });
+
+        Assert.DoesNotThrow(() => SaveMigration.Migrate(oldSave));
+    }
+
+    [Test]
+    public void Migrate_V3ToV4_NullStages_DoesNotThrow()
+    {
+        var oldSave = new SaveFile<GameProgressData>(3, new GameProgressData
+        {
+            stages = null,
+            player = new PlayerProgressData()
+        });
+
+        SaveFile<GameProgressData> result = null;
+        Assert.DoesNotThrow(() => result = SaveMigration.Migrate(oldSave));
+        Assert.AreEqual(0, result.data.player.spendableStars);
+    }
 }
