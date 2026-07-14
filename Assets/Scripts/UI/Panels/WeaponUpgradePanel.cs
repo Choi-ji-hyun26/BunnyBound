@@ -84,7 +84,7 @@ public class WeaponUpgradePanel : MonoBehaviour
         SoundManager.Instance?.PlaySound(SoundType.WeaponUpgrade);
         if (upgradeVFX != null)
             upgradeVFX.Play();
-        NotificationUI.Instance?.Show("무기가 강화되었습니다!");
+        NotificationUI.Instance?.Show("Weapon Level Up!");
 
         RefreshUI();
     }
