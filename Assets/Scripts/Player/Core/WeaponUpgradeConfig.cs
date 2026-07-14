@@ -28,6 +28,6 @@ public class WeaponUpgradeConfig : ScriptableObject
     public int GetCost(int currentTier) =>
         currentTier >= 0 && currentTier < MaxTier ? tierCosts[currentTier] : -1;
 
-    public int GetDamage1(int tier) => baseDamage1 + damagePerTier * tier;
-    public int GetDamage2(int tier) => baseDamage2 + damagePerTier * tier;
+    public int GetDamage1(int tier) => baseDamage1 + damagePerTier * Mathf.Clamp(tier, 0, MaxTier);
+    public int GetDamage2(int tier) => baseDamage2 + damagePerTier * Mathf.Clamp(tier, 0, MaxTier);
 }
