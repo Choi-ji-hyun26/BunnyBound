@@ -75,7 +75,7 @@ public class NotificationUI : MonoBehaviour
     private IEnumerator NotificationRoutine()
     {
         yield return StartCoroutine(FadeIn());
-        yield return new WaitForSeconds(displayDuration);
+        yield return new WaitForSecondsRealtime(displayDuration);
         yield return StartCoroutine(FadeOut());
     }
 
@@ -84,7 +84,7 @@ public class NotificationUI : MonoBehaviour
         float timer = 0f;
         while (timer < fadeDuration)
         {
-            timer += Time.deltaTime;
+            timer += Time.unscaledDeltaTime;
             SetAlpha(Mathf.Lerp(0f, 1f, timer / fadeDuration));
             yield return null;
         }
@@ -97,7 +97,7 @@ public class NotificationUI : MonoBehaviour
         float startAlpha = canvasGroup.alpha;
         while (timer < fadeDuration)
         {
-            timer += Time.deltaTime;
+            timer += Time.unscaledDeltaTime;
             SetAlpha(Mathf.Lerp(startAlpha, 0f, timer / fadeDuration));
             yield return null;
         }

@@ -105,4 +105,75 @@ public class GameProgressWeaponUpgradeTests
 
         Assert.AreEqual(6, GameProgress.GetSpendableStars());
     }
+
+    // ───────────────────────────────────
+    // BuildSaveSnapshot — 스냅샷 보호 대상 조기 커밋 방지 (회귀 테스트)
+    //
+    // 배경: 스테이지 진행 중(스냅샷이 활성 상태) WeaponUpgradeManager.TryUpgrade()가
+    // SaveImmediate()를 호출하면, 아직 커밋되지 않은 스킬 해금/상자/하트/힌트까지
+    // 디스크에 조기 커밋되어 버리던 버그에 대한 회귀 방지
+    // ───────────────────────────────────
+
+    [Test]
+    public void BuildSaveSnapshot_NoActiveSnapshot_ReturnsLiveDataUnchanged()
+    {
+        GameProgress.UnlockSkill(2);
+
+        var saveData = GameProgress.BuildSaveSnapshot();
+
+        Assert.IsTrue(saveData.player.unlockedSkills[1]);
+    }
+
+    [Test]
+    public void BuildSaveSnapshot_ActiveSnapshot_RevertsProtectedFieldsToSnapshot()
+    {
+        GameProgress.TakeSnapshot(); // 이 시점에는 W 스킬 미해금, maxHearts 기본값(3) 상태
+
+        GameProgress.UnlockSkill(2);   // 스테이지 중 미커밋 해금
+        GameProgress.CollectChest(101);
+        GameProgress.SaveMaxHearts(5);
+
+        var saveData = GameProgress.BuildSaveSnapshot();
+
+        Assert.IsFalse(saveData.player.unlockedSkills[1], "저장본은 스냅샷(미해금) 상태여야 함");
+        Assert.IsFalse(saveData.player.collectedChestIds.Contains(101));
+        Assert.AreEqual(3, saveData.player.maxHearts);
+    }
+
+    [Test]
+    public void BuildSaveSnapshot_ActiveSnapshot_KeepsWeaponUpgradeFieldsAtLiveValue()
+    {
+        GameProgress.TakeSnapshot();
+
+        GameProgress.UpdateStageResult(1, 100, 3); // 스타 적립은 스냅샷 보호 대상이 아니므로 정상 적립되어야 함
+        GameProgress.SetWeaponUpgradeTier(1);
+
+        var saveData = GameProgress.BuildSaveSnapshot();
+
+        Assert.AreEqual(1, saveData.player.weaponUpgradeTier);
+        Assert.AreEqual(3, saveData.player.spendableStars);
+    }
+
+    [Test]
+    public void BuildSaveSnapshot_ActiveSnapshot_DoesNotMutateLiveState()
+    {
+        GameProgress.TakeSnapshot();
+        GameProgress.UnlockSkill(2);
+
+        GameProgress.BuildSaveSnapshot(); // 저장용 사본만 만들 뿐, 현재 세션의 라이브 상태는 유지되어야 함
+
+        Assert.IsTrue(GameProgress.IsSkillUnlocked(2));
+    }
+
+    [Test]
+    public void BuildSaveSnapshot_AfterCommitSnapshot_ReturnsLiveDataUnchanged()
+    {
+        GameProgress.TakeSnapshot();
+        GameProgress.UnlockSkill(2);
+        GameProgress.CommitSnapshot(); // 클리어로 확정 — 스냅샷 폐기
+
+        var saveData = GameProgress.BuildSaveSnapshot();
+
+        Assert.IsTrue(saveData.player.unlockedSkills[1], "CommitSnapshot 이후엔 라이브 상태 그대로 저장되어야 함");
+    }
 }
