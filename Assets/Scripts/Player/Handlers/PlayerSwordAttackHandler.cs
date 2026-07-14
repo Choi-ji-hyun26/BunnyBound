@@ -340,7 +340,7 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     {
         1 => damage1,
         2 => damage2,
-        _ => 10
+        _ => throw new System.ArgumentOutOfRangeException(nameof(index), $"유효하지 않은 attackIndex: {index}")
     };
 
     private Collider2D GetHitBox(int index) => index switch
