@@ -47,6 +47,39 @@ public class WeaponUpgradeManager : MonoBehaviour
         config != null && CurrentTier < config.MaxTier && SpendableStars >= CostForNextTier;
 
     /// <summary>
+    /// tier마다 다른 데미지 계산(BASIC/WIND)이 공통으로 필요로 하는 
+    /// "다음 tier / 만렙 여부" 계산을 한 곳에서만 처리
+    /// </summary>
+    private (int nextTier, bool isMax) GetNextTierInfo()
+    {
+        bool isMax = CurrentTier >= config.MaxTier;
+        int next = isMax ? CurrentTier : CurrentTier + 1;
+        return (next, isMax);
+    }
+
+    /// <summary>
+    /// BASIC(Q) 데미지 미리보기 — 현재 tier 수치 / 다음 tier 수치 / 만렙 여부
+    /// </summary>
+    public (int current, int next, bool isMax) GetBasicDamagePreview()
+    {
+        if (config == null) return (0, 0, true);
+        var (next, isMax) = GetNextTierInfo();
+        return (config.GetDamage1(CurrentTier), config.GetDamage1(next), isMax);
+    }
+
+    /// <summary>
+    /// WIND(W) 데미지 미리보기 — GetBasicDamagePreview와 동일한 이유
+    /// 해금 여부 판단은 포함하지 않음 — 호출부(WeaponUpgradePanel)가
+    /// SkillUnlockManager/GameProgress를 통해 별도로 판단
+    /// </summary>
+    public (int current, int next, bool isMax) GetWindDamagePreview()
+    {
+        if (config == null) return (0, 0, true);
+        var (next, isMax) = GetNextTierInfo();
+        return (config.GetDamage2(CurrentTier), config.GetDamage2(next), isMax);
+    }
+
+    /// <summary>
     /// 강화 시도 — 성공 시 큰별 차감 + tier 증가 + 즉시 저장 + 이벤트 발행
     /// 실패 조건: 이미 만렙, config 미연결, 또는 큰별 잔액 부족
     /// </summary>

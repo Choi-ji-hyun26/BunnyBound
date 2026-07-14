@@ -11,6 +11,8 @@ using TMPro;
 /// - 강화 성공 시 VFX/SFX 재생 + 알림 표시
 /// - 모달 열림/닫힘 시 Time.timeScale 제어 — 배경 오버레이(Raycast 차단)가
 ///   다른 모달과의 동시 오픈을 막아주므로 별도 상호 배제 코드 없이 안전
+/// - 데미지 수치 계산(다음 tier 값 등)은 WeaponUpgradeManager에 위임 —
+///   이 클래스는 그 결과를 받아 포맷팅만 담당 
 /// </summary>
 public class WeaponUpgradePanel : MonoBehaviour
 {
@@ -20,9 +22,6 @@ public class WeaponUpgradePanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI tierText;     // 예: "Lv. 1"
     [SerializeField] private TextMeshProUGUI basicStatText; // 예: "BASIC +8 >> +10"
     [SerializeField] private TextMeshProUGUI windStatText;  // 예: "WIND +13 >> +15" 또는 잠금 안내
-
-    [Header("데이터 — WeaponUpgradeManager와 동일한 에셋 연결")]
-    [SerializeField] private WeaponUpgradeConfig config;
 
     [Header("텍스트 강조 색상 (리치 텍스트 태그)")]
     [SerializeField] private Color highlightColor = new Color(1f, 0.85f, 0.3f); // 강화 후 수치, 별 잔액 강조
@@ -100,18 +99,13 @@ public class WeaponUpgradePanel : MonoBehaviour
             Debug.LogError("[WeaponUpgradePanel] WeaponUpgradeManager.Instance가 없습니다.");
             return;
         }
-        if (config == null)
-        {
-            Debug.LogError("[WeaponUpgradePanel] config가 연결되지 않았습니다.");
-            return;
-        }
 
         int tier = mgr.CurrentTier;
         int spendable = mgr.SpendableStars;
         int cost = mgr.CostForNextTier;
 
         RefreshProgress(spendable, cost);
-        RefreshStatLines(tier, cost);
+        RefreshStatLines(mgr);
 
         if (tierText != null)
             tierText.text = $"Lv. {tier + 1}"; // tier 0(기본)을 Lv.1로 표시 — 게임 관례상 1-indexed
@@ -133,18 +127,15 @@ public class WeaponUpgradePanel : MonoBehaviour
             upgradeButton.interactable = WeaponUpgradeManager.Instance.CanUpgrade;
     }
 
-    private void RefreshStatLines(int tier, int cost)
+    private void RefreshStatLines(WeaponUpgradeManager mgr)
     {
-        bool isMax = cost < 0;
-        int nextTier = isMax ? tier : tier + 1;
-
         // BASIC — Q는 항상 해금 상태이므로 조건 없이 표시
-        int curBasic = config.GetDamage1(tier);
+        var (curBasic, nextBasic, isMax) = mgr.GetBasicDamagePreview();
         if (basicStatText != null)
         {
             basicStatText.text = isMax
                 ? $"BASIC +{curBasic}"
-                : $"BASIC +{curBasic} >> {Hex($"+{config.GetDamage1(nextTier)}", highlightColor)}";
+                : $"BASIC +{curBasic} >> {Hex($"+{nextBasic}", highlightColor)}";
         }
 
         // WIND — 스테이지 5 힌트 상자(옵션)로 해금되므로 미해금 시 잠금 안내로 대체
@@ -162,10 +153,10 @@ public class WeaponUpgradePanel : MonoBehaviour
             return;
         }
 
-        int curWind = config.GetDamage2(tier);
+        var (curWind, nextWind, _) = mgr.GetWindDamagePreview();
         windStatText.text = isMax
             ? $"WIND +{curWind}"
-            : $"WIND +{curWind} >> {Hex($"+{config.GetDamage2(nextTier)}", highlightColor)}";
+            : $"WIND +{curWind} >> {Hex($"+{nextWind}", highlightColor)}";
     }
 
     // ───────────────────────────────────────────
