@@ -12,7 +12,7 @@ using TMPro;
 /// - 모달 열림/닫힘 시 Time.timeScale 제어 — 배경 오버레이(Raycast 차단)가
 ///   다른 모달과의 동시 오픈을 막아주므로 별도 상호 배제 코드 없이 안전
 /// - 데미지 수치 계산(다음 tier 값 등)은 WeaponUpgradeManager에 위임 —
-///   이 클래스는 그 결과를 받아 포맷팅만 담당 
+///   이 클래스는 그 결과를 받아 포맷팅만 담당
 /// </summary>
 public class WeaponUpgradePanel : MonoBehaviour
 {
@@ -31,6 +31,20 @@ public class WeaponUpgradePanel : MonoBehaviour
     [SerializeField] private UpgradeFlipbookEffect upgradeVFX;
 
     private const int WindAttackIndex = 2; // SkillUnlockManager 기준 W 공격 인덱스
+
+    private bool isValid; // 필수 참조 검증 결과 — 릴리즈 빌드에서도 유지되어야 하므로 Debug.Assert 대신 일반 검사 사용
+
+    private void Awake()
+    {
+        // 필수 참조는 여기서 한 번에 검증 — Debug.LogError는 릴리즈 빌드에서도 남아있어
+        // 기록을 남김, 대신 크래시(NullReferenceException) 대신 기능만 조용히 비활성화되도록 방어
+        // (upgradeVFX는 선택 사항이라 제외 — 없어도 강화 자체는 정상 동작해야 함)
+        isValid = upgradeButton != null && progressText != null && tierText != null
+            && basicStatText != null && windStatText != null;
+
+        if (!isValid)
+            Debug.LogError("[WeaponUpgradePanel] 필수 UI 참조가 하나 이상 연결되지 않았습니다.");
+    }
 
     private void Start()
     {
@@ -93,6 +107,8 @@ public class WeaponUpgradePanel : MonoBehaviour
     // ───────────────────────────────────────────
     private void RefreshUI()
     {
+        if (!isValid) return;
+
         var mgr = WeaponUpgradeManager.Instance;
         if (mgr == null)
         {
@@ -101,42 +117,35 @@ public class WeaponUpgradePanel : MonoBehaviour
         }
 
         int tier = mgr.CurrentTier;
-        int spendable = mgr.SpendableStars;
-        int cost = mgr.CostForNextTier;
 
-        RefreshProgress(spendable, cost);
+        RefreshProgress(mgr);
         RefreshStatLines(mgr);
 
-        if (tierText != null)
-            tierText.text = $"Lv. {tier + 1}"; // tier 0(기본)을 Lv.1로 표시 — 게임 관례상 1-indexed
+        tierText.text = $"Lv. {tier + 1}"; // tier 0(기본)을 Lv.1로 표시 — 게임 관례상 1-indexed
     }
 
-    private void RefreshProgress(int spendable, int cost)
+    private void RefreshProgress(WeaponUpgradeManager mgr)
     {
+        int cost = mgr.CostForNextTier;
+
         if (cost < 0) // 만렙
         {
-            if (progressText != null) progressText.text = "MAX";
-            if (upgradeButton != null) upgradeButton.interactable = false;
+            progressText.text = "MAX";
+            upgradeButton.interactable = false;
             return;
         }
 
-        if (progressText != null)
-            progressText.text = $"{Hex(spendable, highlightColor)} / {cost}";
-
-        if (upgradeButton != null)
-            upgradeButton.interactable = WeaponUpgradeManager.Instance.CanUpgrade;
+        progressText.text = $"{Hex(mgr.SpendableStars, highlightColor)} / {cost}";
+        upgradeButton.interactable = mgr.CanUpgrade;
     }
 
     private void RefreshStatLines(WeaponUpgradeManager mgr)
     {
         // BASIC — Q는 항상 해금 상태이므로 조건 없이 표시
         var (curBasic, nextBasic, isMax) = mgr.GetBasicDamagePreview();
-        if (basicStatText != null)
-        {
-            basicStatText.text = isMax
-                ? $"BASIC +{curBasic}"
-                : $"BASIC +{curBasic} >> {Hex($"+{nextBasic}", highlightColor)}";
-        }
+        basicStatText.text = isMax
+            ? $"BASIC +{curBasic}"
+            : $"BASIC +{curBasic} >> {Hex($"+{nextBasic}", highlightColor)}";
 
         // WIND — 스테이지 5 힌트 상자(옵션)로 해금되므로 미해금 시 잠금 안내로 대체
         // SkillUnlockManager.Instance가 없는 씬(예: StageSelect)에서도 GameProgress 직접 조회로
@@ -144,8 +153,6 @@ public class WeaponUpgradePanel : MonoBehaviour
         bool windUnlocked = SkillUnlockManager.Instance != null
             ? SkillUnlockManager.Instance.IsUnlocked(WindAttackIndex)
             : GameProgress.IsSkillUnlocked(WindAttackIndex);
-
-        if (windStatText == null) return;
 
         if (!windUnlocked)
         {
