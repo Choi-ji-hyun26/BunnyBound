@@ -4,14 +4,17 @@ using TMPro;
 /// <summary>
 /// 큰별(spendableStars) 잔액 상시 표시 위젯 — 화면 좌상단 등에 배치
 /// - WeaponUpgradeManager.OnWeaponUpgraded 이벤트로 강화 소비 시 실시간 갱신
-/// - 모달(강화창)과 달리 항상 활성 상태이므로 OnEnable 1회 + 이벤트 구독 조합
+/// - 상시 활성 상태인 위젯이므로 Start()에서 구독 — OnEnable을 쓰면 씬 로드
+///   시점에 WeaponUpgradeManager.Awake()와 순서 경합이 생겨 구독이 조용히
+///   실패할 수 있고  재시도되지 않아 실시간 갱신이 영구적으로 멈출 위험이 있음
 /// </summary>
 public class SpendableStarsDisplay : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI starCountText;
 
-    private void OnEnable()
+    private void Start()
     {
+        // 모든 Awake가 끝난 시점으로 Instance가 세팅된 상태
         if (WeaponUpgradeManager.Instance != null)
             WeaponUpgradeManager.Instance.OnWeaponUpgraded += OnStarsChanged;
 
