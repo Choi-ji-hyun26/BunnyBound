@@ -13,7 +13,11 @@ public class WeaponUpgradeManager : MonoBehaviour
 
     [SerializeField] private WeaponUpgradeConfig config;
 
-    public WeaponUpgradeConfig Config => config;
+    // 참고: PlayerSwordAttackHandler는 이 config를 이 프로퍼티로 거치지 않고
+    // 자체적으로 동일한 에셋을 따로 참조 (damageConfig 필드)
+    // 이유: PlayerSwordAttackHandler.Awake()가 데미지를 초기화해야 하는데
+    // 그 시점에 Instance가 아직 세팅되기 전일 수 있음(Awake 순서 미보장)
+    // 즉 두 참조가 존재하는 건 중복이 아닌 의도된 분리임
 
     // 강화 성공 시 새 tier 전달 — UI 갱신, VFX/SFX 재생 등에서 구독
     public event System.Action<int> OnWeaponUpgraded;
@@ -52,6 +56,8 @@ public class WeaponUpgradeManager : MonoBehaviour
     /// </summary>
     private (int nextTier, bool isMax) GetNextTierInfo()
     {
+        if (config == null) return (CurrentTier, true);
+
         bool isMax = CurrentTier >= config.MaxTier;
         int next = isMax ? CurrentTier : CurrentTier + 1;
         return (next, isMax);
