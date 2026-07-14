@@ -74,7 +74,35 @@ public static class GameProgress
     public static void SaveImmediate()
     {
         SaveManager.MarkDirty();
-        Flush();
+
+        // 스냅샷이 활성 상태(스테이지 진행 중)면, 전체 data를 그대로 쓰지 않고
+        // 스냅샷 보호 대상(스킬/상자/하트/힌트)만 스냅샷 값으로 되돌린
+        // 저장용 사본을 따로 만들어 기록
+        // (weaponUpgradeTier/spendableStars는 스냅샷 보호 대상이 아니므로 항상 최신값 유지)
+        // 이유: WeaponUpgradeManager.TryUpgrade() 같이 스테이지 클리어와 무관한
+        // 즉시 저장이 전체 data를 그대로 쓰면, 아직 커밋되지 않은 스테이지 진행분
+        // (스킬 해금, 상자, 하트, 힌트)까지 디스크에 조기 커밋되어 버리는 버그가 있었음
+        if (playerSnapshot != null && data?.player != null)
+        {
+            var saveData = new GameProgressData
+            {
+                stages = data.stages,
+                player = new PlayerProgressData
+                {
+                    unlockedSkills = (bool[])playerSnapshot.unlockedSkills.Clone(),
+                    maxHearts = playerSnapshot.maxHearts,
+                    collectedChestIds = new List<int>(playerSnapshot.collectedChestIds),
+                    collectedHintIds = new List<int>(playerSnapshot.collectedHintIds),
+                    weaponUpgradeTier = data.player.weaponUpgradeTier,
+                    spendableStars = data.player.spendableStars
+                }
+            };
+            SaveManager.Flush(SavePath, saveData, SaveVersion.CURRENT);
+        }
+        else
+        {
+            Flush();
+        }
     }
 
     private static void Flush() => SaveManager.Flush(SavePath, data, SaveVersion.CURRENT);
