@@ -7,10 +7,12 @@ using UnityEngine;
 /// - EnemyHurtBox가 PlayerHitBox 레이어를 감지해서 TakeDamage() 자동 호출
 /// - Layer: PlayerHitBox / IsTrigger: ON
 /// </summary>
-public class FeverHitBox : MonoBehaviour, IAttackHitBox
+public class FeverHitBox : MonoBehaviour, IAttackHitBox, IHitSoundProvider
 {
     [SerializeField] private int damage = 100; 
     public int Damage => damage; // IAttackHitBox 구현
+
+    public SoundType HitSound => SoundType.FeverHit; // IHitSoundProvider 구현
 
     private Collider2D hitCollider;
 
