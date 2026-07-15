@@ -723,7 +723,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: a4a5689a338cb4d96903f7b92c78a4a8, type: 3}
   - {fileID: 8300000, guid: 7478151cf36724a7dada558f746c3633, type: 3}
   - {fileID: 8300000, guid: c5cb2ac29e89dbf43a9b644caaad45e6, type: 3}
-  sfxPoolSize: 5
+  - {fileID: 8300000, guid: 7cc057bed53baf34799f52aab3c84800, type: 3}
+  - {fileID: 8300000, guid: 8b23b175a78d6b5458322e3a6c9905d0, type: 3}
+  sfxPoolSize: 8
   bgmVolume: 1
   sfxVolume: 1
 --- !u!1 &975247892

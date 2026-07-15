@@ -15,7 +15,7 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioMixer sfxMixer;
     [SerializeField] private AudioClip[] audioClips;
 
-    [SerializeField] private int sfxPoolSize = 5;
+    [SerializeField] private int sfxPoolSize = 8;
     private AudioSource[] sfxSources;
 
     public float bgmVolume = 0.8f;
