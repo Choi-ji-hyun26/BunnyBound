@@ -521,12 +521,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b912b948136df4bcdbc4a01ce3b53196, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  upgradeButton: {fileID: 1770518256936334207}
+  upgradeButton: {fileID: 2029837846946705355}
   progressText: {fileID: 1770518255931158744}
   tierText: {fileID: 1770518256712974741}
   basicStatText: {fileID: 4862327801142918508}
   windStatText: {fileID: 3421438041141856443}
-  config: {fileID: 11400000, guid: d6cf3ca51bbfc49baa0681bdb6d80ae2, type: 2}
   highlightColor: {r: 1, g: 0.85, b: 0.3, a: 1}
   lockedColor: {r: 0.6, g: 0.6, b: 0.6, a: 1}
   upgradeVFX: {fileID: 6955699969239267270}
@@ -813,7 +812,7 @@ GameObject:
   - component: {fileID: 1770518256936334176}
   - component: {fileID: 1770518256936334177}
   - component: {fileID: 1770518256936334206}
-  - component: {fileID: 1770518256936334207}
+  - component: {fileID: 2029837846946705355}
   m_Layer: 5
   m_Name: UpgradeButton
   m_TagString: Untagged
@@ -880,7 +879,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &1770518256936334207
+--- !u!114 &2029837846946705355
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -889,7 +888,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1770518256936334204}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: ca8ee5e5ec2294469be325a94ab285db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
@@ -905,7 +904,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.53333336, g: 0.53333336, b: 0.53333336, a: 0.78431374}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -1023,7 +1022,7 @@ GameObject:
   - component: {fileID: 1770518257439458405}
   - component: {fileID: 1770518257439458406}
   - component: {fileID: 1770518257439458407}
-  - component: {fileID: 1770518257439458404}
+  - component: {fileID: 4908548534402103320}
   m_Layer: 5
   m_Name: CloseButton
   m_TagString: Untagged
@@ -1089,7 +1088,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &1770518257439458404
+--- !u!114 &4908548534402103320
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1098,7 +1097,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1770518257439458402}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: ca8ee5e5ec2294469be325a94ab285db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
