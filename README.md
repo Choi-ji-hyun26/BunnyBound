@@ -14,7 +14,7 @@
 | 항목 | 내용 |
 |------|------|
 | 엔진 | Unity 2021.3.45f2 / C# |
-| 개발 기간 | 2026.04.23 – 2026.05 |
+| 개발 기간 | 2026.04.23 – 2026.07 |
 | 인원 | 1인 (기획·구조·구현, 아트 에셋은 무료 리소스 사용) |
 | 플랫폼 | PC / Mobile |
 | 패턴 | FSM, Handler 패턴, Coordinator 패턴, EnemyBase 상속 |
@@ -80,7 +80,30 @@ RuntimeAnimatorController 교체는 구조 변경 없이 동일한 결과를 달
 
 <br>
 
-### 2. 적 AI — EnemyBase 상속 구조
+### 2. 무기 강화 시스템
+<img width="794" height="389" alt="image" src="https://github.com/user-attachments/assets/bfaac840-edfe-40fa-8160-20e04daec0cd" />
+
+별(재화)을 소모해 검사 공격력을 단계별로 강화하는 시스템입니다. 세이브 스키마를 v3→v4로 확장해 강화 단계를 영구 저장합니다.
+
+```
+WeaponUpgradeConfig (SO)         — 강화 단계별 데미지/비용 정의
+        │
+WeaponUpgradeManager              — 강화 요청 처리, 세이브 반영
+        │
+   ┌────┴────────────────────────────┐
+WeaponUpgradePanel              PlayerSwordAttackHandler
+(UI, Time.timeScale 일시정지)      (티어별 데미지 실시간 반영)
+        │
+UpgradeFlipbookEffect / SpendableStarsDisplay  — VFX · 별 잔액 UI 피드백
+```
+
+강화는 `WeaponUpgradeManager`가 요청을 받아 `PlayerSwordAttackHandler`의 티어별 데미지에 실시간 반영하고 동시에 세이브에도 기록해 재접속 시 강화 상태가 유지되도록 했습니다.     
+
+→ [`Player/Core/WeaponUpgradeManager.cs`](Assets/Scripts/Player/Core/WeaponUpgradeManager.cs) · [`UI/Panels/WeaponUpgradePanel.cs`](Assets/Scripts/UI/Panels/WeaponUpgradePanel.cs)
+
+<br>
+
+### 3. 적 AI — EnemyBase 상속 구조
 
 피격·넉백·스턴·사망의 공통 흐름을 `EnemyBase`에서 처리하고 각 적은 고유 상태만 정의합니다.
 
@@ -119,7 +142,7 @@ RuntimeAnimatorController 교체는 구조 변경 없이 동일한 결과를 달
 
 <br>
 
-### 3. 세이브 시스템
+### 4. 세이브 시스템
 
 ```
 Layer 01 · Facade  → GameProgress        (게임 로직이 호출하는 표면)
@@ -135,12 +158,13 @@ Layer 04 · Data    → GameProgressData    (단일 파일 + 내부 구조체)
 | Snapshot Rollback | 스테이지 진입 시 스냅샷 저장 → 클리어하지 않고 이탈 시 복구 |
 | Stage Cache | `Dictionary<int, StageData>` 인덱싱 — List 선형 탐색 대신 O(1) 조회 |
 | Version Migration | `while` 체인으로 버전별 누적 변환 — 새 버전은 `case` 추가만으로 확장 |
+| Edit Mode 테스트 | `SaveMigrationTests` 7개 케이스 — `InternalsVisibleTo`로 internal 멤버에 접근해 버전별 마이그레이션 회귀 방지 |
 
 → [`SaveSystem/`](Assets/Scripts/SaveSystem/)
 
 <br>
 
-### 4. 에디터 툴 — 난이도 커브 기반 적 자동 배치
+### 5. 에디터 툴 — 난이도 커브 기반 적 자동 배치
 
 Tilemap을 스캔해 유효 바닥 위치를 수집하고 AnimationCurve 기반 난이도 곡선으로 적을 자동 배치합니다.       
 
@@ -174,15 +198,24 @@ Physics2D 레이어 하나로 여러 무적 상태를 관리하다 보니 무적
 ```
 Assets/Scripts/
 ├── Player/
-│   ├── Core/           # PlayerCoordinator, PlayerStateMachine
-│   └── Handlers/       # Transform, Attack, Damage, Shield, Input
+│   ├── Core/           # PlayerCoordinator, PlayerStateMachine, WeaponUpgradeManager/Config
+│   └── Handlers/       # Transform, Attack, Damage, Shield, Fever, Input
 ├── Enemies/
 │   ├── Base/           # EnemyBase, EnemyStateMachine, IEnemyState
 │   ├── Slime/
 │   ├── Bat/
 │   ├── Piranha/
 │   └── FlyingDemon/    # FireBall, FlyingDemon FSM
-├── Interfaces/         # IShieldBlockable, IAttackHitBox
+├── Items/
+│   ├── Effects/        # ItemEffectSO 및 Strategy 서브클래스
+│   └── Interaction/    # OpenChest 등
+├── UI/
+│   ├── Components/     # UIButton, StageSelectButton 등
+│   ├── HUD/            # SpendableStarsDisplay, HintListUI 등
+│   └── Panels/         # WeaponUpgradePanel, SettingManager
+├── Puzzle/             # PuzzleGateTrigger, SequenceGate
+├── Audio/              # SoundManager
+├── Interfaces/         # IShieldBlockable, IAttackHitBox, IHitSoundProvider
 ├── SaveSystem/         # SaveManager, GameProgress, SaveMigration
 └── Stage/
 
@@ -198,11 +231,6 @@ Assets/Editor/
 2. `Assets/Scenes/` 에서 Title 씬 실행
 
 <br>
-
-## 링크
-
-YouTube 게임 소개 영상
-[https://youtu.be/dB3QyTMR4tI](https://youtu.be/4WAo8zS5o88)
 
 ---
 
