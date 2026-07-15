@@ -32,5 +32,6 @@ public class PuzzleGateTrigger : MonoBehaviour
     public void OpenPuzzleUI()
     {
         puzzleGateUI.Open(sequenceGate);
+        SoundManager.Instance?.PlaySound(SoundType.Interact);
     }
 }

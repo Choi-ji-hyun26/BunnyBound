@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
-public enum SoundType { Jump, AttackQ, AttackW, Shield, Damaged, Die, Item, Interact, Finish, WeaponUpgrade, ButtonClick, FeverHit }
+public enum SoundType { Jump, AttackQ, AttackW, Shield, Damaged, Die, Item, Interact, Finish, WeaponUpgrade, ButtonClick, FeverHit, Transform }
 
 public class SoundManager : MonoBehaviour
 {

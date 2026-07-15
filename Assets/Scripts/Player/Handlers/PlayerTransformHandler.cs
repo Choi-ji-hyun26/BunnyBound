@@ -145,6 +145,8 @@ public class PlayerTransformHandler : MonoBehaviour
         // 변신 후 Idle로 리셋 (애니메이션 꼬임 방지)
         stateMachine.ChangeState(stateMachine.IdleState);
 
+        SoundManager.Instance?.PlaySound(SoundType.Transform);
+
         Debug.Log($"[Transform] {next}로 변신 완료");
     }
 
