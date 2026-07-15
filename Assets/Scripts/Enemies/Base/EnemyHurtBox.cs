@@ -23,7 +23,12 @@ public class EnemyHurtBox : MonoBehaviour
         if (other.gameObject.layer != LayerMask.NameToLayer("PlayerHitBox")) return;
 
         IAttackHitBox attackHitBox = other.GetComponent<IAttackHitBox>();
-        if (attackHitBox != null && enemy != null)
-            enemy.TakeDamage(attackHitBox.Damage, other.transform.position);
+        if (attackHitBox == null || enemy == null) return;
+
+        enemy.TakeDamage(attackHitBox.Damage, other.transform.position);
+
+        IHitSoundProvider soundProvider = other.GetComponent<IHitSoundProvider>();
+        if (soundProvider != null)
+            SoundManager.Instance.PlaySound(soundProvider.HitSound);
     }
 }

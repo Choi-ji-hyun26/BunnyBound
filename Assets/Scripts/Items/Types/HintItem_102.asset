@@ -9,17 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 353334578bd584674853743e959f5814, type: 3}
+  m_Script: {fileID: 11500000, guid: 0a996b51cdcad4477b98eaa9f0b734af, type: 3}
   m_Name: HintItem_102
   m_EditorClassIdentifier: 
   itemName: HintNote2
   itemPrefab: {fileID: 559215542172827657, guid: 5e782ef9b282f4f02a34f536ccce0462, type: 3}
   isOneTimeItem: 1
-  itemEffectClassName: 
-  hintId: 102
-  hintText: 'The knight ate the carrot and fell asleep.
-
-    When she woke the next
-    morning,
-
-    she had turned into a rabbit!'
+  effect: {fileID: 11400000, guid: 78901a2b3c4d5e6f78901a2b3c4d5e6f, type: 2}

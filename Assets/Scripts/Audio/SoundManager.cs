@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
-public enum SoundType { Jump, AttackQ, AttackW, Shield, Damaged, Die, Item, Interact, Finish }
+public enum SoundType { Jump, AttackQ, AttackW, Shield, Damaged, Die, Item, Interact, Finish, WeaponUpgrade, ButtonClick, FeverHit, Transform }
 
 public class SoundManager : MonoBehaviour
 {
@@ -15,7 +15,7 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioMixer sfxMixer;
     [SerializeField] private AudioClip[] audioClips;
 
-    [SerializeField] private int sfxPoolSize = 5;
+    [SerializeField] private int sfxPoolSize = 8;
     private AudioSource[] sfxSources;
 
     public float bgmVolume = 0.8f;

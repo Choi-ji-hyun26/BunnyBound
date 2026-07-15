@@ -9,11 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 234125fd556e3402489a787160f8d69c, type: 3}
+  m_Script: {fileID: 11500000, guid: 0a996b51cdcad4477b98eaa9f0b734af, type: 3}
   m_Name: SkillBook_W
   m_EditorClassIdentifier: 
   itemName: 
   itemPrefab: {fileID: 3162606508801085551, guid: 4d8c1f7cdc9b34f9b804458c38ba60aa, type: 3}
   isOneTimeItem: 1
-  itemEffectClassName: 
-  attackIndex: 2
+  effect: {fileID: 11400000, guid: 8901a2b3c4d5e6f78901a2b3c4d5e6f7, type: 2}

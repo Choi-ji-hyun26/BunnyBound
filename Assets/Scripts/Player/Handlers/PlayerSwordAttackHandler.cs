@@ -18,9 +18,11 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     [SerializeField] private GameObject slashProjectilePrefab; // SlashProjectile Prefab
     [SerializeField] private Transform hitBox2Transform;       // 투사체 생성 위치 (기존 hitBox2 위치)
 
-    [Header("데미지")]
-    [SerializeField] private int damage1 = 10; // Q
-    [SerializeField] private int damage2 = 15; // W
+    [Header("데미지 — WeaponUpgradeConfig 공유 에셋 참조 (WeaponUpgradeManager와 동일한 에셋 연결)")]
+    [SerializeField] private WeaponUpgradeConfig damageConfig;
+
+    private int damage1; // Q — damageConfig.GetDamage1(tier), ApplyWeaponUpgrade()에서 갱신
+    private int damage2; // W — damageConfig.GetDamage2(tier), ApplyWeaponUpgrade()에서 갱신
 
     [Header("W 쿨타임")]
     [SerializeField] private float cooldownTime2 = 2.5f;
@@ -66,6 +68,42 @@ public class PlayerSwordAttackHandler : MonoBehaviour
             hitBoxDefaultOffsetX[0] = Mathf.Abs(hitBox1.transform.localPosition.x);
 
         if (hitBox1 != null) hitBox1.enabled = false;
+
+        // WeaponUpgradeManager.Instance가 아직 없을 수 있으므로(여러 Awake 순서 미보장)
+        // GameProgress를 직접 읽는 폴백이 ApplyWeaponUpgrade() 내부에 있음
+        ApplyWeaponUpgrade();
+    }
+
+    private void Start()
+    {
+        // 모든 Awake가 끝난 시점이라 Instance가 확실하게 세팅된 상태
+        if (WeaponUpgradeManager.Instance != null)
+            WeaponUpgradeManager.Instance.OnWeaponUpgraded += OnWeaponUpgraded;
+    }
+
+    private void OnDestroy()
+    {
+        if (WeaponUpgradeManager.Instance != null)
+            WeaponUpgradeManager.Instance.OnWeaponUpgraded -= OnWeaponUpgraded;
+    }
+
+    // 게임 중 강화 시 실시간 데미지 반영 (Game 씬 강화 창 지원)
+    private void OnWeaponUpgraded(int newTier) => ApplyWeaponUpgrade();
+
+    private void ApplyWeaponUpgrade()
+    {
+        if (damageConfig == null)
+        {
+            Debug.LogError("[PlayerSwordAttackHandler] damageConfig가 연결되지 않았습니다.");
+            return;
+        }
+
+        int tier = WeaponUpgradeManager.Instance != null
+            ? WeaponUpgradeManager.Instance.CurrentTier
+            : GameProgress.GetWeaponUpgradeTier();
+
+        damage1 = damageConfig.GetDamage1(tier);
+        damage2 = damageConfig.GetDamage2(tier);
     }
 
     private void Update()
@@ -302,7 +340,7 @@ public class PlayerSwordAttackHandler : MonoBehaviour
     {
         1 => damage1,
         2 => damage2,
-        _ => 10
+        _ => throw new System.ArgumentOutOfRangeException(nameof(index), $"유효하지 않은 attackIndex: {index}")
     };
 
     private Collider2D GetHitBox(int index) => index switch

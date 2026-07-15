@@ -77,7 +77,37 @@ public static class GameProgress
         Flush();
     }
 
-    private static void Flush() => SaveManager.Flush(SavePath, data, SaveVersion.CURRENT);
+    private static void Flush() => SaveManager.Flush(SavePath, BuildSaveSnapshot(), SaveVersion.CURRENT);
+
+    /// <summary>
+    /// 저장용 데이터 조립 — 스냅샷이 활성 상태(스테이지 진행 중)면
+    /// 스냅샷 보호 대상(스킬/상자/하트/힌트)만 스냅샷 값으로 되돌려서 반환하고
+    /// weaponUpgradeTier/spendableStars는 스냅샷 보호 대상이 아니므로 항상 최신값 유지
+    /// 스냅샷이 없으면(입력 밖, 또는 클리어로 CommitSnapshot() 후) data를 그대로 반환
+    ///
+    /// 이 메서드는 SaveImmediate()와 포커스/종료 시 자동저장(Flush) 경로 모두에서
+    /// 공통으로 타므로, 어느 경로로 저장되든 아직 커밋되지 않은 스테이지 진행분이
+    /// 디스크로 새는 일이 없다. 파일 I/O 없이 순수하게 데이터만 조립하므로 단위 테스트 가능
+    /// </summary>
+    internal static GameProgressData BuildSaveSnapshot()
+    {
+        if (playerSnapshot == null || data?.player == null)
+            return data;
+
+        return new GameProgressData
+        {
+            stages = data.stages,
+            player = new PlayerProgressData
+            {
+                unlockedSkills = (bool[])playerSnapshot.unlockedSkills.Clone(),
+                maxHearts = playerSnapshot.maxHearts,
+                collectedChestIds = new List<int>(playerSnapshot.collectedChestIds),
+                collectedHintIds = new List<int>(playerSnapshot.collectedHintIds),
+                weaponUpgradeTier = data.player.weaponUpgradeTier,
+                spendableStars = data.player.spendableStars
+            }
+        };
+    }
 
     // ───────────────────────────────────────────
     // 스냅샷 — 스테이지 진입/이탈 시 사용
@@ -171,6 +201,11 @@ public static class GameProgress
         }
         if (starRank > stageData.StarRank)
         {
+            // 증가분(delta)만큼만 강화 잔액에 적립 — 반복 클리어로 중복 적립되지 않도록
+            int delta = starRank - stageData.StarRank;
+            if (data.player != null)
+                data.player.spendableStars += delta;
+
             stageData.StarRank = starRank;
             dirty = true;
         }
@@ -223,6 +258,31 @@ public static class GameProgress
     {
         if (data?.player == null) return;
         data.player.maxHearts = maxHearts;
+    }
+
+    // ───────────────────────────────────────────
+    // 무기 강화 API
+    // ───────────────────────────────────────────
+    public static int GetWeaponUpgradeTier() => data?.player?.weaponUpgradeTier ?? 0;
+
+    public static void SetWeaponUpgradeTier(int tier)
+    {
+        if (data?.player == null) return;
+        data.player.weaponUpgradeTier = tier;
+    }
+
+    public static int GetSpendableStars() => data?.player?.spendableStars ?? 0;
+
+    /// <summary>
+    /// 큰별 소비 — 잔액이 부족하면 실패(false)
+    /// </summary>
+    public static bool TrySpendStars(int amount)
+    {
+        if (data?.player == null) return false;
+        if (data.player.spendableStars < amount) return false;
+
+        data.player.spendableStars -= amount;
+        return true;
     }
 
     // ───────────────────────────────────────────
@@ -288,6 +348,22 @@ public static class GameProgress
     {
         if (data?.player == null) return;
         data.player.collectedHintIds.Clear();
+    }
+
+    // ───────────────────────────────────────────
+    // 테스트 지원
+    // ───────────────────────────────────────────
+
+    /// <summary>
+    /// Edit Mode 테스트 전용 — static 상태(data, stageMap) 초기화
+    /// GameProgress는 static class라 테스트 간 상태가 공유되므로
+    /// 각 테스트의 [SetUp]에서 호출해 격리를 보장
+    /// 프로덕션 코드에서는 호출하지 않음
+    /// </summary>
+    internal static void ResetForTest(GameProgressData newData = null)
+    {
+        data = newData ?? new GameProgressData();
+        BuildCache();
     }
 
     // ───────────────────────────────────────────
